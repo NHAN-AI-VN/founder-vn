@@ -22,7 +22,9 @@ Thư mục dự án của riêng anh/chị được xóa sau 90 ngày kể từ 
 
 ## 5. Cơ sở pháp lý
 
-Việc xử lý dữ liệu cá nhân trong pilot theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15. Anh/chị có quyền biết, truy cập, chỉnh sửa, yêu cầu xóa dữ liệu và rút lại sự đồng ý.
+Việc xử lý dữ liệu cá nhân trong pilot theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 (ban hành 26/06/2025, hiệu lực 01/01/2026). Theo Điều 4 khoản 1 của Luật, anh/chị có quyền được biết về việc xử lý dữ liệu, đồng ý hoặc không đồng ý và yêu cầu rút lại sự đồng ý, xem và chỉnh sửa dữ liệu, yêu cầu cung cấp, xóa hoặc hạn chế xử lý dữ liệu, cùng một số quyền khác (khiếu nại, tố cáo, khởi kiện, yêu cầu bồi thường).
+
+Nguồn chính thức: [Công báo Chính phủ, Luật số 91/2025/QH15](https://congbao.chinhphu.vn/van-ban/luat-so-91-2025-qh15-45578.htm). Đối chiếu Điều 4 với bản PDF đăng Công báo số 971 + 972, kiểm chứng ngày 22/11/2026.
 
 ## 6. Rút lại sự đồng ý
 

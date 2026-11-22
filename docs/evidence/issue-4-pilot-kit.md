@@ -35,7 +35,7 @@ Rerun on 8687a06648a7d7c142e137c41f3796a1d6aa4a4e: static, unit, build exit 0; `
 - Tests check content strings, not the quality of the Vietnamese or whether the kit works in a real session; nothing was run with a real Owner.
 - The withdrawal contact is a marked placeholder (`[LIÊN HỆ RÚT LẠI: ...]`): the design names no channel. The project owner fills it before session 1.
 - The four follow-up question wordings are drafted here; the design fixes the number (three) and the definition, not the text. The project owner should freeze them before recruiting.
-- The legal reading of Law 91/2025/QH15 (rights listed in `consent.md`) is not verified against vbpl.vn in this lane and carries no verification date; a lawyer's review is recommended before use.
+- Law 91/2025/QH15: the rights list in `consent.md` section 5 was checked against Article 4 clause 1 in the official gazette PDF (congbao.chinhphu.vn, Công báo 971 + 972) on 2026-11-22 and carries the link and that date. That is a reading of the article text, not legal advice; a lawyer's review is still recommended before use.
 - The runbook says "ngoại tuyến" for the Wave A run as the Facilitator working without the Owner; model calls still reach the third-party API.
 
 ## Giải quyết review
