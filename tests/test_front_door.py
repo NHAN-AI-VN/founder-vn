@@ -64,3 +64,44 @@ def test_law_changed_issue_template_has_the_four_fields() -> None:
     assert "name: Law changed" in text
     for field_id in ("what_changed", "source_link", "effective_date", "affected_skill"):
         assert f"id: {field_id}" in text, field_id
+
+
+PROTOCOL_HEADING = "## Shared protocol"
+
+
+def _protocol_block() -> str:
+    text = _read("docs/skill-conventions.md")
+    section = text.split(PROTOCOL_HEADING, 1)[1]
+    return re.findall(r"````markdown\n(.*?)\n````", section, re.DOTALL)[0]
+
+
+def test_conventions_list_every_frontmatter_field() -> None:
+    text = _read("docs/skill-conventions.md")
+    for field in (
+        "name",
+        "description",
+        "license",
+        "metadata.version",
+        "author",
+        "source",
+        "commit",
+        "anh/chị",
+    ):
+        assert f"`{field}`" in text or field == "anh/chị" and field in text, field
+
+
+def test_shared_protocol_block_carries_the_five_rules() -> None:
+    block = _protocol_block()
+    assert block.startswith("## Protocol")
+    for needle in (
+        "server_info",
+        "founder-vn --version",
+        "major",
+        "MCP tools",
+        "shell",
+        "install instructions",
+        "Never compute a number",
+        "Never answer for a buyer",
+        "Never write the verdict",
+    ):
+        assert needle in block, needle
