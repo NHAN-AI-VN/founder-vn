@@ -28,7 +28,7 @@ Người hỗ trợ chạy sáu skill đợt A (board, competitors, consumer, pr
 1. Đi qua `business-plan.md` từng phần với Chủ hộ.
 2. Ghi phản ứng của Chủ hộ và quyết định dự định (không đẩy Chủ hộ theo hướng nào).
 3. Xuất PDF và gửi qua Zalo cho Chủ hộ.
-4. Báo cho người gửi câu hỏi (không phải Người hỗ trợ) ngày +14 và giao mã người tham gia, không giao tên.
+4. Báo cho người gửi câu hỏi (không phải Người hỗ trợ) ngày +14. Người gửi và người ghi bảng có thể là một người, miễn không phải Người hỗ trợ của Chủ hộ đó. Người hỗ trợ giao cho họ mã người tham gia và kênh Zalo của Chủ hộ qua một tờ liên hệ ngoài git (chỉ hai thứ đó, không tên, không dữ liệu dự án), chia sẻ riêng với người gửi; Chủ hộ đã được báo việc này ở `consent.md` mục 1. Tờ liên hệ bị hủy sau khi nhận câu trả lời.
 
 ## +14 ngày
 
@@ -37,10 +37,10 @@ Một người khác gửi ba câu hỏi trong `follow-up-questions.md` qua Zalo
 ## Sau 90 ngày: xóa
 
 1. Đến ngày thứ 90 kể từ buổi 2, xóa toàn bộ thư mục dự án của người đó, trừ khi phiếu đồng thuận ghi "đồng ý giữ".
-2. Xóa cả ảnh chụp phiếu baseline và tin nhắn Zalo nếu đã lưu ngoài thư mục.
-3. Ghi vào sổ riêng (ngoài git) mã người tham gia, ngày xóa; không ghi nội dung.
-4. Khi Chủ hộ rút lại sự đồng ý, xóa ngay, không chờ 90 ngày.
+2. Xóa cả ảnh chụp phiếu baseline, tin nhắn Zalo, tờ liên hệ của người gửi và bản giấy hoặc ảnh phiếu đồng thuận nếu đã lưu ngoài thư mục.
+3. Ghi vào sổ xóa riêng (ngoài git) mã người tham gia, ngày xóa; không ghi tên hay nội dung. Sổ xóa chỉ chứa mã nên được giữ.
+4. Khi Chủ hộ rút lại sự đồng ý, xóa ngay, không chờ 90 ngày: thư mục dự án, ảnh baseline, tờ liên hệ, phiếu đồng thuận, và dòng của người đó trong bảng làm việc `results-template.md`; tính lại số liệu tổng hợp chưa công bố. Số liệu tổng hợp đã công bố không thu hồi (nói rõ ở `consent.md` mục 6).
 
 ## Công bố
 
-Chỉ số liệu tổng hợp và bảng ẩn danh được đưa vào `pilot/`; kết quả mô tả ở n = 20, không suy rộng.
+Theo thiết kế, chỉ số liệu tổng hợp (số lượng, tỷ lệ, khoảng giá trị theo nhóm, không trích nguyên văn) và mẫu trống được đưa vào `pilot/`; bảng làm việc đã điền ở ngoài git; kết quả mô tả ở n = 20, không suy rộng.
