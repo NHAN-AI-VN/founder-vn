@@ -119,12 +119,15 @@ jobs:
         env:
           HARNESS_DISPATCH_TOKEN: ${{ secrets.HARNESS_DISPATCH_TOKEN }}
           HARNESS_WEB_REVIEW: ${{ vars.HARNESS_WEB_REVIEW || 'on' }}
+          # FV-D13: the pause switch for new lanes. When off, the merger does not run the
+          # dispatcher inline and the dispatcher call below is skipped; review and merge go on.
+          HARNESS_DISPATCH: ${{ vars.HARNESS_DISPATCH || 'on' }}
+          HARNESS_DISPATCH_INLINE: ${{ vars.HARNESS_DISPATCH == 'off' && '0' || '1' }}
           HARNESS_OPERATOR: nhannguyen89
           HARNESS_BASE: main
           HARNESS_MERGE_JOB: Gate
           HARNESS_REVIEW_JOB: Gate
           HARNESS_WIP: '1'
-          HARNESS_DISPATCH_INLINE: '1'
           HARNESS_GATE_SELF_RUN: ${{ github.run_id }}
           HARNESS_GATE_SELF_CONCLUSION: ${{ job.status }}
         run: |
@@ -149,5 +152,11 @@ jobs:
             echo "Gate did not succeed: nothing to merge"
           fi
           # The dispatcher's reconcile pass rides on every Gate run of a pull request as well (nhan
-          # D33): GitHub's cron is sparse, and a silent lane raises no event of its own.
-          bash "$h/scripts/harness/dispatch.sh" --apply --repo "$GITHUB_REPOSITORY"
+          # D33): GitHub's cron is sparse, and a silent lane raises no event of its own. Skipped
+          # while HARNESS_DISPATCH is off (the scripts on main honour the switch too; this guard
+          # also covers the run whose main still predates the switch).
+          if [ "$HARNESS_DISPATCH" = off ]; then
+            echo "HARNESS_DISPATCH is off: no new lane is allocated (gh variable set HARNESS_DISPATCH --body on to start)"
+          else
+            bash "$h/scripts/harness/dispatch.sh" --apply --repo "$GITHUB_REPOSITORY"
+          fi

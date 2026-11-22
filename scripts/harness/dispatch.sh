@@ -12,6 +12,9 @@
 #   --json    prints the decision alone, compact, and exits: the sweep of after-gate.yml reads it
 #             to start a dispatcher run only when the decision would change something.
 #   HARNESS_REPO, HARNESS_WIP and HARNESS_BASE are the environment equivalents (base: main).
+#   HARNESS_DISPATCH=off (the repository variable of the same name, FV-D13) turns --apply into a
+#   dry run: the decision is printed, nothing is relabelled, adopted or allocated. The switch
+#   that stops new lanes without stopping review and merge of the lanes already running.
 #
 # Two credentials on purpose. Reads, relabelling and the `kiro` label use whatever `gh` is
 # logged in with (the workflow's GITHUB_TOKEN). The writes that start or resume a lane, the `/kiro`
@@ -49,6 +52,12 @@ if ! printf '%s' "$wip" | grep -Eq '^[1-9][0-9]*$'; then
 fi
 if [ -z "$repo" ]; then
   repo=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+fi
+# FV-D13: the operator's pause switch for new lanes. A dry run decides and prints as usual.
+paused=no
+if [ "${HARNESS_DISPATCH:-on}" = off ]; then
+  paused=yes
+  if [ "$apply" = yes ]; then printf 'dispatch.sh: HARNESS_DISPATCH is off: deciding dry, applying nothing (set the repository variable to on to start lanes)\n' >&2; apply=no; fi
 fi
 
 # ---- gather ------------------------------------------------------------------------------
@@ -190,8 +199,11 @@ if [ "$json" = yes ]; then jq -c . <<< "$decision"; exit 0; fi
 printf '%s\n' "$decision"
 
 render_allocation() {
+  # FV-M-6: the sub-agent a Kiro Web session delegates to sees neither the steering nor
+  # AGENTS.md; only the planner may. So the order names both files by path and tells the planner
+  # to copy them into every delegation, instead of trusting the host to load them.
   jq -r '.allocation
-    | "/kiro Nhận ticket này: làm theo `.kiro/steering/lane-implement.md`; đầu vào là thân issue và cấp phát bên dưới.\n\n<!-- harness:allocation -->\n## Cấp phát của harness cho lane này\n\n| Khoá | Giá trị |\n|---|---|\n| singleOwnerFiles | \(.singleOwnerFiles) |\n| laneBranch | \(.laneBranch) |\n| targetBranch | \(.targetBranch) |\n| dispatchedAt | \(.dispatchedAt) |\n\nLane đọc `.kiro/steering/lane-implement.md` để biết cách dùng các giá trị này; ý nghĩa từng khoá ở `docs/agents/kiro-harness.md` mục 3. Comment này do `scripts/harness/dispatch.sh` ghi."' \
+    | "/kiro Nhận ticket này: làm theo `.kiro/steering/lane-implement.md`; đầu vào là thân issue và cấp phát bên dưới.\n\n**Trước mọi việc khác**, đọc bằng đường dẫn `AGENTS.md` và `.kiro/steering/lane-implement.md` (sandbox không tự nạp chúng vào ngữ cảnh, đo FV-M-6 trong `docs/agents/kiro-harness.md`). Khi bạn giao việc cho sub-agent, chép **nguyên văn** hai file ấy và bảng cấp phát bên dưới vào tin nhắn giao việc: sub-agent không nhìn thấy gì ngoài tin nhắn ấy và checkout. Guard `.kiro/hooks/guard.sh` không chạy trong sandbox này; các luật nó thi hành ở máy khác (không push `main`, không force-push, không merge, không in giá trị biến `FOUNDER_LLM_*`) ở đây là luật bạn tự giữ.\n\n<!-- harness:allocation -->\n## Cấp phát của harness cho lane này\n\n| Khoá | Giá trị |\n|---|---|\n| singleOwnerFiles | \(.singleOwnerFiles) |\n| laneBranch | \(.laneBranch) |\n| targetBranch | \(.targetBranch) |\n| dispatchedAt | \(.dispatchedAt) |\n\nLane đọc `.kiro/steering/lane-implement.md` để biết cách dùng các giá trị này; ý nghĩa từng khoá ở `docs/agents/kiro-harness.md` mục 3. Comment này do `scripts/harness/dispatch.sh` ghi."' \
     <<< "$decision"
 }
 
@@ -218,7 +230,8 @@ fi
 
 # ---- apply -------------------------------------------------------------------------------
 if [ "$apply" != yes ]; then
-  printf '\n(dry run: nothing changed; pass --apply to act)\n'
+  if [ "$paused" = yes ]; then printf '\n(HARNESS_DISPATCH=off: nothing changed; the sweep that runs after the variable is set to on applies the decision)\n'
+  else printf '\n(dry run: nothing changed; pass --apply to act)\n'; fi
   exit 0
 fi
 

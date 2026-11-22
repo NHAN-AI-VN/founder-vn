@@ -1,6 +1,6 @@
 # Harness Kiro: lane không người trông trên Kiro Web và GitHub Actions
 
-**Phiên bản** 0.1 · **Ngày** 2026-11-22 · **Trạng thái** dựng xong trên nhánh `harness/bootstrap` (PR #21), chưa lane nào chạy; tiền đề người làm (mục 7) chưa có. Đây là tài liệu quy tắc của harness; luật về chuẩn mã, bằng chứng, lane song song và tracker thuộc `docs/agents/standards.md`, `evidence-gates.md`, `parallel-lanes.md`, `delivery-workflow.md`, `issue-tracker.md`. Bản thiết kế sản phẩm là `docs/founder-vn-design.md`.
+**Phiên bản** 0.2 · **Ngày** 2026-11-22 · **Trạng thái** PR #21 merge vào `main` lúc 06:58Z; wizard chạy xong (secret và variable có); probe #22 đo xong (FV-M-5, FV-M-6); dispatch đang **tạm dừng** bằng variable `HARNESS_DISPATCH=off` (FV-D13) cho tới khi operator bật; `after-gate.yml` và `frontier-dispatch.yml` bị tắt tay trong lúc dựng và được bật lại cùng FV-D13. Đây là tài liệu quy tắc của harness; luật về chuẩn mã, bằng chứng, lane song song và tracker thuộc `docs/agents/standards.md`, `evidence-gates.md`, `parallel-lanes.md`, `delivery-workflow.md`, `issue-tracker.md`. Bản thiết kế sản phẩm là `docs/founder-vn-design.md`.
 
 **Nguồn**: port từ harness của `NHAN-AI-VN/nhan` tại commit `8adef66b105d92215a70281ae10fa0f9648faaf1` (2026-09-13), đã qua khoảng 50 lane thật ở đó. Mỗi khẳng định về hành vi của Kiro mang một trong ba nhãn: **[đã đo]** chạy thật trên repo này, **[tiền nhiệm]** đo ở `nhan` (Kiro Web, 2026-09) và chưa đo lại ở đây, **[tài liệu]** đọc từ kiro.dev và chưa đo. Bảng ở mục 6 là nơi nhãn đổi. Những gì `nhan` có mà repo này bỏ, và vì sao, ở mục 9.
 
@@ -58,7 +58,7 @@ Không có `migrationTimestamp`: dự án này không có migration (khác `nhan
 
 ## 4. Guards
 
-Một script, `.kiro/hooks/guard.sh`, nối vào hai chỗ: `.kiro/hooks/guard.json` (hook v1, cho Kiro Web, IDE và CLI) và trường `hooks.preToolUse` của `.kiro/agents/founder-guarded.json`. Hợp đồng: exit 0 cho phép, exit 2 chặn và trả stderr cho model; mọi mã khác chỉ cảnh báo rồi **cho phép**, nên mọi đường từ chối của script đều kết bằng exit 2, kể cả lỗi nội bộ và trường hợp không tìm thấy script.
+Một script, `.kiro/hooks/guard.sh`, nối vào hai chỗ: `.kiro/hooks/guard.json` (hook v1) và trường `hooks.preToolUse` của `.kiro/agents/founder-guarded.json`. **Nó chạy trên Kiro CLI [đã đo, FV-M-1] và không chạy trong sandbox Kiro Web [đã đo, FV-M-6]**: ở đó đọc `.env` và `git push origin HEAD:main --dry-run` đều đi qua. Vì vậy trên Kiro Web các luật của guard là luật lane tự giữ (comment cấp phát và tin nhắn lượt review nói rõ), lượt review Standards coi vi phạm là finding chặn, và nhánh `main` được GitHub bảo vệ (H-8) để không push thẳng được. Hợp đồng hook: exit 0 cho phép, exit 2 chặn và trả stderr cho model; mọi mã khác chỉ cảnh báo rồi **cho phép**, nên mọi đường từ chối của script đều kết bằng exit 2, kể cả lỗi nội bộ và trường hợp không tìm thấy script.
 
 | Luật | Áp lên | Từ chối |
 |---|---|---|
@@ -85,7 +85,7 @@ Witness: `bash scripts/harness/witness.sh` chạy guard với các input mẫu v
 | `scripts/skill_lint.py` | Gate, cổng `static`, witness | Nửa máy của checklist rà soát skill (FV-D2) |
 | `.github/workflows/gate.yml`, `frontier-dispatch.yml`, `after-gate.yml` | GitHub Actions | C3 (+ đuôi C4/C5/C1), C1, C4+C5+C1 |
 | `reviews/issue-<n>/`, `docs/evidence/` | Hiện vật của lane | Commit trên nhánh lane |
-| Secret `HARNESS_DISPATCH_TOKEN`, variable `HARNESS_WEB_REVIEW` | Actions | Mục 7 |
+| Secret `HARNESS_DISPATCH_TOKEN`, variable `HARNESS_WEB_REVIEW`, variable `HARNESS_DISPATCH` | Actions | Mục 7; `HARNESS_DISPATCH` là công tắc lane mới (FV-D13) |
 
 ## 6. Phép đo
 
@@ -95,11 +95,11 @@ Witness: `bash scripts/harness/witness.sh` chạy guard với các input mẫu v
 | FV-M-2 | Gate trên cây chưa có package | Run 44992554432 trên PR #21 | **[đã đo]** success; `no pyproject.toml at HEAD: Python gates skipped`; skill-lint `0 skill checked`; witness xanh hai chế độ (lúc đó 67 ca, 29 đột biến). Run đầu 44992423679 đỏ ở `Set up job`: `astral-sh/setup-uv` không có tag trôi `v10`, ghim commit `1db35dd8` (v10.4.0) |
 | FV-M-3 | Frontier trên tracker thật | `dispatch.sh` khô, 2026-11-22 | **[đã đo]** Lần đầu chọn **#1** (spec, 19 sub-issue, mang `ready-for-agent`, không blocker); sau FV-D10 (bỏ issue có sub-issue) frontier `[2,3,4]`, pick #2. 17 issue mang `ready-for-agent` (gồm #1), 3 `ready-for-human` |
 | FV-M-4 | Token OAuth của `gh` đẩy được workflow không | Push commit chứa `gate.yml`, 2026-11-22 | **[đã đo]** Bị từ chối tới khi `gh auth refresh -s workflow`; SSH không có key trên máy operator |
-| FV-M-5 | Một `/kiro` của token operator mở đúng một session; ack sau bao lâu; PR đứng tên ai | Issue probe (Task 11 của plan), chưa chạy | chưa đo [tiền nhiệm: một session, ack ~10 s, PR đứng tên operator] |
-| FV-M-6 | Sandbox: có `uv`/`python3` phiên bản nào, internet mở, biến `FOUNDER_LLM_*` có mặt, steering và skill nạp, hook guard chạy, push REST được | Issue probe, chưa chạy | chưa đo [tiền nhiệm: steering và AGENTS.md nạp; sandbox không có GraphQL cho `gh`; `/tmp` không sống qua lần gọi tool; session dừng không báo ở phút 55–66] |
-| FV-M-7 | Lane đầu (#2 T01) từ `/kiro` tới merge: thời gian, số vòng sửa, số session | Task 12 của plan, chưa chạy | chưa đo [tiền nhiệm: lane sạch 50–110 phút, 1–2 session] |
+| FV-M-5 | Một `/kiro` của tài khoản operator mở đúng một session; ack sau bao lâu; commit đứng tên ai; session có trả lời trên issue không | Issue probe #22, comment `/kiro` lúc 07:58:49Z 2026-11-22 (đăng qua `gh` của operator, cùng tài khoản với `HARNESS_DISPATCH_TOKEN`); bằng chứng `docs/evidence/probe-m1-sandbox.md` | **[đã đo]** Đúng **một** session (`09b62147…`), ack "Taking a look…" sau **12 giây**; hai commit trên `probe/m1` lúc 07:59:41Z và 07:59:48Z (52 và 59 giây sau lệnh), tác giả `Kiro Agent <244629292+kiro-agent@users.noreply.github.com>`, không phải operator; **không có comment trả lời** trên issue sau 16 phút (harness đọc git, không đọc câu trả lời: đúng thiết kế, nhưng tín hiệu BLOCKED của lane phụ thuộc vào comment, xem mục 8) |
+| FV-M-6 | Sandbox: toolchain, internet, biến `FOUNDER_LLM_*`, steering và skill nạp, guard, `/tmp`, push | Cùng probe #22 | **[đã đo]** Python 3.11.15, **`uv` 0.13.5 có sẵn**, git 2.50, jq 1.8, gh 2.95, Linux x86_64, 8 CPU, 31 GB RAM; internet mở (pypi.org 200; **vbpl.vn 403**: không phải việc của harness, nhưng skill permits sẽ gặp); ba biến `FOUNDER_LLM_*` **present** (H-2 xong); **sub-agent không thấy steering, `AGENTS.md` hay skill nào** ("danh mục skill ghi None"; file có trên đĩa, đọc bằng đường dẫn được); **guard không chạy**: đọc `.env` trả ENOENT (tool đã chạy), `git push origin HEAD:main --dry-run` chạy ("Everything up-to-date"); `/tmp` không sống qua lần gọi tool (file ghi ở bước 1 mất ở bước 8); `install-hooks.sh` đặt được `core.hooksPath`; push nhánh bằng git thành công. Hệ quả: FV-D13, FV-D14, H-8, sửa comment cấp phát và tin nhắn lượt review |
+| FV-M-7 | Lane đầu (#2 T01) từ `/kiro` tới merge: thời gian, số vòng sửa, số session | Khi operator đặt `HARNESS_DISPATCH=on` | chưa đo [tiền nhiệm: lane sạch 50–110 phút, 1–2 session] |
 
-Kế thừa từ `nhan` và phải đo lại trước khi tin (tất cả [tiền nhiệm], 2026-09): nhãn do bot gắn không mở session, nhãn do người gắn mở hai session, comment `/kiro` mở đúng một; `/kiro` thứ hai trên cùng issue nối tiếp session cũ; session chết quanh phút 60 thường ngay sau commit bằng chứng; comment của người trên issue còn nhãn `kiro` đánh thức session; merge bằng `GITHUB_TOKEN` không đóng ticket và không phát sự kiện; từ khoá `Closes #n` được GitHub đọc ở mọi vị trí trong commit message và thân PR; cron GitHub 2–4,6 giờ một lần.
+Kế thừa từ `nhan` và phải đo lại trước khi tin (tất cả [tiền nhiệm], 2026-09): nhãn do bot gắn không mở session, nhãn do người gắn mở hai session (ở đây chỉ dùng `/kiro`, đã đo một session); `/kiro` thứ hai trên cùng issue nối tiếp session cũ; session chết quanh phút 60 thường ngay sau commit bằng chứng; comment của người trên issue còn nhãn `kiro` đánh thức session; merge bằng `GITHUB_TOKEN` không đóng ticket và không phát sự kiện; từ khoá `Closes #n` được GitHub đọc ở mọi vị trí trong commit message và thân PR; cron GitHub 2–4,6 giờ một lần. Khẳng định của `nhan` M-5 ("steering và AGENTS.md nạp trên Kiro Web") **không tái lập** ở đây cho sub-agent (FV-M-6); có thể planner của session vẫn nạp, chưa đo riêng.
 
 ## 7. Tiền đề do người làm và điểm dừng theo thiết kế
 
@@ -112,16 +112,21 @@ Kế thừa từ `nhan` và phải đo lại trước khi tin (tất cả [tiề
 - **H-5** Quyền Actions: ba workflow khai `permissions` tường minh nên mặc định `read` của repo không cản; PR mở bằng token operator nên không cần "Allow GitHub Actions to create and approve pull requests". Wizard chỉ báo trạng thái.
 - **H-6** (cho T01) Pending publisher trên PyPI cho `founder-vn`; thiếu thì lane T01 BLOCKED đúng thiết kế ở tiêu chí phát hành.
 - **H-7** Ticket #5 T04 (`ready-for-human`, `idea.md` case mẫu) chặn T11–T17: loop đứng sau khoảng chín ticket nếu chưa có.
+- **H-8** Bảo vệ nhánh `main` trên GitHub (yêu cầu pull request, không force-push, không xoá): guard không chạy trong sandbox Kiro Web (FV-M-6), nên đây là thứ duy nhất chặn một lane push thẳng lên `main`. Merger máy merge qua PR nên không bị cản. Wizard stage 9 đặt bằng REST sau khi operator xác nhận.
+- **H-9** Bật loop: `gh variable set HARNESS_DISPATCH --body on` (FV-D13); `after-gate.yml` và `frontier-dispatch.yml` phải ở trạng thái enabled (`gh workflow enable`).
 
-Vòng lặp dừng, đúng thiết kế, ở: ticket `ready-for-human` (#5, #15, #20), tín hiệu BLOCKED, quá hai vòng sửa, lane im hai lần, task Needs attention, frontier rỗng. Mỗi chỗ dừng để lại dấu vết máy đọc được: nhãn `harness:blocked`/`harness:stalled` và câu hỏi `- [ ]` trên issue.
+Vòng lặp dừng, đúng thiết kế, ở: ticket `ready-for-human` (#5, #15, #20), tín hiệu BLOCKED, quá hai vòng sửa, lane im hai lần, task Needs attention, frontier rỗng, `HARNESS_DISPATCH=off`. Mỗi chỗ dừng để lại dấu vết máy đọc được: nhãn `harness:blocked`/`harness:stalled` và câu hỏi `- [ ]` trên issue.
 
 Ngân sách session (H-6 của `nhan`, [tiền nhiệm]): một session Kiro Web dừng không báo sau khoảng 60 phút làm việc. Ticket T05, T08, T11 lớn hơn các ticket của `nhan`; nếu hai lane đầu chết nhiều lần ở phút 60 thì cắt ticket thành sub-issue có mục `## Seam` (ngoài phạm vi harness).
 
 ## 8. Việc còn mở
 
-- Mọi phép đo FV-M-5…FV-M-7: probe (Task 11 của plan) rồi lane đầu (Task 12), chỉ khi operator xác nhận đã merge PR #21 và chạy wizard.
-- Kênh cấp phát file một-chủ tới sandbox Kiro Web: hook không đọc được comment issue và sandbox không có biến môi trường theo task. Tới khi có, `HARNESS_WIP` = 1 và dispatcher cấp `all`.
-- Sandbox có `uv` sẵn không: steering cài khi thiếu; đo ở FV-M-6.
+- FV-M-7: lane đầu (#2 T01), chỉ khi operator bật `HARNESS_DISPATCH=on`.
+- **Tín hiệu BLOCKED của lane đi qua comment trên issue**, mà session probe không trả lời trên issue (FV-M-5). Nếu lane BLOCKED cũng im lặng như vậy, dispatcher chỉ thấy "im lặng" và gọi lại thay vì park. Đo ở lane đầu; nếu lặp lại thì cho lane ghi câu hỏi `- [ ]` vào `docs/evidence/issue-<n>-*.md` với dòng cuối `<promise>BLOCKED</promise>` và cho dispatcher đọc file ấy trên nhánh như đọc bằng chứng.
+- **Sub-agent không thấy steering** (FV-M-6): comment cấp phát và tin nhắn lượt review nay bảo planner chép hai file vào tin nhắn giao việc; lane đầu đo xem hình dạng vòng lặp (`seam:` rồi `slice(`) có giữ được không. Nếu không: nhúng nguyên văn `lane-implement.md` vào comment cấp phát như tin nhắn lượt review nhúng prompt.
+- **Guard không chạy trên Kiro Web** (FV-M-6): bù bằng H-8 (bảo vệ nhánh), luật trong tin nhắn, và lượt review. `gh` trong sandbox có token (push được) nên `gh pr merge` từ lane là khả thi về kỹ thuật; chỉ luật cấm. Nếu một lane merge PR của mình, thêm required status check `Gate` và review bắt buộc vào bảo vệ nhánh.
+- Kênh cấp phát file một-chủ tới sandbox Kiro Web: hook không chạy và sandbox không có biến môi trường theo task. Tới khi có, `HARNESS_WIP` = 1 và dispatcher cấp `all`.
+- `vbpl.vn` trả 403 cho sandbox (FV-M-6): skill `founder-permits` (đợt B) cần biết; `permits/sources.md` bản lưu là đường dự phòng đã có trong thiết kế §3.
 - `check-doc-paths.sh` chỉ kiểm đường dẫn có thư mục; tên file trần (`pyproject.toml`, `GLOSSARY.md`) không kiểm vì được nêu trước khi tồn tại theo thiết kế.
 - Chuyển `scripts/harness/` sang Python dưới gate sau khi T01 land (bash/jq vì repo chưa có ngôn ngữ lúc dựng).
 - Tên workflow release của T01 phải khớp pending publisher trên PyPI (wizard gợi ý `release.yml`).
@@ -143,6 +148,8 @@ Ngân sách session (H-6 của `nhan`, [tiền nhiệm]): một session Kiro Web
 | FV-D10 | Issue có sub-issue là spec/map, không phải lane: `frontier.jq` đọc `sub_issues_summary.total` và bỏ qua. Lý do: FV-M-3, lần chạy khô đầu chọn #1. Sửa ở cơ chế thay vì đổi nhãn tracker, vì cấu trúc tracker nói đúng nó là gì mà không cần giữ một nhãn đồng bộ | 2026-11-22 |
 | FV-D11 | Tài liệu luật phải trỏ file có thật: `check-doc-paths.sh` kiểm mọi đường dẫn backtick có thư mục trong `AGENTS.md` và steering; chạy trong Gate; witness kiểm cơ chế trên fixture. Lý do: `nhan` từng có bốn agent trỏ prompt sai đường | 2026-11-22 |
 | FV-D12 | Dev skill và product skill tách bạch: `.agents/skills/` (công cụ phát triển, không phân phối) và `skills/` (sản phẩm founder-vn); `skill_lint.py` chỉ kiểm `skills/` | 2026-11-22 |
+| FV-D13 | Công tắc tạm dừng lane mới: variable repo `HARNESS_DISPATCH` (`on`/`off`). Khi `off`, `dispatch.sh --apply` quyết định khô và không cấp phát, không gọi lại, không nhận nuôi; `gate.yml` và `after-gate.yml` đặt `HARNESS_DISPATCH_INLINE=0` và bỏ lượt dispatcher cuối run; review và merge của lane đang chạy vẫn tiếp tục (`HARNESS_WEB_REVIEW` là công tắc riêng của review). Lý do: sau khi PR #21 merge và wizard đặt token, cron `*/15` của `after-gate.yml` sẽ tự cấp #2 trước khi operator ra lệnh; hai workflow bị tắt tay lúc 07:53Z để chặn, công tắc thay cho việc tắt workflow. Đặt `off` lúc 08:15Z | 2026-11-22 |
+| FV-D14 | Luật của guard trên Kiro Web đi bằng tin nhắn và bảo vệ nhánh, không bằng hook: FV-M-6 đo guard không chạy trong sandbox. Comment cấp phát và tin nhắn lượt review nêu rõ bốn luật (không push `main`, không force-push, không merge, không in giá trị `FOUNDER_LLM_*`) và bảo planner chép `AGENTS.md`, steering và cấp phát vào mọi tin nhắn giao việc cho sub-agent (sub-agent không thấy chúng, FV-M-6). H-8 bảo vệ nhánh `main` trên GitHub | 2026-11-22 |
 
 Cơ chế kế thừa nguyên bản từ `nhan`, với mã quyết định bên đó để tra: D11 seam-trước-lát; D13 dispatch bằng `/kiro` + nhãn bot; D15/D33/D39/D54 gọi lại lane im lặng (cửa sổ 60/45 phút, tối đa 4 lần khi có tiến triển); D18 merger kiểm lại blocker và từ khoá đóng; D22 ledger chấp nhận bullet; D23 hook post-commit; D24/D24b adopt nhánh đã xong và lý do lỗi API; D25 lượt đồng bộ; D26 `open-lane-pr.sh`; D27 `run-logged.sh`; D28 cổng theo đoạn; D30 park là điểm dừng thật; D32 nhãn `priority`; D35 lane có nhánh giữ chỗ; D38 câu trả lời lỗi của Kiro; D40 ledger không phải mã; D41/D49 chờ nhánh yên sau lượt sửa; D42 trần 14 lượt và `extra_round`; D47/D51 kiểm pick bằng GET riêng; D53 tín hiệu BLOCKED đọc từ comment cuối không phải của Kiro; D55 kiểm merge thật trước khi đóng ticket.
 

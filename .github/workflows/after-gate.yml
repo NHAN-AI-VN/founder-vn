@@ -73,6 +73,8 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       HARNESS_DISPATCH_TOKEN: ${{ secrets.HARNESS_DISPATCH_TOKEN }}
       HARNESS_WEB_REVIEW: ${{ vars.HARNESS_WEB_REVIEW || 'on' }}
+      # FV-D13: the pause switch for new lanes; dispatch.sh decides dry while it is off.
+      HARNESS_DISPATCH: ${{ vars.HARNESS_DISPATCH || 'on' }}
       HARNESS_OPERATOR: nhannguyen89
       HARNESS_BASE: main
       # The merger ignores the Gate job's own check-run: the orchestrator's outcome is the reports
@@ -80,8 +82,8 @@ jobs:
       HARNESS_MERGE_JOB: Gate
       HARNESS_REVIEW_JOB: Gate
       HARNESS_WIP: '1'
-      # After a merge the merger runs the dispatcher here, in this job.
-      HARNESS_DISPATCH_INLINE: '1'
+      # After a merge the merger runs the dispatcher here, in this job (not while paused).
+      HARNESS_DISPATCH_INLINE: ${{ vars.HARNESS_DISPATCH == 'off' && '0' || '1' }}
     steps:
       # The harness scripts and the prompts come from main; the lane branch is only fetched
       # (review-web.sh reads the code commit and the report currency with git).

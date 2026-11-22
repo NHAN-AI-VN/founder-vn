@@ -43,6 +43,8 @@ jobs:
       # allocation comment and that pull request use it: Kiro Web ignores a label added by
       # github-actions[bot] (nhan M-1). dispatch.sh refuses to dispatch without it.
       HARNESS_DISPATCH_TOKEN: ${{ secrets.HARNESS_DISPATCH_TOKEN }}
+      # FV-D13: the pause switch for new lanes; dispatch.sh decides dry while it is off.
+      HARNESS_DISPATCH: ${{ vars.HARNESS_DISPATCH || 'on' }}
       HARNESS_WIP: "1"
       HARNESS_BASE: main
     steps:
