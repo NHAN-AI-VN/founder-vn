@@ -1,0 +1,8 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": { "number": 58, "headRef": "harness/some-change", "headSha": "abc", "body": "## Outcome\n\nHarness change.\n", "author": "someone-else", "draft": false, "mergeable": "MERGEABLE", "labels": ["harness:auto-merge"] },
+  "checks": [],
+  "ticket": null,
+  "reports": { "standards": null, "spec": null, "ledger": null }
+}

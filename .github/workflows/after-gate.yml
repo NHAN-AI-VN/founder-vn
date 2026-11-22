@@ -1,0 +1,150 @@
+name: Harness after Gate
+
+# Components C4 (review orchestrator) and C5 (machine merger) of docs/agents/kiro-harness.md in
+# one job, with the dispatcher (C1) as its reconcile pass. The Gate job runs the same three steps
+# at the end of every pull request run (gate.yml, "Harness after the gate"); this workflow is
+# the path for everything that raises no Gate run: the pull_request events below, the schedule
+# and the manual run. No model runs here. Ported from NHAN-AI-VN/nhan (after-gate.yml at
+# 8adef66b) without the rerun-stalled-gate job (no Docker tier to stall) and with the only
+# cron of the harness (FV-D5: GitHub's schedule is the stall and silence timer; nhan measured it
+# firing every 2–4.6 hours on a Free organisation, so a dead session may wait that long).
+#
+# Order inside the job: the orchestrator first (scripts/harness/review-web.sh, one step per open
+# lane pull request: post `/kiro` turns, note PASS/PASS, park), then the merger
+# (scripts/harness/merge-check.sh, one merge per run, then it runs the dispatcher inline), then
+# the dispatcher on a scheduled or manual sweep (a silent lane recalled, a finished branch
+# adopted, the next ticket allocated).
+#
+# Secrets and variables: HARNESS_DISPATCH_TOKEN (the operator's token: Issues read/write, Pull
+# requests read/write, Contents read) posts the `/kiro` comments and opens adopted lane PRs; the
+# repository variable HARNESS_WEB_REVIEW set to `off` pauses the review turns.
+
+on:
+  # No `synchronize`, no `opened`: a push, the opening one included, is followed by a Gate run
+  # that runs these steps itself. `edited`: a lane that writes `Closes #n` into the body only after
+  # opening the pull request is not a lane pull request until then. `labeled` is the
+  # harness:auto-merge path.
+  pull_request:
+    types: [reopened, ready_for_review, edited, labeled]
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 'Pull request number for the merger; empty evaluates every open pull request'
+        type: string
+        default: ''
+      branch:
+        description: 'Lane branch whose open pull request to orchestrate; empty: every open lane pull request'
+        type: string
+        default: ''
+      apply:
+        description: 'Post the turns and merge. Off is a dry run.'
+        type: boolean
+        default: true
+      extra_round:
+        description: 'Operator grants the lane of `branch` one more turn: its park label is removed and the round and turn caps are lifted for this run only'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: read
+  actions: write
+
+# One run at a time for the whole repository, as the merger requires (one merge per run,
+# evaluated against the default branch after the previous one): a later event queues one more
+# run and drops the rest, which is what a reconcile step wants.
+concurrency:
+  group: harness-after-gate
+  cancel-in-progress: false
+
+jobs:
+  after-gate:
+    # Quoted: an unquoted ` #` would start a YAML comment and truncate the expression (nhan M-18).
+    # A label other than harness:auto-merge changes nothing either script reads. An edit that
+    # leaves the body without `Closes #` is not a lane pull request yet.
+    if: "(github.event_name != 'pull_request' || github.event.action != 'labeled' || github.event.label.name == 'harness:auto-merge') && (github.event_name != 'pull_request' || github.event.action == 'labeled' || contains(github.event.pull_request.body, 'Closes #'))"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HARNESS_DISPATCH_TOKEN: ${{ secrets.HARNESS_DISPATCH_TOKEN }}
+      HARNESS_WEB_REVIEW: ${{ vars.HARNESS_WEB_REVIEW || 'on' }}
+      HARNESS_OPERATOR: nhannguyen89
+      HARNESS_BASE: main
+      # The merger ignores the Gate job's own check-run: the orchestrator's outcome is the reports
+      # at HEAD, and the Gate's is read from the run, not the check.
+      HARNESS_MERGE_JOB: Gate
+      HARNESS_REVIEW_JOB: Gate
+      HARNESS_WIP: '1'
+      # After a merge the merger runs the dispatcher here, in this job.
+      HARNESS_DISPATCH_INLINE: '1'
+    steps:
+      # The harness scripts and the prompts come from main; the lane branch is only fetched
+      # (review-web.sh reads the code commit and the report currency with git).
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Witness the harness mechanisms
+        run: bash scripts/harness/witness.sh
+      - name: Which pull requests to orchestrate
+        id: prs
+        run: |
+          list=""
+          case "${{ github.event_name }}" in
+            pull_request) list="${{ github.event.pull_request.number }}" ;;
+            workflow_dispatch) branch="${{ inputs.branch }}" ;;
+          esac
+          if [ -z "$list" ] && [ -n "${branch:-}" ]; then
+            list=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --head "$branch" --json number --jq '.[].number')
+          fi
+          if [ -z "$list" ] && [ "${{ github.event_name }}" != "pull_request" ] && [ -z "${branch:-}" ]; then
+            list=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --json number,body --jq '.[] | select((.body // "") | test("(?i)(^|\\n)[ \\t]*([-*][ \\t]+)?closes[ \\t]+#[0-9]+")) | .number')
+          fi
+          echo "list=$(echo $list | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+          echo "pull requests: ${list:-none}"
+      - name: Orchestrate one review step per pull request (C4)
+        if: steps.prs.outputs.list != ''
+        run: |
+          apply=--apply
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.apply }}" != "true" ]; then apply=""; fi
+          # An operator-granted extra turn: the park label goes first and the orchestrator runs in
+          # the same minute with the round and turn caps lifted, so the sweep the label change
+          # wakes finds a turn pending instead of parking the lane again.
+          extra=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.extra_round }}" = "true" ]; then
+            [ -n "${{ inputs.branch }}" ] || { echo "extra_round needs the lane branch"; exit 64; }
+            extra=yes
+          fi
+          for n in ${{ steps.prs.outputs.list }}; do
+            if [ -n "$extra" ]; then
+              t=$(gh pr view "$n" --repo "$GITHUB_REPOSITORY" --json body --jq '.body' | grep -o -i -E 'closes[[:space:]]+#[0-9]+' | head -1 | grep -o -E '[0-9]+' || true)
+              [ -z "$t" ] || gh api --method DELETE "repos/$GITHUB_REPOSITORY/issues/$t/labels/harness:blocked" >/dev/null 2>&1 || true
+              echo "extra turn granted by the operator for #$n (ticket #${t:-?}): caps lifted for this run"
+              HARNESS_MAX_ADDRESS_ROUNDS=99 HARNESS_MAX_TURNS=99 bash scripts/harness/review-web.sh --pr "$n" --repo "$GITHUB_REPOSITORY" $apply
+            else
+              bash scripts/harness/review-web.sh --pr "$n" --repo "$GITHUB_REPOSITORY" $apply
+            fi
+          done
+      - name: Decide and merge (C5)
+        run: |
+          apply="--apply"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.apply }}" != "true" ]; then apply=""; fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            bash scripts/harness/merge-check.sh --pr "${{ github.event.pull_request.number }}" $apply
+          elif [ -n "${{ inputs.pr }}" ]; then
+            bash scripts/harness/merge-check.sh --pr "${{ inputs.pr }}" $apply
+          else
+            bash scripts/harness/merge-check.sh --all $apply
+          fi
+      # A silent lane raises no event, so only this schedule notices it (FV-D5). After a merge the
+      # merger has already run the dispatcher (HARNESS_DISPATCH_INLINE); a second dry decision
+      # costs seconds.
+      - name: Run the dispatcher on a scheduled sweep
+        # `apply` is a boolean input: compare with true, not 'true' (nhan D37b).
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.apply == true)
+        run: bash scripts/harness/dispatch.sh --apply --repo "$GITHUB_REPOSITORY"

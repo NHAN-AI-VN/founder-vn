@@ -108,3 +108,46 @@ jobs:
         run: |
           echo "every gate ran against the code at HEAD"
           echo "python package at HEAD: ${{ steps.pkg.outputs.present }}; harness witnessed: ${{ steps.scope.outputs.harness }}"
+      # C4, C5 and, after a merge, C1 run here on every pull request (nhan D31, D33). The scripts
+      # and prompts come from origin/main (a lane cannot change how it is reviewed or merged); the
+      # lane branch and main are fetched in full for review-web.sh. This run is still in progress
+      # in the API, so its own outcome travels in HARNESS_GATE_SELF_*; a cancelled run (a newer
+      # push) runs nothing here. Until the harness is on main (the bootstrap pull request itself),
+      # the step reports that and exits 0.
+      - name: Harness after the gate (C4, C5, C1)
+        if: always() && github.event_name == 'pull_request' && job.status != 'cancelled'
+        env:
+          HARNESS_DISPATCH_TOKEN: ${{ secrets.HARNESS_DISPATCH_TOKEN }}
+          HARNESS_WEB_REVIEW: ${{ vars.HARNESS_WEB_REVIEW || 'on' }}
+          HARNESS_OPERATOR: nhannguyen89
+          HARNESS_BASE: main
+          HARNESS_MERGE_JOB: Gate
+          HARNESS_REVIEW_JOB: Gate
+          HARNESS_WIP: '1'
+          HARNESS_DISPATCH_INLINE: '1'
+          HARNESS_GATE_SELF_RUN: ${{ github.run_id }}
+          HARNESS_GATE_SELF_CONCLUSION: ${{ job.status }}
+        run: |
+          git fetch -q --unshallow origin 2>/dev/null || true
+          git fetch -q origin main "${{ github.event.pull_request.head.ref }}"
+          if ! git cat-file -e origin/main:scripts/harness/dispatch.sh 2>/dev/null; then
+            echo "no harness on main yet: nothing to orchestrate, merge or dispatch (the bootstrap pull request is merged by hand, FV-D4)"
+            exit 0
+          fi
+          h="$RUNNER_TEMP/harness-main"; rm -rf "$h"; mkdir -p "$h"
+          git archive origin/main scripts/harness .kiro/prompts docs/agents | tar -x -C "$h"
+          pr=${{ github.event.pull_request.number }}
+          echo "harness scripts from main $(git rev-parse --short origin/main); this run ${{ github.run_id }} concluded ${{ job.status }}"
+          export HARNESS_DECISION_FILE="$RUNNER_TEMP/review-decision.json"
+          bash "$h/scripts/harness/review-web.sh" --pr "$pr" --repo "$GITHUB_REPOSITORY" --apply
+          if jq -e '.action == "wait" and (.reasons | any(test("settling")))' "$HARNESS_DECISION_FILE" >/dev/null 2>&1; then
+            echo "branch still settling after an address turn: the next sweep posts the round once it is quiet"
+          fi
+          if [ "${{ job.status }}" = success ]; then
+            bash "$h/scripts/harness/merge-check.sh" --pr "$pr" --repo "$GITHUB_REPOSITORY" --apply
+          else
+            echo "Gate did not succeed: nothing to merge"
+          fi
+          # The dispatcher's reconcile pass rides on every Gate run of a pull request as well (nhan
+          # D33): GitHub's cron is sparse, and a silent lane raises no event of its own.
+          bash "$h/scripts/harness/dispatch.sh" --apply --repo "$GITHUB_REPOSITORY"

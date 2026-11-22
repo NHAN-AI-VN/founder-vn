@@ -1,0 +1,8 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": { "number": 56, "headRef": "lane/issue-8", "headSha": "abc", "body": "Closes #8", "author": "nhannguyen89", "draft": false, "mergeable": "MERGEABLE", "labels": [] },
+  "checks": [],
+  "ticket": { "number": 8, "state": "open", "laneBranch": "lane/issue-8" },
+  "reports": { "standards": null, "spec": null, "ledger": null }
+}

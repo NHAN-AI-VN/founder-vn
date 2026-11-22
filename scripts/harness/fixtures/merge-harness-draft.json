@@ -1,0 +1,10 @@
+{
+  "operator": "nhannguyen89",
+  "self": "Gate",
+  "ignore": ["Gate"],
+  "pr": { "number": 21, "headRef": "harness/bootstrap", "headSha": "382772c", "body": "## Outcome\n\nThe Kiro harness for founder-vn.\n", "author": "nhannguyen89", "draft": true, "mergeable": "MERGEABLE", "labels": ["harness:auto-merge"] },
+  "checks": [ { "name": "Gate", "status": "completed", "conclusion": "success" } ],
+  "gate": { "required": true, "runs": [ { "id": 44992554432, "status": "completed", "conclusion": "success" } ] },
+  "ticket": null,
+  "reports": { "standards": null, "spec": null, "ledger": null }
+}

@@ -1,0 +1,49 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": {
+    "number": 63,
+    "headRef": "lane/issue-3",
+    "headSha": "abc",
+    "body": "Closes #3",
+    "author": "nhannguyen89",
+    "draft": false,
+    "mergeable": "MERGEABLE",
+    "labels": []
+  },
+  "checks": [
+    {
+      "name": "Core gates and non-Docker checks",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "PostgreSQL-backed tiers (Docker required)",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "gate": {
+    "required": true,
+    "runs": [
+      {
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "status": "completed",
+        "conclusion": "action_required"
+      }
+    ]
+  },
+  "ticket": {
+    "number": 3,
+    "state": "open",
+    "laneBranch": "lane/issue-3"
+  },
+  "reports": {
+    "standards": "# Standards review — #3\n\n<promise>PASS</promise>\n",
+    "spec": "# Spec review — #3\n\n<promise>PASS</promise>\n",
+    "ledger": null
+  }
+}

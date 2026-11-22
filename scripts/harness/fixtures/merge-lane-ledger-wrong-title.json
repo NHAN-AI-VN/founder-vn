@@ -1,0 +1,25 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": {
+    "number": 51,
+    "headRef": "lane/issue-4",
+    "headSha": "abc",
+    "body": "Closes #4",
+    "author": "nhannguyen89",
+    "draft": false,
+    "mergeable": "MERGEABLE",
+    "labels": []
+  },
+  "checks": [],
+  "ticket": {
+    "number": 4,
+    "state": "open",
+    "laneBranch": "lane/issue-4"
+  },
+  "reports": {
+    "standards": "# Standards review — #4\n\n### S1: tên hàm nói một đằng làm một nẻo\n\nfile x, dòng 10.\n\n### S2: thiếu bằng chứng đỏ\n\n<promise>PASS</promise>\n",
+    "spec": "# Spec review — #4\n\n- SPEC-1: criterion 2 chưa có test\n\n<promise>PASS</promise>\n",
+    "ledger": "# Review closure ledger — #3 arch:check\n\nS1 FIXED — commit a1b2c3\nS2 NOT-A-DEFECT — gate đã có ở tests/…\nSPEC-1 FIXED — commit d4e5f6\n"
+  }
+}

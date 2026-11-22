@@ -1,0 +1,12 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": { "number": 50, "headRef": "lane/issue-3", "headSha": "abc", "body": "## Outcome\n\nDone.\n\n<promise>COMPLETE</promise>\n\n## Ticket and source pointers\n\nCloses #3\n", "author": "nhannguyen89", "draft": false, "mergeable": "MERGEABLE", "labels": ["kiro"] },
+  "checks": [ { "name": "harness-merge", "status": "in_progress", "conclusion": null }, { "name": "gate", "status": "completed", "conclusion": "success" } ],
+  "ticket": { "number": 3, "state": "open", "laneBranch": "lane/issue-3" },
+  "reports": {
+    "standards": "# Standards review — #3\n\nPhán quyết: PASS.\n\nPhạm vi: AGENTS.md, TECH-ENV §8.\n\n<promise>PASS</promise>\n",
+    "spec": "# Spec review — #3\n\nCả 6 criterion đối chiếu.\n\n<promise>PASS</promise>\n",
+    "ledger": null
+  }
+}

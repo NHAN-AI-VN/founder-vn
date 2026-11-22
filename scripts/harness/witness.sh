@@ -32,6 +32,7 @@ lanecode="$here/lane-code.sh"
 web_filter="$here/review-web.jq"
 turn="$here/review-web-turn.sh"
 prompts="$root/.kiro/prompts"
+merge_filter="$here/merge.jq"
 fixtures="$here/fixtures"
 mode=${1:-}
 failures=0
@@ -391,6 +392,27 @@ expect_turn() {
   if [ -z "$bad" ]; then ok "turn: $axis message renders"; else fail "turn: $axis message (problems:$bad)"; fi
 }
 
+# ---- merger (C5) helpers ------------------------------------------------------------------
+# expect_merge <fixture> <true|false> [substring every reason list must contain]
+expect_merge() {
+  skip MERGE_FILTER && return 0
+  local fixture=$1 want=$2 sub=${3:-} decision got reasons
+  decision=$(jq -f "${MERGE_FILTER:-$merge_filter}" "$fixtures/$fixture" 2>/dev/null)
+  got=$(jq -r '.merge' <<< "$decision" 2>/dev/null)
+  reasons=$(jq -r '.reasons | join(" | ")' <<< "$decision" 2>/dev/null)
+  if [ "$got" != "$want" ]; then fail "merge: $fixture (want merge=$want, got ${got:-<error>}; reasons: ${reasons:-none})"; return; fi
+  if [ -n "$sub" ] && ! printf '%s' "$reasons" | grep -qF -- "$sub"; then fail "merge: $fixture (reasons lack \"$sub\": $reasons)"; return; fi
+  ok "merge: $fixture merge=$want${sub:+ (reason: $sub)}"
+}
+
+# expect_supersede <fixture> <true|false>
+expect_supersede() {
+  skip MERGE_FILTER && return 0
+  local fixture=$1 want=$2 got
+  got=$(jq -f "${MERGE_FILTER:-$merge_filter}" "$fixtures/$fixture" 2>/dev/null | jq -r '.supersede')
+  if [ "$got" = "$want" ]; then ok "merge: $fixture supersede=$want"; else fail "merge: $fixture (want supersede=$want, got ${got:-<error>})"; fi
+}
+
 run_cases() {
   # ---- guard rule 1: secret paths and names ----
   expect_guard "read .env is refused"                      2 '{"tool_name":"fs_read","tool_input":{"path":".env"}}'
@@ -601,6 +623,44 @@ run_cases() {
   expect_turn spec
   expect_turn address
   expect_turn sync
+  # ---- merger (C5) ----
+  expect_merge "merge-lane-pass.json" true
+  expect_merge "merge-lane-findings-ledger.json" true
+  # Ledger lines may open with a list marker, as report headings and bullets may (D22).
+  expect_merge "merge-lane-bullet-ledger.json" true
+  expect_merge "merge-lane-ledger-gap.json" false "ledger misses S2"
+  expect_merge "merge-lane-ledger-gap.json" false "never named: SPEC-9"
+  expect_merge "merge-lane-ledger-wrong-title.json" false "ledger title does not name #4"
+  expect_merge "merge-lane-own-ledger.json" true
+  expect_merge "merge-lane-not-passed.json" false "standards verdict is <promise>CHANGES_REQUESTED</promise>"
+  expect_merge "merge-lane-wrong-branch.json" false "not the allocated lane branch"
+  expect_merge "merge-lane-failing-check.json" false "failing checks: gate=failure"
+  expect_merge "merge-lane-no-reports.json" false "standards.md is missing"
+  expect_merge "merge-harness-label.json" true
+  # A harness pull request still in draft (PR #21 while this harness was being built) waits.
+  expect_merge "merge-harness-draft.json" false "pull request is a draft"
+  # GitHub acts on a closing keyword wherever it stands (nhan M-42).
+  expect_merge "merge-harness-mentions-closes.json" false "must not close an issue"
+  expect_merge "merge-harness-closing-commit.json" false "closes #32: a harness pull request must not close an issue"
+  expect_merge "merge-harness-closing-body.json" false "closes #7: a harness pull request must not close an issue"
+  expect_merge "merge-lane-foreign-closes.json" false "closes #12, not this lane's ticket #3"
+  expect_merge "merge-lane-blocked.json" false "issue #3 is blocked by open #2"
+  expect_merge "merge-lane-blockers-closed.json" true
+  expect_merge "merge-harness-wrong-author.json" false "is not the operator"
+  expect_merge "merge-plain-pr.json" false "neither a lane pull request"
+  expect_merge "merge-lane-gate-missing.json" false "Gate has not run at this commit"
+  expect_merge "merge-lane-gate-failed.json" false "Gate concluded failure"
+  expect_merge "merge-lane-gate-green.json" true
+  expect_merge "merge-lane-gate-parked.json" true
+  expect_merge "merge-lane-rounds.json" true
+  # Earlier rounds' ids keep demanding a ledger even when the current reports name none (nhan M-28).
+  expect_merge "merge-lane-rounds-ledger-missing.json" false "findings S1 recorded but reviews/issue-3/ledger.md is missing"
+  expect_merge "merge-lane-ledger-missing.json" false "ledger.md is missing"
+  expect_merge "merge-lane-review-check.json" true
+  expect_merge "merge-lane-stale-report.json" false "spec report predates the last code commit"
+  expect_merge "merge-lane-ticket-closed.json" false "issue #3 is closed"
+  expect_supersede "merge-lane-ticket-closed.json" true
+  expect_supersede "merge-lane-pass.json" false
 }
 
 if [ "$mode" = "--witness-red" ]; then
@@ -644,6 +704,8 @@ if [ "$mode" = "--witness-red" ]; then
       out=$(WEB_FILTER="$tmp" WITNESS_ONLY=WEB_FILTER run_cases 2>/dev/null)
     elif [ "$target" = "$turn" ]; then
       out=$(TURN="$tmp" WITNESS_ONLY=TURN run_cases 2>/dev/null)
+    elif [ "$target" = "$merge_filter" ]; then
+      out=$(MERGE_FILTER="$tmp" WITNESS_ONLY=MERGE_FILTER run_cases 2>/dev/null)
     else
       printf 'witness: no case family for %s\n' "$target" >&2
       out="FAIL no family"
@@ -754,6 +816,26 @@ if [ "$mode" = "--witness-red" ]; then
   # ---- the /kiro message of a turn ----
   mutate "post a turn without the marker"    "$turn" 's#^printf .\\n<!-- harness:turn .*#true#'
   mutate "post a turn without the prompt"    "$turn" 's#^cat "\$prompt_file"#true#'
+  # ---- merger (C5) ----
+  mutate "merge a quoted closing keyword"    "$merge_filter" 's#\(\^\|\\\\n\)\[ \\\\t\]\*#(?:)#'
+  mutate "accept any review verdict"        "$merge_filter" "s#!= \"<promise>PASS</promise>\"#!= \"never\"#g"
+  mutate "drop the ledger requirement"      "$merge_filter" "s#if \\(\\\$ids \\| length\\) > 0#if false#g"
+  mutate "ignore the ledger title"          "$merge_filter" 's#ledger_title_names(\$r\.ledger; \$n) | not#false#g'
+  mutate "refuse a ledger line that opens with a list marker" "$merge_filter" 's#(?:\[-\*\]\[ \\\\t\]+)?(S\[0-9\]+|SPEC-\[0-9\]+)\[ \\\\t\]+(FIXED#(S[0-9]+|SPEC-[0-9]+)[ \\\\t]+(FIXED#'
+  mutate "ignore the allocated lane branch" "$merge_filter" "s#\\.ticket\\.laneBranch != \\.pr\\.headRef#false#"
+  mutate "ignore failing checks"            "$merge_filter" "s#bad_conclusion \\| index\\(\\\$c\\)#false#"
+  mutate "ignore the harness PR author"     "$merge_filter" "s#\\.pr\\.author != \\.operator#false#"
+  mutate "never supersede a closed ticket"  "$merge_filter" "s#\\.ticket\\.state != \"open\";#false;#"
+  mutate "ignore the Gate requirement"      "$merge_filter" "s#if \\(\\\$g\\.required \\| not\\) then \\[\\]#if true then []#"
+  mutate "count parked gate runs as results" "$merge_filter" 's#select\(\.conclusion != "action_required"\)#select(true)#'
+  mutate "forget earlier rounds' findings"   "$merge_filter" 's#\(\$r\.earlier // \[\]\)#[]#'
+  mutate "accept a stale report"             "$merge_filter" 's#\$r\.current\.(standards|spec) == false#false#g'
+  mutate "let a pull request close an issue"  "$merge_filter" 's#close\|closes\|closed\|fix\|fixes\|fixed\|resolve\|resolves\|resolved#never-a-keyword#'
+  mutate "read closing keywords in the description only" "$merge_filter" 's#\+ \(\.pr\.commits // \[\]\)#+ []#'
+  mutate "read closing keywords in commits only" "$merge_filter" 's#\[ \(\.pr\.body // ""\) \]#[]#'
+  mutate "let a lane close another issue"     "$merge_filter" 's#select\(\. != \$own\)#select(false)#'
+  mutate "ignore open blockers of the ticket" "$merge_filter" 's#select\(\.state == "open"\) \| \.number#select(false) | .number#'
+  mutate "merge a draft pull request"         "$merge_filter" 's#if \.pr\.draft then#if false then#'
   }
   # The mutations run in parallel. Each `mutate` line above is numbered in order; this script
   # re-runs itself once per number with WITNESS_MUTATION set, and that child runs the one mutation
