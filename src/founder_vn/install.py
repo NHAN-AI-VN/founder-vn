@@ -15,6 +15,10 @@ SKILL_FOLDERS = {
 HOSTS = tuple(SKILL_FOLDERS)
 
 
+class InstallRefused(ValueError):
+    """A target resolves outside the project (``..`` or a symlink escape)."""
+
+
 def packaged_skills_dir() -> Path:
     """Skills shipped in the wheel (founder_vn/skills), else the repository ``skills/``."""
     here = Path(__file__).parent
@@ -40,11 +44,21 @@ def run(project: Path, host: str, print_only: bool, skills_dir: Path | None = No
         lines.append("no skills found in the package; nothing to copy")
         return "\n".join(lines) + "\n"
     folder = SKILL_FOLDERS[host]
+    real_project = Path(project).resolve()
     for f in files:
         rel = f.relative_to(source)
         target = Path(project) / folder / rel
-        if not print_only:
+        if not target.resolve().is_relative_to(real_project):
+            raise InstallRefused(f"refused: {folder}/{rel.as_posix()} resolves outside the project")
+        data = f.read_bytes()
+        if not target.exists():
+            state = "create"
+        elif target.read_bytes() == data:
+            state = "unchanged"
+        else:
+            state = "update"
+        if state != "unchanged" and not print_only:
             target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(f.read_bytes())
-        lines.append(f"{folder}/{rel.as_posix()}")
+            target.write_bytes(data)
+        lines.append(f"{state:<10} {folder}/{rel.as_posix()}")
     return "\n".join(lines) + "\n"
