@@ -126,11 +126,19 @@ def project_version(root: Path) -> str | None:
         return None
     with pyproject.open("rb") as fh:
         data = tomllib.load(fh)
-    return (
-        str(data.get("project", {}).get("version"))
-        if "version" in data.get("project", {})
-        else None
-    )
+    project = data.get("project", {})
+    if "version" in project:
+        return str(project["version"])
+    path = data.get("tool", {}).get("hatch", {}).get("version", {}).get("path")
+    if "version" in project.get("dynamic", []) and path:
+        match = re.search(
+            r"""^__version__\s*=\s*['"]([^'"]+)['"]""",
+            (root / path).read_text(encoding="utf-8"),
+            re.MULTILINE,
+        )
+        if match:
+            return match.group(1)
+    return None
 
 
 def check_skill(path: Path, folder: str, version: str | None, findings: list[str]) -> None:
