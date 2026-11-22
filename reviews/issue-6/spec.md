@@ -1,31 +1,28 @@
-Commit mã đã chấm: 331001f15fae
+Commit mã đã chấm: 6ddd7398f2ab
 
-# Review trục Spec, issue #6, vòng 1
+# Review trục Spec, issue #6, vòng 2
 
-Phạm vi: `git diff --stat main...HEAD` (15 file, 6 commit slice + evidence). Đã đọc `AGENTS.md`, `docs/founder-vn-design.md` §3, §4 và các mục Q37; chạy lại `uv run pytest tests/test_cfo.py tests/test_cfo_cli.py tests/test_cfo_parity.py tests/test_vnd.py`: 53 passed. Đã đọc `src/founder_vn/cfo.py`, `vnd.py`, `cli.py`, `server.py`, fixture, golden và `docs/evidence/issue-6-cfo-unit-economics.md`.
+Phạm vi: `git diff --stat main...HEAD` và `git log --oneline main..HEAD` (18 file). Đã đọc `AGENTS.md`, `docs/founder-vn-design.md` §3 và Q37, `src/founder_vn/cfo.py`, `vnd.py`, `cli.py`, `server.py`, golden và test. Chạy lại ở `6ddd7398f2ab`: `uv run pytest -q` toàn bộ 105 passed; bốn file của issue (`test_cfo.py`, `test_cfo_cli.py`, `test_cfo_parity.py`, `test_vnd.py`) 54 passed (vòng 1: 53, thêm `test_report_carries_disclaimer`).
 
-Phán quyết: CHANGES_REQUESTED, một finding chặn.
+Phán quyết: PASS. Không còn finding chặn.
 
-## Finding chặn
+## Đóng SPEC-1 (vòng 1)
 
-### SPEC-1: báo cáo `cfo.md` không có câu miễn trừ trách nhiệm
-Criterion: "Report text in Vietnamese" cùng yêu cầu của thiết kế mà ticket trỏ tới (§3: "Giữ mọi câu miễn trừ trách nhiệm"; §4 định nghĩa "xong": "có miễn trừ trách nhiệm"). Bản báo cáo dành cho chủ hộ (`report()` trong `src/founder_vn/cfo.py`, golden `tests/golden/cfo_report.json`) chỉ nói "Mọi con số lấy từ numbers.json… Không số nào được tra cứu hay đoán" và, khi không có cảnh báo, nhắc đối chiếu báo giá. Không có câu nào nói đây là mô hình tính toán, không phải tư vấn thuế/tài chính, và thuế suất cùng ngưỡng là số anh/chị nhập, cần đối chiếu quy định hiện hành. Báo cáo in thuế suất và ngưỡng miễn thuế nên thiếu câu này là khoảng trống thật cho người sắp bỏ tiền. Cách sửa nằm trong `src/founder_vn/cfo.py` và golden của lane: thêm câu miễn trừ vào `report()` rồi tạo lại golden.
+Đã đóng ở `6e8cc84`. `report()` có mục "Lưu ý" cuối báo cáo: đây là mô hình tính từ số anh/chị nhập, không phải tư vấn thuế hay tài chính; thuế suất và ngưỡng miễn thuế là số anh/chị nhập, cần đối chiếu quy định hiện hành hoặc hỏi cơ quan thuế/kế toán. Golden `tests/golden/cfo_report.json` (và `cfo_below_threshold`, `cfo_price`, `cfo_volume`) đã tạo lại và chứa mục này; `tests/test_cfo_cli.py::test_report_carries_disclaimer` khóa nó. Thay đổi vòng 2 so với vòng 1 chỉ chạm `cfo.py` (+9 dòng), golden, một test và evidence.
 
 ## Đối chiếu từng criterion
 
-1. `numbers.json` và trường bắt buộc: đáp ứng. `NUMERIC_FIELDS` gồm `tax_rate_on_revenue`, `tax_free_threshold`; `_required` báo "thiếu trường '<tên>'", không mặc định. Bằng chứng: `tests/test_cfo.py::test_missing_field_is_an_error_naming_it` (parametrize) và `tests/test_cfo_cli.py::test_missing_field_exits_2_naming_it`.
-2. Thuế và ba đầu vào verdict: đáp ứng. Mã đọc `crosses = year_revenue > threshold`, thuế trên doanh thu từng tháng khi vượt (tức toàn bộ doanh thu năm), bằng ngưỡng thì không thuế, lợi nhuận = doanh thu − biến đổi − cố định − thuế, có cờ vượt ngưỡng. `verdict_inputs` có `contribution`, `year1_operating_profit_after_tax`, `breakeven_per_day` với `capacity_per_day`. Bằng chứng: `test_tax_applies_to_full_year_revenue_above_threshold`, `test_no_tax_at_or_below_threshold`, `test_verdict_inputs_are_exposed_not_decided`, golden `cfo_json` và `cfo_below_threshold`. Không tính verdict là đúng phạm vi.
-3. Tiện ích locale: đáp ứng. Tôi chạy thẳng `parse_vn_number` trên cả sáu chuỗi của ticket (35.000, 35k, 35 nghìn, 1,2 triệu, 1tr2, 1.200.000 đ), kết quả 35000/35000/35000/1200000/1200000/1200000. `format_vnd` cho dấu chấm nghìn, `đ`, không thập phân. Bằng chứng: `tests/test_vnd.py` (bảng golden, 34 ca theo evidence).
-4. What-if và độ nhạy: đáp ứng. Cờ `--price`, `--volume`; bốn dòng độ nhạy gồm gốc, giá −10%, sản lượng −20%, chi phí đơn vị +15%. Bằng chứng: `test_price_what_if_golden`, `test_volume_what_if_golden`.
-5. Tiếng Việt, JSON, `cfo.md` qua lớp khóa đường dẫn: đáp ứng phần JSON, phần ghi file và phần ngôn ngữ (xưng "anh/chị", `35.000 đ`, không `$`). `--out` đi qua `files.write_text`; `test_out_outside_root_is_refused` chứng minh bị từ chối. Phần miễn trừ trách nhiệm của báo cáo chưa đáp ứng: xem SPEC-1.
-6. Golden qua CLI và parity MCP: đáp ứng. `tests/test_cfo_cli.py` so golden qua CLI; `tests/test_cfo_parity.py` chạy 4 ca (report, json, what-if, out) qua cả CLI và MCP rồi so stdout và toàn bộ file đã ghi. Các test nằm trong `tests/` nên thuộc phần `pytest` của cổng `unit`; evidence ghi 104 passed ở `23342b9`.
-
-Artefact `cfo.md`/fixture: fixture là quán cà phê tổng hợp, không tên người hay địa điểm dưới cấp quận. Báo cáo không có `$`.
+1. `numbers.json` và trường bắt buộc: đáp ứng. `NUMERIC_FIELDS` có `tax_rate_on_revenue`, `tax_free_threshold`; `_required` báo "thiếu trường '<tên>'", không mặc định. Bằng chứng: `test_cfo.py::test_missing_field_is_an_error_naming_it`, `test_cfo_cli.py::test_missing_field_exits_2_naming_it`.
+2. Thuế và ba đầu vào verdict: đáp ứng. Thuế áp lên doanh thu cả năm khi `year_revenue > threshold`, bằng ngưỡng thì không thuế; lợi nhuận = doanh thu − biến đổi − cố định − thuế; có cờ vượt ngưỡng; `verdict_inputs` gồm `contribution`, `year1_operating_profit_after_tax`, `breakeven_per_day` cùng `capacity_per_day`. Bằng chứng: `test_tax_applies_to_full_year_revenue_above_threshold`, `test_no_tax_at_or_below_threshold`, `test_verdict_inputs_are_exposed_not_decided`, golden `cfo_json`, `cfo_below_threshold`.
+3. Tiện ích locale: đáp ứng. Chạy lại `parse_vn_number` trên sáu chuỗi của ticket: 35000, 35000, 35000, 1200000, 1200000, 1200000. `format_vnd` dấu chấm nghìn, `đ`, không thập phân. Bằng chứng: bảng golden trong `tests/test_vnd.py`.
+4. What-if và độ nhạy: đáp ứng. `--price`, `--volume`; bốn dòng gốc, giá −10%, sản lượng −20%, chi phí đơn vị +15%. Bằng chứng: `test_price_what_if_golden`, `test_volume_what_if_golden`.
+5. Tiếng Việt, JSON, `cfo.md` qua lớp khóa đường dẫn: đáp ứng. Báo cáo xưng "anh/chị", tiền `35.000 đ`, golden không có `$`, có miễn trừ trách nhiệm. `--out` đi qua `files.write_text`; `test_out_writes_cfo_md_under_founder` và `test_out_outside_root_is_refused`. Fixture là quán cà phê tổng hợp, không tên người hay địa điểm dưới cấp quận.
+6. Golden qua CLI và parity MCP: đáp ứng. `tests/test_cfo_cli.py` so golden qua CLI; `tests/test_cfo_parity.py` chạy 4 ca (report, json, what-if, out) qua CLI và MCP rồi so stdout và các file ghi ra. Các test nằm trong `tests/` nên thuộc phần `pytest` của cổng `unit`.
 
 ## Chưa xác minh
 
-- Job `Gate` ở `331001f15fae` còn `in_progress` lúc chấm; bản ghi cổng trong evidence ứng với `23342b9` (commit mã cuối). Commit `331001f` chỉ đổi evidence nên tôi không coi là khác biệt, nhưng chưa thấy kết quả Gate ở đúng commit.
-- Giá trị `nan`/`Infinity` (JSON `NaN` hoặc chuỗi "nan") qua `_number` thành float không hữu hạn mà không có lỗi; ngoài các criterion của ticket, chưa chạy thử đầu ra, không chặn.
-- Evidence tự ghi collection-time red của `cfo.analyse` không được giữ; không thuộc trục Spec.
+- Job `Gate` ở `6ddd7398f2ab` còn `in_progress` lúc chấm (run 45047148908 ghi success). Tôi chỉ có kết quả `pytest` chạy cục bộ, không có kết quả cuối của job.
+- `nan`/`Infinity` đi qua `_number` thành float không hữu hạn mà không báo lỗi. Ngoài criterion của ticket, không chặn.
+- Câu "tra theo luật hiện hành và ghi link" của §3 áp cho skill `founder-cfo` (ticket sau), không thuộc lát cắt gói Python này; tôi không coi là yêu cầu của #6.
 
-<promise>CHANGES_REQUESTED</promise>
+<promise>PASS</promise>
