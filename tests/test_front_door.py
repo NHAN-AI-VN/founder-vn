@@ -82,12 +82,12 @@ def test_conventions_list_every_frontmatter_field() -> None:
         "description",
         "license",
         "metadata.version",
-        "author",
-        "source",
-        "commit",
-        "anh/chị",
+        "metadata.author",
+        "metadata.source",
+        "metadata.commit",
     ):
-        assert f"`{field}`" in text or field == "anh/chị" and field in text, field
+        assert f"`{field}`" in text, field
+    assert "anh/chị" in text
 
 
 def test_shared_protocol_block_carries_the_five_rules() -> None:
@@ -105,3 +105,29 @@ def test_shared_protocol_block_carries_the_five_rules() -> None:
         "Never write the verdict",
     ):
         assert needle in block, needle
+
+
+def test_review_checklist_has_the_five_items() -> None:
+    text = _read("docs/review-checklist.md")
+    for needle in (
+        "No `$`",
+        "No English leaks",
+        "official link and a verification date",
+        "not financial, tax or legal advice",
+        "mô phỏng, cận trên, không phải khách hàng thật",
+    ):
+        assert needle in text, needle
+
+
+def test_hosts_index_links_one_existing_page_per_host() -> None:
+    index = _read("docs/hosts/README.md")
+    for page in ("kiro", "claude", "codex", "gemini", "grok", "kirocrew"):
+        assert f"({page}.md)" in index, page
+        assert (ROOT / "docs" / "hosts" / f"{page}.md").is_file(), page
+
+
+def test_host_pages_carry_no_secret_values_or_dollar_amounts() -> None:
+    for page in (ROOT / "docs" / "hosts").glob("*.md"):
+        text = page.read_text(encoding="utf-8")
+        assert not re.search(r"(sk-|Bearer )\w", text), page.name
+        assert not DOLLAR.search(text), page.name
