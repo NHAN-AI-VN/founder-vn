@@ -5,12 +5,15 @@ Every numeric input is required: a missing field is an error naming it, never a 
 rate and the tax-free threshold are inputs from the Owner, not constants of this module.
 """
 
+import json
 import math
 from collections.abc import Mapping
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
+from pathlib import Path
 from typing import Any
 
-from founder_vn.vnd import parse_vn_number
+from founder_vn import files
+from founder_vn.vnd import format_vnd, parse_vn_number
 
 MONTHS = 12
 NUMERIC_FIELDS = (
@@ -198,3 +201,175 @@ def analyse(
             "breakeven_within_capacity": breakeven_day <= capacity,
         },
     }
+
+
+def sensitivity(
+    spec: Mapping[str, Any], price: float | None = None, volume: float = 1.0
+) -> list[tuple[str, dict[str, Any]]]:
+    """Base plus the three what-ifs every plan should survive, relative to the base."""
+    base = analyse(spec, price=price, volume=volume)
+    return [
+        ("Kế hoạch gốc", base),
+        ("Giá giảm 10%", analyse(spec, price=base["price"] * 0.9, volume=volume)),
+        ("Sản lượng giảm 20%", analyse(spec, price=price, volume=volume * 0.8)),
+        (
+            "Chi phí mỗi đơn vị tăng 15%",
+            analyse(spec, price=price, volume=volume, unit_cost_factor=1.15),
+        ),
+    ]
+
+
+def _per_day(value: float, up: bool = False) -> str:
+    whole = math.ceil(value) if up else int(Decimal(str(value)).quantize(Decimal(1), ROUND_HALF_UP))
+    return f"{whole:,}".replace(",", ".")
+
+
+def _break_even(value: float) -> str:
+    return "không bao giờ" if math.isinf(value) else _per_day(value, up=True)
+
+
+def _pct(value: float) -> str:
+    return f"{value * 100:.0f}%"
+
+
+def report(
+    spec: Mapping[str, Any], a: dict[str, Any], price: float | None = None, volume: float = 1.0
+) -> str:
+    """The Vietnamese unit-economics report (markdown)."""
+    u = a["unit"]
+    lines = [
+        f"# Kinh tế đơn vị: {a['business'] or 'doanh nghiệp của anh/chị'}",
+        "",
+        "Mọi con số dưới đây lấy từ file numbers.json của anh/chị. Không số nào được tra cứu hay đoán.",
+        "",
+        f"## Một {u}",
+        "",
+        f"| khoản | mỗi {u} |",
+        "| --- | ---: |",
+        f"| Giá bán (khách trả) | {format_vnd(a['price'])} |",
+    ]
+    lines += [f"| {it['label']} | -{format_vnd(it['cost'])} |" for it in a["variable_items"]]
+    lines += [
+        f"| **Đóng góp** (phần mỗi {u} còn lại để trả chi phí cố định) "
+        f"| **{format_vnd(a['contribution'])}** ({_pct(a['contribution_pct'])}) |",
+        "",
+        "## Hòa vốn và biên lợi nhuận",
+        "",
+        f"Chi phí cố định: {format_vnd(a['fixed_monthly'])} mỗi tháng ("
+        + ", ".join(f"{it['label']} {format_vnd(it['cost'])}" for it in a["fixed_items"])
+        + ").",
+        "",
+        f"- **Hòa vốn: {_break_even(a['breakeven_per_day'])} {u} mỗi ngày.** "
+        "Bán dưới mức đó thì tháng nào cũng lỗ (chưa tính thuế doanh thu).",
+        f"- **Biên lợi nhuận theo kế hoạch** ({_per_day(a['plan_per_day'])} {u} mỗi ngày): "
+        f"**{_pct(a['margin_at_plan'])}** trên mỗi đồng bán ra, trước thuế doanh thu.",
+        f"- Công suất tối đa: {_per_day(a['capacity_per_day'])} {u} mỗi ngày.",
+        "",
+        "## Năm 1 theo từng tháng",
+        "",
+        f"| tháng | {u} mỗi ngày | doanh thu | thuế doanh thu | lợi nhuận | "
+        f"lũy kế (sau vốn khởi đầu {format_vnd(a['startup'])}) |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    lines += [
+        f"| {m['month']} | {_per_day(m['per_day'])} | {format_vnd(m['revenue'])} "
+        f"| {format_vnd(m['tax'])} | {format_vnd(m['profit'])} | {format_vnd(m['cumulative'])} |"
+        for m in a["months"]
+    ]
+    payback = f"tháng {a['payback_month']}" if a["payback_month"] else "chưa trong năm 1"
+    lines += [
+        "",
+        f"- Doanh thu năm 1: {format_vnd(a['year1_revenue'])}. Ngưỡng miễn thuế: "
+        f"{format_vnd(a['tax_free_threshold'])}; thuế suất trên doanh thu: {str(round(a['tax_rate_on_revenue'], 2)).removesuffix('.0').replace('.', ',')}%.",
+        f"- Thuế doanh thu năm 1: {format_vnd(a['year1_tax'])}.",
+        f"- **Lợi nhuận hoạt động năm 1 sau thuế: {format_vnd(a['year1_profit_after_tax'])}.**",
+        f"- Sau vốn khởi đầu {format_vnd(a['startup'])}: {format_vnd(a['year1_after_startup'])}.",
+        f"- Thu hồi vốn khởi đầu: {payback}.",
+        f"- Vốn cần có trước khi tự nuôi được mình: **{format_vnd(a['cash_needed'])}**.",
+        "",
+        "## Nếu thay đổi",
+        "",
+        "| kịch bản | biên lợi nhuận | hòa vốn mỗi ngày | lợi nhuận năm 1 sau thuế |",
+        "| --- | ---: | ---: | ---: |",
+    ]
+    for name, s in sensitivity(spec, price, volume):
+        lines.append(
+            f"| {name} | {_pct(s['margin_at_plan'])} | {_break_even(s['breakeven_per_day'])} "
+            f"| {format_vnd(s['year1_profit_after_tax'])} |"
+        )
+    lines.append("")
+    if a["flags"]:
+        lines += ["## Cảnh báo", ""] + [f"- {f}" for f in a["flags"]]
+    else:
+        lines.append(
+            "Không có cảnh báo trong các con số này. Chúng chỉ đúng bằng dữ liệu đầu vào: "
+            "anh/chị hãy đối chiếu từng khoản chi với báo giá thật."
+        )
+    return "\n".join(lines) + "\n"
+
+
+def _round(value: Any) -> Any:
+    if isinstance(value, float):
+        return None if math.isinf(value) else round(value, 2)
+    if isinstance(value, dict):
+        return {k: _round(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_round(v) for v in value]
+    return value
+
+
+def report_json(
+    spec: Mapping[str, Any], a: dict[str, Any], price: float | None = None, volume: float = 1.0
+) -> str:
+    """The same numbers as JSON; ``verdict_inputs`` carries the three inputs of the verdict."""
+    out = {k: v for k, v in a.items() if not k.endswith("_items")}
+    out["sensitivity"] = [
+        {
+            "scenario": name,
+            "margin_at_plan": s["margin_at_plan"],
+            "breakeven_per_day": s["breakeven_per_day"],
+            "year1_profit_after_tax": s["year1_profit_after_tax"],
+        }
+        for name, s in sensitivity(spec, price, volume)
+    ]
+    return json.dumps(_round(out), ensure_ascii=False, indent=2) + "\n"
+
+
+def _load(project: Path, numbers: str) -> dict[str, Any]:
+    rel = numbers.removeprefix(f"{files.ROOT_NAME}/")
+    try:
+        raw = files.read_text(project, rel)
+    except FileNotFoundError:
+        raise NumbersError(f"không thấy file: {numbers}") from None
+    try:
+        spec = json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise NumbersError(f"{numbers} không phải JSON hợp lệ: {e}") from None
+    if not isinstance(spec, dict):
+        raise NumbersError(f"{numbers} phải là một đối tượng JSON")
+    return spec
+
+
+def run(
+    project: Path,
+    numbers: str,
+    price: str | None = None,
+    volume: float = 1.0,
+    as_json: bool = False,
+    out: str | None = None,
+) -> str:
+    """Behind ``founder-vn cfo`` and MCP ``cfo_analyse``: return the exact stdout text.
+
+    ``numbers`` is read under ``<project>/founder/``; with ``out`` the report is written there
+    through the path-locked layer and a one-line confirmation is returned instead.
+    """
+    spec = _load(project, numbers)
+    what_if_price = None if price is None else float(parse_vn_number(price))
+    if volume <= 0:
+        raise NumbersError("'volume' phải lớn hơn 0")
+    a = analyse(spec, price=what_if_price, volume=volume)
+    text = (report_json if as_json else report)(spec, a, what_if_price, volume)
+    if out is None:
+        return text
+    target = files.write_text(project, out, text)
+    return f"Đã ghi {target.relative_to(project).as_posix()}\n"

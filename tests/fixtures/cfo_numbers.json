@@ -20,7 +20,7 @@
   "days_per_month": 30,
   "capacity_per_day": 120,
   "plan_per_day": 90,
-  "ramp_per_day": [40, 50, 60, 70, 75, 80, 85, 88, 90, 90, 90, 90],
+  "ramp_per_day": [15, 20, 25, 30, 40, 50, 60, 70, 80, 85, 90, 90],
   "tax_rate_on_revenue": 1.5,
   "tax_free_threshold": "100 triệu"
 }
