@@ -66,11 +66,12 @@ jobs:
           fi
           echo "harness=$harness" >> "$GITHUB_OUTPUT"
           echo "harness touched: $harness"
-      # astral-sh/setup-uv v10 (10.4.0 at the time of writing), checksummed uv binary; the cache
-      # key follows uv.lock.
+      # astral-sh/setup-uv pinned to the v10.4.0 commit (there is no floating v10 tag: the first
+      # Gate run of this repository failed on `unable to find version v10`); checksummed uv
+      # binary; the cache key follows uv.lock.
       - name: Set up uv
         if: steps.pkg.outputs.present == 'true'
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
           enable-cache: true
       - name: uv sync --frozen
