@@ -19,6 +19,54 @@ class InstallRefused(ValueError):
     """A target resolves outside the project (``..`` or a symlink escape)."""
 
 
+_ENV_NOTE = (
+    "Model calls read FOUNDER_LLM_BASE_URL, FOUNDER_LLM_API_KEY and FOUNDER_LLM_MODEL from the\n"
+    "host environment. Set them there; never write their values into a config file or the repository.\n"
+)
+
+_JSON_SERVER = """{
+  "mcpServers": {
+    "founder-vn": {
+      "command": "uvx",
+      "args": ["founder-vn-mcp"]
+    }
+  }
+}
+"""
+
+_TOML_SERVER = """[mcp_servers.founder-vn]
+command = "uvx"
+args = ["founder-vn-mcp"]
+"""
+
+SNIPPETS = {
+    "kiro": (
+        "MCP registration: add to .kiro/settings/mcp.json (workspace) or ~/.kiro/settings/mcp.json:\n\n"
+        + _JSON_SERVER
+    ),
+    "claude": (
+        "MCP registration: add to .mcp.json at the project root (project scope):\n\n"
+        + _JSON_SERVER
+        + "\nor run: claude mcp add --scope project founder-vn -- uvx founder-vn-mcp\n"
+    ),
+    "codex": (
+        "MCP registration: add to ~/.codex/config.toml:\n\n"
+        + _TOML_SERVER
+        + "tool_timeout_sec = 300\n\n"
+        "Codex stops a tool call after 60 seconds by default; tool_timeout_sec raises that limit\n"
+        "for long panel jobs.\n"
+    ),
+    "grok": ("MCP registration: add to ~/.grok/config.toml:\n\n" + _TOML_SERVER),
+    "kirocrew": (
+        "MCP registration (dashboard, no file to edit):\n"
+        "  1. Open the KiroCrew dashboard, MCP Servers page, and add a server.\n"
+        "  2. Name: founder-vn. Command: uvx. Arguments: founder-vn-mcp.\n"
+        "  3. Trust the project in KiroCrew; it loads skills and servers only for a trusted project.\n"
+        "KiroCrew does not read the workspace .kiro/settings/mcp.json.\n"
+    ),
+}
+
+
 def packaged_skills_dir() -> Path:
     """Skills shipped in the wheel (founder_vn/skills), else the repository ``skills/``."""
     here = Path(__file__).parent
@@ -37,6 +85,16 @@ def _skill_files(skills_dir: Path) -> list[Path]:
 
 def run(project: Path, host: str, print_only: bool, skills_dir: Path | None = None) -> str:
     """Install (or plan) the skills for ``host``; return the text for the Facilitator."""
+    return (
+        _copy_skills(project, host, print_only, skills_dir)
+        + "\n"
+        + SNIPPETS[host]
+        + "\n"
+        + _ENV_NOTE
+    )
+
+
+def _copy_skills(project: Path, host: str, print_only: bool, skills_dir: Path | None) -> str:
     source = Path(skills_dir) if skills_dir is not None else packaged_skills_dir()
     files = _skill_files(source)
     lines = [f"founder-vn install: host {host}"]
