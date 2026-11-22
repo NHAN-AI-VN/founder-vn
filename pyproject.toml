@@ -22,6 +22,9 @@ path = "src/founder_vn/__init__.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/founder_vn"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"skills" = "founder_vn/skills"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 

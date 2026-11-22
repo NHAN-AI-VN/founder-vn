@@ -73,3 +73,17 @@ def test_install_refuses_a_symlink_that_escapes_the_project(
     with pytest.raises(install.InstallRefused):
         install.run(project_root, "kiro", print_only=False, skills_dir=SRC)
     assert list(outside.iterdir()) == []
+
+
+def test_default_source_is_the_packaged_skills_folder() -> None:
+    assert install.packaged_skills_dir().name == "skills"
+
+
+def test_pyproject_ships_skills_in_the_wheel() -> None:
+    import tomllib
+
+    root = Path(__file__).parent.parent
+    wheel = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))["tool"]["hatch"][
+        "build"
+    ]["targets"]["wheel"]
+    assert wheel["force-include"]["skills"] == "founder_vn/skills"
