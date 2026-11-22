@@ -1,0 +1,9 @@
+{
+  "wip": 1,
+  "now": "2026-09-04T12:00:00Z",
+  "issues": [
+    { "number": 7, "title": "07 · Kiểu nền", "labels": ["ready-for-agent", "kiro"], "assignees": [], "blockedBy": [], "lastComment": "Ticket thiếu quyết định K-11.\n\n- [ ] Dùng adapter nào?\n\n<promise>BLOCKED</promise>" },
+    { "number": 8, "title": "08 · OIDC", "labels": ["ready-for-agent"], "assignees": [], "blockedBy": [] }
+  ],
+  "prs": []
+}

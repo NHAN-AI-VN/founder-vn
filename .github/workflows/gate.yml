@@ -1,0 +1,153 @@
+name: Gate
+
+# Component C3 of docs/agents/kiro-harness.md: the executable gate on a clean environment, the
+# same steps as the three sandbox segments of scripts/harness/gate-segment.sh, in the same order.
+# The harness scripts read the conclusion of the latest run of THIS FILE at a pull request's head
+# (merge-check.sh, review-web.sh look the workflow up by path, not by display name), so the file
+# name gate.yml is load-bearing; the display name is what after-gate.yml waits on.
+#
+# Python gates: `uv sync --frozen` (the lockfile is the truth), `ruff check`, `ruff format
+# --check`, `pytest`, `uv build`. They run only when pyproject.toml exists at HEAD: this
+# repository starts without a package (ticket T01 creates it), and a Gate that is red for lack of
+# a package would block the very pull request that adds the harness. skill-lint (standard
+# library) and, on a pull request that touches the harness, both witness modes always run.
+#
+# Ported from NHAN-AI-VN/nhan (gate.yml at 8adef66b) without the Docker/PostgreSQL tiers and
+# without the Actions-minute machinery (scope job, covered runs): this repository is public, so
+# runs are free, and one job with no shortcuts is the simplest thing that is correct.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# D31 (nhan): the review orchestrator (C4), the merger (C5) and, after a merge, the dispatcher
+# (C1) run as the last step of this job on pull requests, so the job carries their permissions.
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  checks: read
+  actions: write
+
+concurrency:
+  group: gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Is there a Python package at HEAD
+        id: pkg
+        run: |
+          if [ -f pyproject.toml ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+            echo "pyproject.toml found: the Python gates run"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "no pyproject.toml at HEAD: Python gates skipped"
+          fi
+      # Does the pull request touch the harness? Then both witness modes run below. On a push to
+      # main or a manual run they run regardless (free on a public repository).
+      - name: Does this change touch the harness
+        id: scope
+        run: |
+          harness=true
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            files=$(gh api "repos/$GITHUB_REPOSITORY/compare/${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" --paginate --jq '.files[].filename' 2>/dev/null || echo UNKNOWN)
+            if printf '%s\n' "$files" | grep -Eq '^(scripts/harness/|scripts/skill_lint\.py|\.kiro/|\.githooks/|\.github/workflows/|UNKNOWN$)'; then harness=true; else harness=false; fi
+          fi
+          echo "harness=$harness" >> "$GITHUB_OUTPUT"
+          echo "harness touched: $harness"
+      # astral-sh/setup-uv pinned to the v10.4.0 commit (there is no floating v10 tag: the first
+      # Gate run of this repository failed on `unable to find version v10`); checksummed uv
+      # binary; the cache key follows uv.lock.
+      - name: Set up uv
+        if: steps.pkg.outputs.present == 'true'
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          enable-cache: true
+      - name: uv sync --frozen
+        if: steps.pkg.outputs.present == 'true'
+        run: uv sync --frozen
+      - name: ruff check
+        if: steps.pkg.outputs.present == 'true'
+        run: uv run ruff check .
+      - name: ruff format --check
+        if: steps.pkg.outputs.present == 'true'
+        run: uv run ruff format --check .
+      - name: pytest
+        if: steps.pkg.outputs.present == 'true'
+        run: uv run pytest -q
+      - name: uv build
+        if: steps.pkg.outputs.present == 'true'
+        run: uv build
+      # Standard library only (Python >= 3.11, tomllib); the runner's python3 is enough.
+      - name: skill-lint
+        run: python3 scripts/skill_lint.py
+      # The rule documents an unattended lane reads must name files that exist.
+      - name: check-doc-paths
+        run: bash scripts/harness/check-doc-paths.sh
+      # The harness's own gate: every case holds, then every mutation is caught. A failure here
+      # fails the run, so the merger refuses the pull request.
+      - name: 'Witness: every case holds'
+        if: steps.scope.outputs.harness == 'true'
+        run: bash scripts/harness/witness.sh
+      - name: 'Witness: every mutation is caught'
+        if: steps.scope.outputs.harness == 'true'
+        run: bash scripts/harness/witness.sh --witness-red
+      # Runs only after every step above succeeded (a step runs only while the job is green).
+      - name: Heavy gates passed
+        run: |
+          echo "every gate ran against the code at HEAD"
+          echo "python package at HEAD: ${{ steps.pkg.outputs.present }}; harness witnessed: ${{ steps.scope.outputs.harness }}"
+      # C4, C5 and, after a merge, C1 run here on every pull request (nhan D31, D33). The scripts
+      # and prompts come from origin/main (a lane cannot change how it is reviewed or merged); the
+      # lane branch and main are fetched in full for review-web.sh. This run is still in progress
+      # in the API, so its own outcome travels in HARNESS_GATE_SELF_*; a cancelled run (a newer
+      # push) runs nothing here. Until the harness is on main (the bootstrap pull request itself),
+      # the step reports that and exits 0.
+      - name: Harness after the gate (C4, C5, C1)
+        if: always() && github.event_name == 'pull_request' && job.status != 'cancelled'
+        env:
+          HARNESS_DISPATCH_TOKEN: ${{ secrets.HARNESS_DISPATCH_TOKEN }}
+          HARNESS_WEB_REVIEW: ${{ vars.HARNESS_WEB_REVIEW || 'on' }}
+          HARNESS_OPERATOR: nhannguyen89
+          HARNESS_BASE: main
+          HARNESS_MERGE_JOB: Gate
+          HARNESS_REVIEW_JOB: Gate
+          HARNESS_WIP: '1'
+          HARNESS_DISPATCH_INLINE: '1'
+          HARNESS_GATE_SELF_RUN: ${{ github.run_id }}
+          HARNESS_GATE_SELF_CONCLUSION: ${{ job.status }}
+        run: |
+          git fetch -q --unshallow origin 2>/dev/null || true
+          git fetch -q origin main "${{ github.event.pull_request.head.ref }}"
+          if ! git cat-file -e origin/main:scripts/harness/dispatch.sh 2>/dev/null; then
+            echo "no harness on main yet: nothing to orchestrate, merge or dispatch (the bootstrap pull request is merged by hand, FV-D4)"
+            exit 0
+          fi
+          h="$RUNNER_TEMP/harness-main"; rm -rf "$h"; mkdir -p "$h"
+          git archive origin/main scripts/harness .kiro/prompts docs/agents | tar -x -C "$h"
+          pr=${{ github.event.pull_request.number }}
+          echo "harness scripts from main $(git rev-parse --short origin/main); this run ${{ github.run_id }} concluded ${{ job.status }}"
+          export HARNESS_DECISION_FILE="$RUNNER_TEMP/review-decision.json"
+          bash "$h/scripts/harness/review-web.sh" --pr "$pr" --repo "$GITHUB_REPOSITORY" --apply
+          if jq -e '.action == "wait" and (.reasons | any(test("settling")))' "$HARNESS_DECISION_FILE" >/dev/null 2>&1; then
+            echo "branch still settling after an address turn: the next sweep posts the round once it is quiet"
+          fi
+          if [ "${{ job.status }}" = success ]; then
+            bash "$h/scripts/harness/merge-check.sh" --pr "$pr" --repo "$GITHUB_REPOSITORY" --apply
+          else
+            echo "Gate did not succeed: nothing to merge"
+          fi
+          # The dispatcher's reconcile pass rides on every Gate run of a pull request as well (nhan
+          # D33): GitHub's cron is sparse, and a silent lane raises no event of its own.
+          bash "$h/scripts/harness/dispatch.sh" --apply --repo "$GITHUB_REPOSITORY"

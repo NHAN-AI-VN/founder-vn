@@ -16,9 +16,27 @@ dist/
 .env.*
 !.env.example
 
-# Agent skills installed locally for development. Not part of the product.
-# - .agents/skills: mattpocock dev skills, pinned in skills-lock.json
-# - .kiro/skills: symlinks to the above, upstream founder-* (MIT, rewritten into skills/),
-#   and ID8Labs analyst skills (no license, must not be redistributed)
-.agents/skills/
-.kiro/skills/
+# Agent skills used for development (dev tooling). They are not part of the distributed product,
+# which lives in skills/ (the founder-vn SKILL.md files, rewritten for Vietnam).
+# - .agents/skills/<name>: the 27 mattpocock skills (MIT), pinned in skills-lock.json, committed so
+#   an unattended Kiro Web lane finds `implement`, `tdd`, `pr`... in its sandbox checkout
+#   (docs/agents/kiro-harness.md, FV-D6).
+# - .kiro/skills/<name>: committed symlinks to the above.
+# Excluded by name: the upstream founder-* skills (Jake Schincariol, MIT; rewritten into skills/)
+# and the ID8Labs analyst skills (no license, must not be redistributed).
+.kiro/skills/founder-*/
+.kiro/skills/competitive-intelligence/
+.kiro/skills/data-analyzer/
+.kiro/skills/financial-analyst/
+.kiro/skills/industry-expert/
+.kiro/skills/literature-review/
+.kiro/skills/market-research-analyst/
+.kiro/skills/sentiment-analyzer/
+.kiro/skills/seo-analyst/
+.kiro/skills/survey-analyzer/
+.kiro/skills/trend-spotter/
+.kiro/skills/ui-builder/
+.kiro/skills/user-research/
+
+# Harness scratch: gate logs and segment ledger written in the sandbox (docs/agents/kiro-harness.md)
+.harness/

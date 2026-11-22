@@ -1,0 +1,38 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": {
+    "number": 92,
+    "headRef": "lane/issue-8",
+    "headSha": "abc",
+    "body": "## Outcome\n\nDone.\n\n<promise>COMPLETE</promise>\n\nCloses #8\n",
+    "author": "nhannguyen89",
+    "draft": false,
+    "mergeable": "MERGEABLE",
+    "labels": [
+      "kiro"
+    ]
+  },
+  "checks": [
+    {
+      "name": "harness-merge",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "gate",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "ticket": {
+    "number": 8,
+    "state": "open",
+    "laneBranch": "lane/issue-8"
+  },
+  "reports": {
+    "standards": "# Review trục Standards — issue #8 (vòng 1)\n\nKhông có finding chặn.\n\n<promise>PASS</promise>\n",
+    "spec": "# Review trục Spec — issue #8 (vòng 1)\n\nBảy tiêu chí đáp ứng.\n\n<promise>PASS</promise>\n",
+    "ledger": "# Sổ giải quyết review — issue #8 (biên ngữ cảnh xác thực)\n\nNguồn: review ngữ nghĩa v1 `.agents/tasks/task-issue-8-auth-context/2026-09-05-095614-review.md`.\n\n1 FIXED — Chi nhánh verify tại seam nhưng rơi trước use case; mở rộng RequestContext.chiNhanhId.\n2 FIXED — token-hygiene guard quét sâu.\n3 FIXED — thu hẹp nới arch cho test adapter.\n4 DEFERRED — AC 6 chỉ luận cấu trúc.\n"
+  }
+}

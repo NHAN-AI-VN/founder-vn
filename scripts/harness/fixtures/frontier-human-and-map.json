@@ -1,0 +1,12 @@
+{
+  "wip": 2,
+  "now": "2026-09-04T12:00:00Z",
+  "issues": [
+    { "number": 2, "title": "02 · ADR stack", "labels": ["ready-for-human", "ready-for-agent"], "assignees": [], "blockedBy": [] },
+    { "number": 4, "title": "Map", "labels": ["ready-for-agent", "wayfinder:map"], "assignees": [], "blockedBy": [] },
+    { "number": 5, "title": "05 · Contract", "labels": ["ready-for-agent"], "assignees": [], "blockedBy": [] },
+    { "number": 6, "title": "06 · Claimed", "labels": ["ready-for-agent"], "assignees": ["someone"], "blockedBy": [] },
+    { "number": 7, "title": "07 · Blocked lane", "labels": ["ready-for-agent", "harness:blocked"], "assignees": [], "blockedBy": [] }
+  ],
+  "prs": []
+}

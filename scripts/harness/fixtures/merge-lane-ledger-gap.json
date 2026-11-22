@@ -1,0 +1,12 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": { "number": 52, "headRef": "lane/issue-4", "headSha": "abc", "body": "Closes #4", "author": "nhannguyen89", "draft": false, "mergeable": "MERGEABLE", "labels": [] },
+  "checks": [],
+  "ticket": { "number": 4, "state": "open", "laneBranch": "lane/issue-4" },
+  "reports": {
+    "standards": "# Standards review — #4\n\n### S1: tên hàm\n\n### S2: thiếu bằng chứng\n\n<promise>PASS</promise>\n",
+    "spec": "# Spec review — #4\n\n- SPEC-1: criterion 2\n\n<promise>PASS</promise>\n",
+    "ledger": "# Review closure ledger — #4\n\nS1 FIXED — commit a1b2c3\nSPEC-1 FIXED — commit d4e5f6\nSPEC-9 FIXED — inherited from another lane\n"
+  }
+}

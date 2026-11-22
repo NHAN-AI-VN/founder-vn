@@ -1,0 +1,32 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": {
+    "number": 188,
+    "headRef": "harness/review-web-edited",
+    "headSha": "8ed4b0b",
+    "body": "## Outcome\n\nreview-web nghe thêm sự kiện edited (M-41).\n",
+    "author": "nhannguyen89",
+    "draft": false,
+    "mergeable": "MERGEABLE",
+    "labels": [
+      "harness:auto-merge"
+    ],
+    "commits": [
+      "review-web: nghe pull_request edited (M-41: dòng Closes ghi sau khi mở PR)\n\nLane #32 mở PR #186 lúc 02:27Z chưa có `Closes #32`, Gate đỏ 02:30Z, review-web\n02:31Z coi đó không phải PR lane.\n"
+    ]
+  },
+  "checks": [
+    {
+      "name": "harness-merge",
+      "status": "in_progress",
+      "conclusion": null
+    }
+  ],
+  "ticket": null,
+  "reports": {
+    "standards": null,
+    "spec": null,
+    "ledger": null
+  }
+}

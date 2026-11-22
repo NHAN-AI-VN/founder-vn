@@ -1,0 +1,12 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": { "number": 53, "headRef": "lane/issue-5", "headSha": "abc", "body": "Closes #5", "author": "nhannguyen89", "draft": false, "mergeable": "MERGEABLE", "labels": [] },
+  "checks": [],
+  "ticket": { "number": 5, "state": "open", "laneBranch": "lane/issue-5" },
+  "reports": {
+    "standards": "# Standards review — #5\n\n### S1: vi phạm ranh giới module\n\n<promise>CHANGES_REQUESTED</promise>\n",
+    "spec": "# Spec review — #5\n\n<promise>PASS</promise>\n",
+    "ledger": null
+  }
+}

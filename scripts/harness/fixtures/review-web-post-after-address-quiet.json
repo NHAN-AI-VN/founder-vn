@@ -1,0 +1,49 @@
+{
+  "enabled": true,
+  "lane": {
+    "ticket": 3,
+    "head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "code": "cccccccccccccccccccccccccccccccccccccccc",
+    "headAt": "2026-09-05T07:18:00Z"
+  },
+  "gate": {
+    "required": true,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "reports": {
+    "standards": {
+      "current": false,
+      "signal": ""
+    },
+    "spec": {
+      "current": false,
+      "signal": ""
+    }
+  },
+  "turns": [
+    {
+      "axis": "standards",
+      "code": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "spec",
+      "code": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "address",
+      "code": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "at": "2026-09-05T07:00:00Z"
+    }
+  ],
+  "now": "2026-09-05T07:30:00Z",
+  "limits": {
+    "rounds": 2,
+    "attempts": 2,
+    "turns": 10,
+    "stale_minutes": 120,
+    "quiet_minutes": 10
+  }
+}

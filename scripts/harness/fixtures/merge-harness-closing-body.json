@@ -1,0 +1,32 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": {
+    "number": 57,
+    "headRef": "harness/some-change",
+    "headSha": "abc",
+    "body": "## Outcome\n\nSửa merger. Fixes: #7 là ticket của việc này, đóng khi merge.\n",
+    "author": "nhannguyen89",
+    "draft": false,
+    "mergeable": "MERGEABLE",
+    "labels": [
+      "harness:auto-merge"
+    ],
+    "commits": [
+      "merge: đọc lại mergeable khi UNKNOWN\n"
+    ]
+  },
+  "checks": [
+    {
+      "name": "harness-merge",
+      "status": "in_progress",
+      "conclusion": null
+    }
+  ],
+  "ticket": null,
+  "reports": {
+    "standards": null,
+    "spec": null,
+    "ledger": null
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": { "number": 54, "headRef": "kiro/some-other-branch", "headSha": "abc", "body": "Closes #6", "author": "nhannguyen89", "draft": false, "mergeable": "MERGEABLE", "labels": [] },
+  "checks": [],
+  "ticket": { "number": 6, "state": "open", "laneBranch": "lane/issue-6" },
+  "reports": {
+    "standards": "# Standards review — #6\n\n<promise>PASS</promise>\n",
+    "spec": "# Spec review — #6\n\n<promise>PASS</promise>\n",
+    "ledger": null
+  }
+}

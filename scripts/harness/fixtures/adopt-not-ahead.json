@@ -1,0 +1,20 @@
+{
+  "now": "2026-09-10T12:10:00Z",
+  "lanes": [
+    {
+      "number": 9,
+      "branch": "lane/issue-9",
+      "pushedAt": "2026-09-10T11:54:09Z",
+      "headSha": "71ecd990aaaa",
+      "ahead": 0,
+      "openPr": null,
+      "files": [
+        "packages/x.ts"
+      ],
+      "evidence": {
+        "path": "docs/evidence/issue-9-x.md",
+        "text": "# Bằng chứng\n\n## Cổng tổng cuối\n\n| verify | `bash scripts/harness/gate-segment.sh verify` | **GREEN on 74ac044a** — bốn đoạn exit 0 trên cùng HEAD |\n\n## Giới hạn\n"
+      }
+    }
+  ]
+}

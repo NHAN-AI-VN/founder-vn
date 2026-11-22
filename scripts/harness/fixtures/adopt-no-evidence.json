@@ -1,0 +1,17 @@
+{
+  "now": "2026-09-10T12:10:00Z",
+  "lanes": [
+    {
+      "number": 9,
+      "branch": "lane/issue-9",
+      "pushedAt": "2026-09-10T11:54:09Z",
+      "headSha": "71ecd990aaaa",
+      "ahead": 10,
+      "openPr": null,
+      "files": [
+        "packages/x.ts"
+      ],
+      "evidence": null
+    }
+  ]
+}

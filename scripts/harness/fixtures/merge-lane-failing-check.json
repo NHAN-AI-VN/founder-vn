@@ -1,0 +1,12 @@
+{
+  "operator": "nhannguyen89",
+  "self": "harness-merge",
+  "pr": { "number": 55, "headRef": "lane/issue-7", "headSha": "abc", "body": "Closes #7", "author": "nhannguyen89", "draft": false, "mergeable": "MERGEABLE", "labels": [] },
+  "checks": [ { "name": "gate", "status": "completed", "conclusion": "failure" } ],
+  "ticket": { "number": 7, "state": "open", "laneBranch": "lane/issue-7" },
+  "reports": {
+    "standards": "# Standards review — #7\n\n<promise>PASS</promise>\n",
+    "spec": "# Spec review — #7\n\n<promise>PASS</promise>\n",
+    "ledger": null
+  }
+}
