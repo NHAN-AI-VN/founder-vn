@@ -41,12 +41,28 @@ FENCE = re.compile(r"^\s*(```|~~~)")
 
 
 # ---- rules: one line each -------------------------------------------------------------------
-def rule_name_matches(fm: dict, folder: str) -> bool: return fm.get("name") == folder
-def rule_has_vietnamese(text: str | None) -> bool: return VIETNAMESE.search(text or "") is not None
-def rule_has_license(fm: dict) -> bool: return bool(fm.get("license"))
-def rule_has_version(fm: dict) -> bool: return bool(fm.get("metadata", {}).get("version"))
-def rule_version_matches(skill: str | None, project: str | None) -> bool: return project is None or skill == project
-def rule_no_dollar(line: str) -> bool: return DOLLAR.search(line) is None
+def rule_name_matches(fm: dict, folder: str) -> bool:
+    return fm.get("name") == folder
+
+
+def rule_has_vietnamese(text: str | None) -> bool:
+    return VIETNAMESE.search(text or "") is not None
+
+
+def rule_has_license(fm: dict) -> bool:
+    return bool(fm.get("license"))
+
+
+def rule_has_version(fm: dict) -> bool:
+    return bool(fm.get("metadata", {}).get("version"))
+
+
+def rule_version_matches(skill: str | None, project: str | None) -> bool:
+    return project is None or skill == project
+
+
+def rule_no_dollar(line: str) -> bool:
+    return DOLLAR.search(line) is None
 
 
 # ---- frontmatter ----------------------------------------------------------------------------
@@ -110,7 +126,19 @@ def project_version(root: Path) -> str | None:
         return None
     with pyproject.open("rb") as fh:
         data = tomllib.load(fh)
-    return str(data.get("project", {}).get("version")) if "version" in data.get("project", {}) else None
+    project = data.get("project", {})
+    if "version" in project:
+        return str(project["version"])
+    path = data.get("tool", {}).get("hatch", {}).get("version", {}).get("path")
+    if "version" in project.get("dynamic", []) and path:
+        match = re.search(
+            r"""^__version__\s*=\s*['"]([^'"]+)['"]""",
+            (root / path).read_text(encoding="utf-8"),
+            re.MULTILINE,
+        )
+        if match:
+            return match.group(1)
+    return None
 
 
 def check_skill(path: Path, folder: str, version: str | None, findings: list[str]) -> None:
@@ -123,15 +151,23 @@ def check_skill(path: Path, folder: str, version: str | None, findings: list[str
     else:
         body_start = end
         if not rule_name_matches(fm, folder):
-            findings.append(f"{rel}:1: name is {fm.get('name')!r}, expected {folder!r} (the folder name)")
-        if not rule_has_vietnamese(fm.get("description") if isinstance(fm.get("description"), str) else None):
-            findings.append(f"{rel}:1: description has no Vietnamese trigger phrase (no diacritic found)")
+            findings.append(
+                f"{rel}:1: name is {fm.get('name')!r}, expected {folder!r} (the folder name)"
+            )
+        if not rule_has_vietnamese(
+            fm.get("description") if isinstance(fm.get("description"), str) else None
+        ):
+            findings.append(
+                f"{rel}:1: description has no Vietnamese trigger phrase (no diacritic found)"
+            )
         if not rule_has_license(fm):
             findings.append(f"{rel}:1: license missing")
         if not rule_has_version(fm):
             findings.append(f"{rel}:1: metadata.version missing")
         elif not rule_version_matches(str(fm["metadata"]["version"]), version):
-            findings.append(f"{rel}:1: metadata.version {fm['metadata']['version']!r} differs from pyproject [project].version {version!r}")
+            findings.append(
+                f"{rel}:1: metadata.version {fm['metadata']['version']!r} differs from pyproject [project].version {version!r}"
+            )
     in_fence = False
     for n, line in enumerate(lines[body_start:], start=body_start + 1):
         if FENCE.match(line):
@@ -140,13 +176,17 @@ def check_skill(path: Path, folder: str, version: str | None, findings: list[str
         if in_fence:
             continue
         if not rule_no_dollar(line):
-            findings.append(f"{rel}:{n}: `$` next to a digit; Owner-facing money is VND (`35.000 đ`)")
+            findings.append(
+                f"{rel}:{n}: `$` next to a digit; Owner-facing money is VND (`35.000 đ`)"
+            )
 
 
 def check_example(path: Path, findings: list[str]) -> None:
     for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         if not rule_no_dollar(line):
-            findings.append(f"{path.as_posix()}:{n}: `$` next to a digit; examples are Owner-facing and use VND")
+            findings.append(
+                f"{path.as_posix()}:{n}: `$` next to a digit; examples are Owner-facing and use VND"
+            )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -156,7 +196,11 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(args.root)
     version = project_version(root)
     findings: list[str] = []
-    skills = sorted(p for p in (root / "skills").glob("*/SKILL.md")) if (root / "skills").is_dir() else []
+    skills = (
+        sorted(p for p in (root / "skills").glob("*/SKILL.md"))
+        if (root / "skills").is_dir()
+        else []
+    )
     for skill in skills:
         check_skill(skill, skill.parent.name, version, findings)
     examples = sorted((root / "examples").rglob("*.md")) if (root / "examples").is_dir() else []
@@ -167,8 +211,10 @@ def main(argv: list[str] | None = None) -> int:
     noun = "skill" if len(skills) == 1 else "skills"
     if len(skills) == 0:
         noun = "skill"
-    print(f"skill-lint: {len(skills)} {noun} checked, {len(examples)} example file(s), {len(findings)} finding(s)"
-          + (f" (package version {version})" if version else ""))
+    print(
+        f"skill-lint: {len(skills)} {noun} checked, {len(examples)} example file(s), {len(findings)} finding(s)"
+        + (f" (package version {version})" if version else "")
+    )
     return 1 if findings else 0
 
 

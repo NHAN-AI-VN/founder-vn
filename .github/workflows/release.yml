@@ -1,0 +1,49 @@
+name: Release
+
+# Tagging v<version> builds the package and publishes it to PyPI by trusted publishing (OIDC):
+# no PyPI token is stored anywhere. The owner configures the trusted publisher on PyPI for this
+# repository, workflow release.yml, environment pypi, before the first tag.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Tag equals v<__version__>
+        run: |
+          version=$(python3 -c "import re,pathlib; print(re.search(r'__version__\s*=\s*\"([^\"]+)\"', pathlib.Path('src/founder_vn/__init__.py').read_text()).group(1))")
+          if [ "$GITHUB_REF_NAME" != "v${version}" ]; then
+            echo "tag $GITHUB_REF_NAME does not equal v${version}"
+            exit 1
+          fi
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - name: uv build
+        run: uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
