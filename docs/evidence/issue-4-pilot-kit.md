@@ -39,7 +39,16 @@ The commit after that HEAD touches only this evidence file.
 
 ## Cổng sau review
 
-Rerun on 8687a06648a7d7c142e137c41f3796a1d6aa4a4e: static, unit, build exit 0; `gate-segment verify: GREEN`. The commit after that HEAD touches only this evidence file.
+Round 2 address turn, rerun on 0ddcced22fb160fdc0876072f95fb9d54393aa23 (the last commit that touches `pilot/` or the Lát table):
+
+```
+static 0 0ddcced22fb160fdc0876072f95fb9d54393aa23 (ruff check, ruff format --check, skill-lint: 0 skill checked)
+unit   0 0ddcced22fb160fdc0876072f95fb9d54393aa23 (51 passed)
+build  0 0ddcced22fb160fdc0876072f95fb9d54393aa23 (founder_vn-0.1.0 built)
+gate-segment verify: GREEN on 0ddcced22fb160fdc0876072f95fb9d54393aa23
+```
+
+The commits after that HEAD touch only this evidence file and `reviews/issue-4/ledger.md`.
 
 ## Giới hạn
 
