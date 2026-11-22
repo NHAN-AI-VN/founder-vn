@@ -17,7 +17,7 @@ Derived from the acceptance criteria (the ticket has no `## Seam` section); ever
 | scaffold | `tests/test_package.py::test_package_has_single_source_version` | No witnessed red: manifest slice, the test only proves the environment runs | `uv run pytest tests/test_package.py -q` |
 | files | `tests/test_files.py` (16 tests, one per refusal) | `ImportError: cannot import name 'files' from 'founder_vn'` | `uv run pytest tests/test_files.py -q` |
 | parity | `tests/test_parity.py::test_cli_version_equals_mcp_server_info` | `ImportError: cannot import name 'info' from 'founder_vn'` | `uv run pytest tests/test_parity.py -q` |
-| fixtures | `tests/test_fixtures.py` (7 tests) | No separate red: fixtures and their tests are one test-only commit; `test_cli_golden_runner_detects_a_changed_output` and `test_network_guard_refuses_a_non_loopback_connection` assert the failure paths | `uv run pytest tests/test_fixtures.py -q` |
+| fixtures | `tests/test_fixtures.py` (7 tests) | Gate witness (review S1), by mutation: in `tests/conftest.py` the `raise RuntimeError(...)` of `no_external_network` was replaced by `return`, then the `assert {"stdout": ..., "files": ...} == expected` of `assert_golden` by `pass`. Red 1: `Failed: DID NOT RAISE RuntimeError` in `test_network_guard_refuses_a_non_loopback_connection`. Red 2: `Failed: DID NOT RAISE AssertionError` in `test_cli_golden_runner_detects_a_changed_output`. Both mutations reverted | `uv run pytest tests/test_fixtures.py -q` (7 passed) |
 | release | `tests/test_release.py` (3 tests: tag trigger, OIDC without token, tag equals version check) | `FileNotFoundError: [Errno 2] No such file or directory: '.github/workflows/release.yml'` | `uv run pytest tests/test_release.py -q` |
 | hosts | `tests/test_hosts.py` (2 tests: snippet is JSON naming the console script, no secret values) | `FileNotFoundError: [Errno 2] No such file or directory: 'docs/hosts/kiro.md'` | `uv run pytest tests/test_hosts.py -q` |
 
@@ -27,6 +27,10 @@ Deviations: `mcp` resolves to 2.x (`mcp.server.mcpserver.MCPServer`, `mcp.Client
 
 Command: `uv build`, then the wheel `dist/founder_vn-0.1.0-py3-none-any.whl` installed into a clean venv (`uv venv`, `uv pip install`), then an in-process `mcp.Client` over stdio started `founder-vn-mcp` and called `server_info`.
 Result: `founder-vn 0.1.0`; `founder-vn version` from the same venv prints `founder-vn 0.1.0`.
+
+## Dependencies
+
+Both come from design §5 and are pinned in `uv.lock`: `mcp` 2.3.0 (MIT) and `httpx` 0.28.1 (BSD-3-Clause), read from the installed package metadata.
 
 ## Kiro registration
 
@@ -52,6 +56,7 @@ This lane does not prove:
 
 - PyPI publication. `release.yml` was not run: the lane cannot push tags or reach PyPI. Only its text is tested (`tests/test_release.py`).
 - `uvx founder-vn-mcp` resolving from PyPI. The smoke check used the local wheel.
+- That `no_external_network` blocks every route out. It patches only `socket.socket.connect` for AF_INET/AF_INET6 sockets in the pytest process. Blind spots: `connect_ex`, UDP `sendto`, and child processes (`mcp_call` starts the server with `subprocess`, which the patch does not reach). `assert_golden` compares stdout and files under `founder/` with one JSON file; it does not cover stderr or files outside `founder/`.
 - That the Kiro host loads the `mcp.json` entry; only the JSON and the script name are checked.
 
 Owner actions after merge, in order: configure the PyPI trusted publisher for repository `NHAN-AI-VN/founder-vn`, workflow `release.yml`, environment `pypi`; create the GitHub environment `pypi`; push tag `v0.1.0`. Acceptance criteria 4 and 5 are complete only after these.
