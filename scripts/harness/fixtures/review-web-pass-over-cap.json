@@ -1,0 +1,98 @@
+{
+  "enabled": true,
+  "lane": {
+    "ticket": 3,
+    "head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "code": "cccccccccccccccccccccccccccccccccccccccc"
+  },
+  "gate": {
+    "required": true,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "reports": {
+    "standards": {
+      "current": true,
+      "signal": "<promise>PASS</promise>"
+    },
+    "spec": {
+      "current": true,
+      "signal": "<promise>PASS</promise>"
+    }
+  },
+  "turns": [
+    {
+      "axis": "standards",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "1",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "standards",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "2",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "standards",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "3",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "standards",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "4",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "standards",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "5",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "spec",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "1",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "spec",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "2",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "spec",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "3",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "spec",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "4",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "spec",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "5",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "address",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": "1",
+      "at": "2026-09-05T06:00:00Z"
+    }
+  ],
+  "now": "2026-09-05T10:00:00Z",
+  "limits": {
+    "rounds": 2,
+    "attempts": 2,
+    "turns": 10,
+    "stale_minutes": 120
+  }
+}

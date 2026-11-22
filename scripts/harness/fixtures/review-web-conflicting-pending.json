@@ -1,0 +1,51 @@
+{
+  "enabled": true,
+  "lane": {
+    "ticket": 3,
+    "head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "code": "cccccccccccccccccccccccccccccccccccccccc",
+    "headAt": "2026-09-05T09:00:00Z",
+    "parked": false,
+    "mergeable": "CONFLICTING"
+  },
+  "gate": {
+    "required": true,
+    "status": null,
+    "conclusion": null
+  },
+  "reports": {
+    "standards": {
+      "current": true,
+      "signal": "<promise>PASS</promise>"
+    },
+    "spec": {
+      "current": true,
+      "signal": "<promise>CHANGES_REQUESTED</promise>"
+    }
+  },
+  "turns": [
+    {
+      "axis": "standards",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "at": "2026-09-05T08:00:00Z"
+    },
+    {
+      "axis": "spec",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "at": "2026-09-05T08:00:00Z"
+    },
+    {
+      "axis": "sync",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "at": "2026-09-05T09:50:00Z"
+    }
+  ],
+  "now": "2026-09-05T10:00:00Z",
+  "limits": {
+    "rounds": 2,
+    "attempts": 2,
+    "turns": 10,
+    "stale_minutes": 120,
+    "quiet_minutes": 10
+  }
+}

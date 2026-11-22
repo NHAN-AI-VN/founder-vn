@@ -1,0 +1,42 @@
+{
+  "enabled": true,
+  "lane": {
+    "ticket": 3,
+    "head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "code": "cccccccccccccccccccccccccccccccccccccccc"
+  },
+  "gate": {
+    "required": true,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "reports": {
+    "standards": {
+      "current": true,
+      "signal": "<promise>CHANGES_REQUESTED</promise>"
+    },
+    "spec": {
+      "current": true,
+      "signal": "<promise>PASS</promise>"
+    }
+  },
+  "turns": [
+    {
+      "axis": "address",
+      "code": "0000000000000000000000000000000000000000",
+      "at": "2026-09-05T06:00:00Z"
+    },
+    {
+      "axis": "address",
+      "code": "1111111111111111111111111111111111111111",
+      "at": "2026-09-05T06:00:00Z"
+    }
+  ],
+  "now": "2026-09-05T10:00:00Z",
+  "limits": {
+    "rounds": 2,
+    "attempts": 2,
+    "turns": 10,
+    "stale_minutes": 120
+  }
+}

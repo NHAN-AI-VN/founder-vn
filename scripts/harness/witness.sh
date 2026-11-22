@@ -29,6 +29,9 @@ apierr_filter="$here/api-error.jq"
 openpr="$here/open-lane-pr.sh"
 prbody="$here/lane-pr-body.sh"
 lanecode="$here/lane-code.sh"
+web_filter="$here/review-web.jq"
+turn="$here/review-web-turn.sh"
+prompts="$root/.kiro/prompts"
 fixtures="$here/fixtures"
 mode=${1:-}
 failures=0
@@ -354,6 +357,40 @@ expect_lanecode() {
     && ok "lane-code: $name" || fail "lane-code: $name (got ${got:-<error>})"
 }
 
+# ---- review orchestrator (C4) helpers --------------------------------------------------------
+# expect_web <fixture> <expected-action> [<expected-axes-json>]: the review orchestrator's step
+expect_web() {
+  skip WEB_FILTER && return 0
+  local fixture=$1 want=$2 want_axes=${3:-} got got_axes
+  got=$(jq -r -f "${WEB_FILTER:-$web_filter}" "$fixtures/$fixture" 2>/dev/null | jq -r '.action' 2>/dev/null || printf 'jq failed')
+  if [ "$got" != "$want" ]; then fail "review-web: $fixture (want $want, got $got)"; return; fi
+  if [ -n "$want_axes" ]; then
+    got_axes=$(jq -c -f "${WEB_FILTER:-$web_filter}" "$fixtures/$fixture" 2>/dev/null | jq -c '.axes')
+    if [ "$got_axes" != "$want_axes" ]; then fail "review-web: $fixture (want axes $want_axes, got $got_axes)"; return; fi
+  fi
+  ok "review-web: $fixture -> $got${want_axes:+ $want_axes}"
+}
+
+# expect_turn <axis>: the rendered `/kiro` message of one turn opens with /kiro, carries the CI
+# text, the ticket body for every axis but standards, the prompt verbatim, the marker last; and
+# names nothing of the source project's toolchain (npm, Docker, master).
+expect_turn() {
+  skip TURN && return 0
+  local axis=$1 d out bad=""
+  d=$(mktemp -d)
+  printf 'Run 1 (https://x): success\n' > "$d/ci.md"; printf 'Thân ticket mẫu.\n' > "$d/ticket.md"
+  out=$(bash "${TURN:-$turn}" "$axis" 9 main lane/issue-9 0123456789abcdef 89abcdef01234567 2 "${PROMPTS:-$prompts}" "$d/ci.md" "$d/ticket.md" 2>/dev/null) || bad="$bad exit"
+  rm -rf "$d"
+  printf '%s\n' "$out" | head -n1 | grep -q '^/kiro ' || bad="$bad no-/kiro-first"
+  printf '%s\n' "$out" | grep -q 'Run 1 (https://x): success' || bad="$bad no-ci"
+  printf '%s\n' "$out" | grep -q 'Thân ticket mẫu' || bad="$bad no-ticket"
+  printf '%s\n' "$out" | grep -q '^## Tín hiệu' || bad="$bad no-prompt"
+  printf '%s\n' "$out" | tail -n1 | grep -q "^<!-- harness:turn axis=$axis code=0123456789abcdef head=89abcdef01234567 round=2 at=" || bad="$bad no-marker-last"
+  printf '%s\n' "$out" | grep -qiE 'npm |with-docker|master|postgres' && bad="$bad names-old-toolchain"
+  printf '%s\n' "$out" | grep -q 'gate-segment.sh' || { [ "$axis" = standards ] || [ "$axis" = spec ] || bad="$bad no-gate-commands"; }
+  if [ -z "$bad" ]; then ok "turn: $axis message renders"; else fail "turn: $axis message (problems:$bad)"; fi
+}
+
 run_cases() {
   # ---- guard rule 1: secret paths and names ----
   expect_guard "read .env is refused"                      2 '{"tool_name":"fs_read","tool_input":{"path":".env"}}'
@@ -520,6 +557,50 @@ run_cases() {
   expect_lanecode "a report and a ledger after the last slice do not move the code commit" code
   expect_lanecode "a commit that touches the ledger and a source file is code"             mixed
   expect_lanecode "nothing but reports since the target: the merge-base"                   base
+  # ---- review orchestrator (C4) ----
+  expect_web "review-web-fresh.json" post '["standards","spec"]'
+  expect_web "review-web-off.json" off
+  expect_web "review-web-gate-running.json" wait
+  expect_web "review-web-gate-none.json" wait
+  expect_web "review-web-no-gate-file.json" post '["standards","spec"]'
+  expect_web "review-web-pending.json" wait
+  expect_web "review-web-half.json" post '["spec"]'
+  expect_web "review-web-half-pending.json" wait
+  expect_web "review-web-stale-repost.json" post '["standards","spec"]'
+  expect_web "review-web-stalled.json" stalled
+  expect_web "review-web-old-code-turns.json" post '["standards","spec"]'
+  expect_web "review-web-pass.json" done
+  expect_web "review-web-stale-pass.json" post '["standards"]'
+  expect_web "review-web-changes.json" address '["address"]'
+  expect_web "review-web-no-signal.json" address
+  expect_web "review-web-address-pending.json" wait
+  expect_web "review-web-address-stalled.json" stalled
+  expect_web "review-web-blocked.json" blocked '["spec"]'
+  expect_web "review-web-exhausted.json" exhausted
+  expect_web "review-web-turn-cap.json" exhausted
+  expect_web "review-web-gate-red.json" address '["address"]'
+  expect_web "review-web-gate-red-reviews-pending.json" wait '["standards","spec"]'
+  expect_web "review-web-gate-red-pass.json" address '["address"]'
+  expect_web "review-web-gate-red-address-pending.json" wait
+  expect_web "review-web-gate-cancelled.json" wait
+  expect_web "review-web-gate-red-exhausted.json" exhausted
+  expect_web "review-web-repost-same-code.json" address '["address"]'
+  expect_web "review-web-exhausted-settling.json" wait
+  expect_web "review-web-parked.json" off
+  expect_web "review-web-conflicting.json" sync '["sync"]'
+  expect_web "review-web-conflicting-pending.json" wait '["sync"]'
+  expect_web "review-web-conflicting-stalled.json" stalled '["sync"]'
+  expect_web "review-web-conflict-cleared.json" address '["address"]'
+  expect_web "review-web-pass-over-cap.json" done
+  expect_web "review-web-post-after-address-settling.json" wait '["standards","spec"]'
+  expect_web "review-web-post-after-address-quiet.json" post '["standards","spec"]'
+  expect_web "review-web-post-fresh-lane-settling.json" post '["standards","spec"]'
+  expect_web "review-web-turn-cap-duplicates.json" post '["standards","spec"]'
+  # ---- the /kiro message of a turn ----
+  expect_turn standards
+  expect_turn spec
+  expect_turn address
+  expect_turn sync
 }
 
 if [ "$mode" = "--witness-red" ]; then
@@ -559,6 +640,10 @@ if [ "$mode" = "--witness-red" ]; then
       out=$(PRBODY="$tmp" WITNESS_ONLY=PRBODY run_cases 2>/dev/null)
     elif [ "$target" = "$lanecode" ]; then
       out=$(LANECODE="$tmp" WITNESS_ONLY=LANECODE run_cases 2>/dev/null)
+    elif [ "$target" = "$web_filter" ]; then
+      out=$(WEB_FILTER="$tmp" WITNESS_ONLY=WEB_FILTER run_cases 2>/dev/null)
+    elif [ "$target" = "$turn" ]; then
+      out=$(TURN="$tmp" WITNESS_ONLY=TURN run_cases 2>/dev/null)
     else
       printf 'witness: no case family for %s\n' "$target" >&2
       out="FAIL no family"
@@ -647,6 +732,28 @@ if [ "$mode" = "--witness-red" ]; then
   mutate "open a PR against master"             "$openpr" 's#^base=\$\{HARNESS_BASE:-main\}#base=master#'
   # ---- the code commit of a lane (D40) ----
   mutate "count a ledger commit as code"       "$lanecode" 's#^ledger=.*#ledger=#'
+  # ---- review orchestrator (C4) ----
+  mutate "ignore the gate entirely"          "$web_filter" 's#\$in\.gate\.required and#false and#g'
+  mutate "treat a stale report as current"   "$web_filter" 's#\(\$in\.reports\[\$a\]\.current // false\) \| not#false#'
+  mutate "repost a pending turn"             "$web_filter" 's#then "pending"#then "post"#'
+  mutate "never stall a turn"                "$web_filter" 's#then "stalled"#then "post"#'
+  mutate "ignore the address round cap"      "$web_filter" 's#address_rounds\(\$in\) >= \$in\.limits\.rounds#false#'
+  mutate "read BLOCKED as changes"           "$web_filter" 's#then "blocked"#then "changes"#'
+  mutate "read any verdict as PASS"          "$web_filter" 's#then "pass"#then "pass" elif true then "pass"#'
+  mutate "ignore the switch"                 "$web_filter" 's#\(\$in\.enabled \| not\)#false#'
+  mutate "ignore the turn cap"               "$web_filter" 's#>= \$in\.limits\.turns#>= 999999#'
+  mutate "review code with a red gate"       "$web_filter" 's#\$in\.gate\.conclusion != "success"#false#'
+  mutate "address a gate without a verdict"  "$web_filter" 's#\$in\.gate\.conclusion != "failure"#false#'
+  mutate "count a re-posted turn as a new round" "$web_filter" 's#\| \.code \] \| unique \| length#] | length#'
+  mutate "park a lane that is still pushing"  "$web_filter" 's#if settling\(\$in\) then#if false then#'
+  mutate "review a parked ticket"            "$web_filter" 's#\(\$in\.lane\.parked // false\)#false#'
+  mutate "review a conflicting pull request" "$web_filter" 's#== "CONFLICTING"#== "never"#'
+  mutate "park a finished lane at the turn cap" "$web_filter" 's#and \(done_at_head\(\$in\) \| not\)#and true#'
+  mutate "count a re-posted round toward the turn cap" "$web_filter" 's#\| axis_round \] \| unique \| length#] | length#'
+  mutate "post a review round while the fix session may still be pushing" "$web_filter" 's#^def after_address\(\$in\): .*#def after_address($in): false;#'
+  # ---- the /kiro message of a turn ----
+  mutate "post a turn without the marker"    "$turn" 's#^printf .\\n<!-- harness:turn .*#true#'
+  mutate "post a turn without the prompt"    "$turn" 's#^cat "\$prompt_file"#true#'
   }
   # The mutations run in parallel. Each `mutate` line above is numbered in order; this script
   # re-runs itself once per number with WITNESS_MUTATION set, and that child runs the one mutation
