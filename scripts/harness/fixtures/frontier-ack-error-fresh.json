@@ -1,0 +1,31 @@
+{
+  "wip": 1,
+  "now": "2026-09-05T20:30:00Z",
+  "prs": [],
+  "issues": [
+    {
+      "number": 12,
+      "title": "12 · Thành viên tổ chức",
+      "labels": [
+        "ready-for-agent",
+        "kiro"
+      ],
+      "assignees": [],
+      "blockedBy": [],
+      "labeledAt": "2026-09-05T19:44:51Z",
+      "kiroAckAt": "2026-09-05T20:25:00Z",
+      "dispatches": 1,
+      "lastComment": "Taking a look at this issue and I'll get started soon.",
+      "kiroAckError": true
+    },
+    {
+      "number": 13,
+      "title": "13 · Kế tiếp",
+      "labels": [
+        "ready-for-agent"
+      ],
+      "assignees": [],
+      "blockedBy": []
+    }
+  ]
+}

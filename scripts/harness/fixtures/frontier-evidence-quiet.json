@@ -1,0 +1,33 @@
+{
+  "wip": 1,
+  "now": "2026-09-05T20:52:00Z",
+  "prs": [],
+  "issues": [
+    {
+      "number": 12,
+      "title": "12 · Thành viên tổ chức",
+      "labels": [
+        "ready-for-agent",
+        "kiro"
+      ],
+      "assignees": [],
+      "blockedBy": [],
+      "labeledAt": "2026-09-05T19:44:51Z",
+      "kiroAckAt": "2026-09-05T19:55:00Z",
+      "dispatches": 1,
+      "lastComment": "Taking a look at this issue and I'll get started soon.",
+      "lanePushedAt": "2026-09-05T20:05:00Z",
+      "laneBranch": true,
+      "laneEvidence": true
+    },
+    {
+      "number": 13,
+      "title": "13 · Kế tiếp",
+      "labels": [
+        "ready-for-agent"
+      ],
+      "assignees": [],
+      "blockedBy": []
+    }
+  ]
+}

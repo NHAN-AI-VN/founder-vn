@@ -1,0 +1,74 @@
+name: Harness frontier dispatch
+
+# Component C1 of docs/agents/kiro-harness.md. Deterministic: no model runs here. It witnesses
+# the harness mechanisms first, then lets scripts/harness/dispatch.sh decide which ticket is
+# next, comment the allocation (`/kiro`, with the operator's token) and add the `kiro` label.
+#
+# Runs on its own when an operator moves the frontier by hand (a ticket closed, a harness label
+# removed; a change made with GITHUB_TOKEN raises no event) and on a manual run. The same
+# decision runs inline elsewhere: at the end of every Gate run of a pull request, after every
+# machine merge, and in every after-gate.yml sweep (its `*/15` cron is the stall and silence
+# timer, FV-D5). Automatic runs apply; a manual run is a dry run unless `apply` is set. Only the
+# tools preinstalled on the runner (bash, jq, gh) are used.
+
+on:
+  issues:
+    types: [closed, unlabeled]
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Act on the decision (post the allocation comment, add the kiro label). Off is a dry run."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+  actions: write
+
+concurrency:
+  group: harness-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      # The operator's fine-grained token (Issues: read and write; Pull requests: read and write
+      # and Contents: read, for the pull request the dispatcher opens on a finished lane branch,
+      # because a pull request opened with the workflow token starts no Gate run). Only the
+      # allocation comment and that pull request use it: Kiro Web ignores a label added by
+      # github-actions[bot] (nhan M-1). dispatch.sh refuses to dispatch without it.
+      HARNESS_DISPATCH_TOKEN: ${{ secrets.HARNESS_DISPATCH_TOKEN }}
+      HARNESS_WIP: "1"
+      HARNESS_BASE: main
+    steps:
+      - uses: actions/checkout@v7
+      - name: Witness the harness mechanisms
+        run: bash scripts/harness/witness.sh
+      # The unblock path: the operator answers the `- [ ]` questions with a commit on the lane branch
+      # and removes harness:blocked; the review orchestrator (C4) runs again for the open lane pull
+      # request and, the code commit having moved, starts a new review round.
+      - name: Re-run the review orchestrator when harness:blocked is removed
+        if: github.event_name == 'issues' && github.event.action == 'unlabeled' && github.event.label.name == 'harness:blocked'
+        run: |
+          n=${{ github.event.issue.number }}
+          pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --json number,body \
+            --jq ".[] | select((.body // \"\") | test(\"(?i)(^|\\\\n)[ \\\\t]*([-*][ \\\\t]+)?closes[ \\\\t]+#$n([^0-9]|\$)\")) | .number" | sort -n | head -1)
+          if [ -n "$pr" ]; then
+            head=$(gh pr view "$pr" --repo "$GITHUB_REPOSITORY" --json headRefName --jq .headRefName)
+            gh workflow run after-gate.yml --repo "$GITHUB_REPOSITORY" -f branch="$head"
+            echo "harness:blocked removed from #$n: review orchestrator dispatched for #$pr ($head)"
+          else
+            echo "harness:blocked removed from #$n: no open lane pull request"
+          fi
+      - name: Decide (and apply unless this is a manual dry run)
+        run: |
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] || [ "${{ inputs.apply }}" = "true" ]; then
+            bash scripts/harness/dispatch.sh --apply
+          else
+            bash scripts/harness/dispatch.sh
+          fi

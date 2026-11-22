@@ -1,0 +1,10 @@
+{
+  "wip": 1,
+  "now": "2026-11-22T06:30:00Z",
+  "issues": [
+    { "number": 1, "title": "Spec: founder-vn v1", "labels": ["ready-for-agent"], "assignees": [], "blockedBy": [], "subIssues": 19 },
+    { "number": 2, "title": "T01 · Package scaffold", "labels": ["ready-for-agent"], "assignees": [], "blockedBy": [], "subIssues": 0 },
+    { "number": 3, "title": "T02 · Repo front door", "labels": ["ready-for-agent"], "assignees": [], "blockedBy": [], "subIssues": 0 }
+  ],
+  "prs": []
+}

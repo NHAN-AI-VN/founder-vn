@@ -1,0 +1,11 @@
+{
+  "wip": 1,
+  "now": "2026-09-04T12:00:00Z",
+  "issues": [
+    { "number": 1, "title": "01 · Dọn CI", "labels": ["ready-for-agent", "pha-0"], "assignees": [], "blockedBy": [] },
+    { "number": 3, "title": "03 · Bootstrap", "labels": ["ready-for-agent", "pha-0"], "assignees": [], "blockedBy": [] }
+  ],
+  "prs": [
+    { "number": 40, "headRefName": "kiro/clean-ci", "body": "## Outcome\n\nDọn CI.\n\nCloses #1\n" }
+  ]
+}

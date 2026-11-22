@@ -22,6 +22,13 @@ precommit="$root/.githooks/pre-commit"
 runlog="$here/run-logged.sh"
 gateseg="$here/gate-segment.sh"
 doc_paths="$here/check-doc-paths.sh"
+filter="$here/frontier.jq"
+adopt_filter="$here/adopt.jq"
+verify_filter="$here/verify-pick.jq"
+apierr_filter="$here/api-error.jq"
+openpr="$here/open-lane-pr.sh"
+prbody="$here/lane-pr-body.sh"
+lanecode="$here/lane-code.sh"
 fixtures="$here/fixtures"
 mode=${1:-}
 failures=0
@@ -201,6 +208,152 @@ expect_doc_paths() {
   if [ "$got" -eq "$want" ]; then ok "doc-paths: $name (exit $got)"; else fail "doc-paths: $name (want exit $want, got $got: $(head -c 160 "$stderr_file"))"; fi
 }
 
+# ---- dispatcher (C1) helpers --------------------------------------------------------------
+# expect_pick <fixture> <expected pick or null>
+expect_pick() {
+  skip FILTER && return 0
+  local fixture=$1 want=$2 got
+  got=$(jq -f "${FILTER:-$filter}" "$fixtures/$fixture" 2>/dev/null | jq -r '.pick')
+  if [ "$got" = "$want" ]; then ok "frontier: $fixture picks $want"; else fail "frontier: $fixture (want pick $want, got ${got:-<error>})"; fi
+}
+
+expect_reconcile() {
+  skip FILTER && return 0
+  local fixture=$1 want=$2 got
+  got=$(jq -f "${FILTER:-$filter}" "$fixtures/$fixture" 2>/dev/null | jq -c '[.reconcile[].number]')
+  if [ "$got" = "$want" ]; then ok "frontier: $fixture reconciles $want"; else fail "frontier: $fixture (want reconcile $want, got ${got:-<error>})"; fi
+}
+
+# expect_action <fixture> <issue number> <reconcile action>
+expect_action() {
+  skip FILTER && return 0
+  local fixture=$1 number=$2 want=$3 got
+  got=$(jq -f "${FILTER:-$filter}" "$fixtures/$fixture" 2>/dev/null | jq -r --argjson n "$number" '[.reconcile[] | select(.number == $n) | .action] | first // "none"')
+  if [ "$got" = "$want" ]; then ok "frontier: $fixture reconciles #$number as $want"; else fail "frontier: $fixture #$number (want action $want, got ${got:-<error>})"; fi
+}
+
+expect_allocation() {
+  skip FILTER && return 0
+  local fixture=$1 key=$2 want=$3 got
+  got=$(jq -f "${FILTER:-$filter}" "$fixtures/$fixture" 2>/dev/null | jq -r ".allocation.$key")
+  if [ "$got" = "$want" ]; then ok "frontier: $fixture allocation.$key = $want"; else fail "frontier: $fixture allocation.$key (want $want, got ${got:-<error>})"; fi
+}
+
+# expect_adopt <fixture> <true|false> [reason substring]: the lane adoption decision (D24)
+expect_adopt() {
+  skip ADOPT_FILTER && return 0
+  local fixture=$1 want=$2 sub=${3:-} out got reasons
+  out=$(jq -f "${ADOPT_FILTER:-$adopt_filter}" "$fixtures/$fixture" 2>/dev/null)
+  got=$(jq -r '.[0].adopt' <<< "$out" 2>/dev/null); reasons=$(jq -r '.[0].reasons | join(" | ")' <<< "$out" 2>/dev/null)
+  if [ "$got" != "$want" ]; then fail "adopt: $fixture (want adopt=$want, got ${got:-<error>}; reasons: ${reasons:-none})"; return; fi
+  if [ -n "$sub" ] && ! printf '%s' "$reasons" | grep -qF -- "$sub"; then fail "adopt: $fixture (reasons lack \"$sub\": $reasons)"; return; fi
+  ok "adopt: $fixture adopt=$want${sub:+ (reason: $sub)}"
+}
+
+# expect_verify <fixture> <true|false>: the direct read of a pick before an allocation (D47, D51)
+expect_verify() {
+  skip VERIFY_FILTER && return 0
+  local fixture=$1 want=$2 got
+  got=$(jq -f "${VERIFY_FILTER:-$verify_filter}" "$fixtures/$fixture" 2>/dev/null)
+  if [ "$got" = "$want" ]; then ok "verify-pick: $fixture -> $want"; else fail "verify-pick: $fixture (want $want, got ${got:-<error>})"; fi
+}
+
+# expect_apierr <fixture> <substring>: the one-line reason read from a failed gh api body (D24b)
+expect_apierr() {
+  skip APIERR_FILTER && return 0
+  local fixture=$1 sub=$2 out
+  out=$(jq -r -f "${APIERR_FILTER:-$apierr_filter}" "$fixtures/$fixture" 2>/dev/null)
+  if ! printf '%s' "$out" | grep -qF -- "$sub"; then fail "api-error: $fixture (lacks \"$sub\": ${out:-<error>})"; return; fi
+  ok "api-error: $fixture -> $sub"
+}
+
+# expect_openpr <name> <opened|reused|refused> [flags...]: the lane PR opener (D26)
+# A throwaway repository with a bare origin, one commit on lane/issue-9 pushed unless "unpushed",
+# and a fake `gh` first on PATH that answers the three REST calls the script makes and logs the
+# POST. Flags: unpushed, existing (a PR is already open), noclose, nocomplete, wrongbranch, dirty.
+expect_openpr() {
+  skip OPENPR && return 0
+  local name=$1 want=$2; shift 2
+  local d flags=" $* " body got rc out posted
+  d=$(mktemp -d)
+  mkdir -p "$d/bin"
+  cat > "$d/bin/gh" <<'FAKE'
+#!/bin/bash
+# fake gh for the witness: REST only, logs the POST
+case " $* " in
+  *" --method POST "*) cat > "$FAKE_DIR/post-body"; printf '%s\n' "$*" > "$FAKE_DIR/post-args"; echo 77 ;;
+  *"/pulls?state=open&head="*) printf '%s\n' "${FAKE_EXISTING:-}" ;;
+  *"/issues/9 "*) echo 'T09 · Tiêu đề ticket' ;;
+  *) echo "fake gh: unexpected call: $*" >&2; exit 1 ;;
+esac
+FAKE
+  chmod +x "$d/bin/gh"
+  git init -q --bare "$d/origin.git"
+  git init -q "$d/work"
+  git -C "$d/work" checkout -q -b lane/issue-9
+  git -C "$d/work" remote add origin "$d/origin.git"
+  wgit -C "$d/work" commit -q --allow-empty -m one
+  case "$flags" in *" unpushed "*) ;; *) git -C "$d/work" push -q origin HEAD 2>/dev/null ;; esac
+  # wrongbranch: the same commit sits on origin as lane/issue-9, so only the branch check can refuse
+  case "$flags" in *" wrongbranch "*) git -C "$d/work" checkout -q -b main ;; esac
+  case "$flags" in *" dirty "*) echo x > "$d/work/dirty.txt"; git -C "$d/work" add dirty.txt ;; esac
+  body=$'## Outcome\n\nDone.\n\n<promise>COMPLETE</promise>\n\n## Ticket and source pointers\n\nCloses #9\n'
+  case "$flags" in *" noclose "*) body=${body//Closes #9/Closes #8} ;; esac
+  case "$flags" in *" nocomplete "*) body=${body//<promise>COMPLETE<\/promise>/} ;; esac
+  local existing=""; case "$flags" in *" existing "*) existing=5 ;; esac
+  out=$(cd "$d/work" && printf '%s' "$body" | PATH="$d/bin:$PATH" FAKE_DIR="$d" FAKE_EXISTING="$existing" GITHUB_REPOSITORY=o/r bash "${OPENPR:-$openpr}" 9 2>/dev/null); rc=$?
+  posted=no; [ -f "$d/post-args" ] && posted=yes
+  if [ "$posted" = yes ] && [ "$rc" -eq 0 ] && printf '%s' "$out" | tail -n1 | grep -qx 77 \
+     && grep -q -- '-f head=lane/issue-9' "$d/post-args" && grep -q -- '-f base=main' "$d/post-args" && grep -q 'Closes #9' "$d/post-body"; then got=opened
+  elif [ "$posted" = no ] && [ "$rc" -eq 0 ] && printf '%s' "$out" | tail -n1 | grep -qx 5; then got=reused
+  elif [ "$posted" = no ] && [ "$rc" -eq 2 ]; then got=refused
+  else got="rc=$rc posted=$posted out=$(printf '%s' "$out" | tail -n1)"; fi
+  rm -rf "$d"
+  if [ "$got" = "$want" ]; then ok "open-pr: $name ($got)"; else fail "open-pr: $name (want $want, got $got)"; fi
+}
+
+# expect_prbody <name>: the body rendered for an adopted lane names the ticket, promises COMPLETE
+# and copies the evidence's gate block (D24)
+expect_prbody() {
+  skip PRBODY && return 0
+  local name=$1 d out bad=""
+  d=$(mktemp -d)
+  printf 'src/founder_vn/x.py\ndocs/evidence/issue-9-x.md\n' > "$d/files"
+  out=$(jq -r '.lanes[0].evidence.text' "$fixtures/adopt-ready.json" | bash "${PRBODY:-$prbody}" 9 "Tiêu đề" docs/evidence/issue-9-x.md 71ecd990 "$d/files" 2>/dev/null)
+  rm -rf "$d"
+  printf '%s\n' "$out" | grep -q -E '^Closes #9$' || bad="$bad no-Closes"
+  printf '%s\n' "$out" | grep -q -F '<promise>COMPLETE</promise>' || bad="$bad no-COMPLETE"
+  printf '%s\n' "$out" | grep -q -F 'GREEN on 74ac044a' || bad="$bad no-gate-block"
+  printf '%s\n' "$out" | grep -q -F '`src/founder_vn/x.py`' || bad="$bad no-files"
+  if [ -z "$bad" ]; then ok "lane-pr-body: $name"; else fail "lane-pr-body: $name (missing:$bad)"; fi
+}
+
+# expect_lanecode <name> <want: code|mixed|base>: a temporary lane with a code commit, a report
+# commit and a ledger commit; the code commit is the one lane-code.sh must name (D40).
+expect_lanecode() {
+  skip LANECODE && return 0
+  local name=$1 want=$2 d got base code mixed
+  d=$(mktemp -d)
+  git init -q "$d" && git -C "$d" checkout -q -b main
+  g() { wgit -C "$d" "$@"; }
+  mkdir -p "$d/reviews/issue-9" "$d/src"
+  echo a > "$d/src/a.py" && g add -A && g commit -q -m base && base=$(g rev-parse HEAD)
+  g checkout -q -b lane/issue-9
+  case "$want" in
+    base) ;;
+    *) echo b > "$d/src/b.py" && g add -A && g commit -q -m "slice: b" && code=$(g rev-parse HEAD) ;;
+  esac
+  echo PASS > "$d/reviews/issue-9/standards.md" && g add -A && g commit -q -m "review(standards)"
+  echo "# Review closure ledger — #9" > "$d/reviews/issue-9/ledger.md" && g add -A && g commit -q -m "docs: ledger"
+  if [ "$want" = mixed ]; then
+    echo c > "$d/src/c.py" && echo "S1 FIXED" >> "$d/reviews/issue-9/ledger.md" && g add -A && g commit -q -m "fix + ledger" && mixed=$(g rev-parse HEAD)
+  fi
+  got=$(cd "$d" && bash "${LANECODE:-$lanecode}" "$base" "$(g rev-parse HEAD)" reviews/issue-9 2>/dev/null)
+  rm -rf "$d"
+  case "$want" in code) [ "$got" = "$code" ];; mixed) [ "$got" = "$mixed" ];; base) [ "$got" = "$base" ];; esac \
+    && ok "lane-code: $name" || fail "lane-code: $name (got ${got:-<error>})"
+}
+
 run_cases() {
   # ---- guard rule 1: secret paths and names ----
   expect_guard "read .env is refused"                      2 '{"tool_name":"fs_read","tool_input":{"path":".env"}}'
@@ -286,6 +439,87 @@ run_cases() {
   expect_doc_paths "an Owner/repo slug is skipped"           0 slug
   expect_doc_paths "a git-ignored runtime file is skipped"   0 ignored
   expect_doc_paths "a bare file name is skipped"             0 bare
+  # ---- frontier (C1) ----
+  expect_pick "frontier-basic.json" 1
+  # The spec issue (#1 here) has sub-issues and the ready-for-agent label: a parent is never a lane.
+  expect_pick "frontier-spec-parent.json" 2
+  expect_pick "frontier-priority.json" 4
+  expect_pick "frontier-resumed-vs-priority.json" 1
+  expect_action "frontier-ack-error.json" 12 redispatch
+  expect_pick "frontier-ack-error.json" 12
+  expect_action "frontier-ack-error-fresh.json" 12 none
+  expect_pick "frontier-ack-error-fresh.json" null
+  expect_action "frontier-ack-error-pushing.json" 12 none
+  expect_pick "frontier-ack-error-pushing.json" null
+  expect_action "frontier-evidence-quiet.json" 12 redispatch
+  expect_pick "frontier-evidence-quiet.json" 12
+  expect_action "frontier-evidence-fresh.json" 12 none
+  expect_pick "frontier-evidence-fresh.json" null
+  expect_pick "frontier-mentions-closes.json" 1
+  expect_pick "frontier-blocked.json" 3
+  expect_pick "frontier-wip-full.json" null
+  expect_pick "frontier-pr-in-flight.json" null
+  expect_pick "frontier-human-and-map.json" 5
+  expect_reconcile "frontier-blocked-signal.json" "[7]"
+  expect_pick "frontier-blocked-signal.json" 8
+  expect_reconcile "frontier-stalled.json" "[9]"
+  expect_pick "frontier-stalled.json" 10
+  expect_reconcile "frontier-acked.json" "[]"
+  expect_pick "frontier-acked.json" null
+  expect_reconcile "frontier-fresh-label.json" "[]"
+  expect_pick "frontier-fresh-label.json" null
+  expect_reconcile "frontier-silent.json" "[12]"
+  expect_action "frontier-silent.json" 12 redispatch
+  expect_pick "frontier-silent.json" 12
+  # silent_after is 60 minutes: 45 minutes without a branch is a working lane, 105 is a silent one.
+  expect_reconcile "frontier-silent-45min.json" "[]"
+  expect_pick "frontier-silent-45min.json" null
+  expect_reconcile "frontier-silent-105min.json" "[12]"
+  expect_action "frontier-silent-105min.json" 12 redispatch
+  # A branch that moved within silent_after is a working lane; an old push is not.
+  expect_reconcile "frontier-silent-pushing.json" "[]"
+  expect_pick "frontier-silent-pushing.json" null
+  expect_action "frontier-silent-old-push.json" 12 redispatch
+  expect_reconcile "frontier-silent-again.json" "[12]"
+  expect_action "frontier-silent-again.json" 12 mark-silent
+  expect_action "frontier-silent-again-progress.json" 12 redispatch
+  expect_pick "frontier-silent-again-progress.json" 12
+  expect_action "frontier-silent-again-exhausted.json" 12 mark-silent
+  expect_pick "frontier-silent-again.json" 13
+  expect_reconcile "frontier-silent-pr.json" "[]"
+  expect_pick "frontier-silent-pr.json" null
+  expect_allocation "frontier-basic.json" singleOwnerFiles all
+  expect_allocation "frontier-basic.json" laneBranch lane/issue-1
+  expect_allocation "frontier-basic.json" targetBranch main
+  # ---- lane adoption (D24) ----
+  expect_adopt "adopt-ready.json"       true
+  expect_adopt "adopt-open-pr.json"     false "already open"
+  expect_adopt "adopt-fresh-push.json"  false "wait 600 s of quiet"
+  expect_adopt "adopt-no-evidence.json" false "no evidence file"
+  expect_adopt "adopt-not-green.json"   false "does not record"
+  expect_adopt "adopt-no-branch.json"   false "no branch"
+  expect_adopt "adopt-not-ahead.json"   false "no commit beyond the base"
+  expect_prbody "body names the ticket, promises COMPLETE, copies the gate block and the files"
+  expect_apierr "api-error-refs.json"  "not all refs are readable"
+  expect_apierr "api-error-field.json" "head invalid"
+  # ---- verify-pick.jq: the direct read of a pick before an allocation (D47, D51) ----
+  expect_verify "verify-pick-clean.json" true
+  expect_verify "verify-pick-recalled.json" true
+  expect_verify "verify-pick-recalled-other.json" false
+  expect_verify "verify-pick-stale-kiro.json" false
+  expect_verify "verify-pick-closed.json" false
+  # ---- lane PR opener (D26) ----
+  expect_openpr "pushed lane with a complete body opens the PR" opened
+  expect_openpr "a PR already open for the branch is reused"    reused  existing
+  expect_openpr "HEAD not on origin is refused"                 refused unpushed
+  expect_openpr "body without Closes #<n> is refused"           refused noclose
+  expect_openpr "body without the COMPLETE promise is refused"  refused nocomplete
+  expect_openpr "HEAD on another branch is refused"             refused wrongbranch
+  expect_openpr "uncommitted changes are refused"               refused dirty
+  # ---- the code commit of a lane (D40): reports and the ledger are not code ----
+  expect_lanecode "a report and a ledger after the last slice do not move the code commit" code
+  expect_lanecode "a commit that touches the ledger and a source file is code"             mixed
+  expect_lanecode "nothing but reports since the target: the merge-base"                   base
 }
 
 if [ "$mode" = "--witness-red" ]; then
@@ -311,6 +545,20 @@ if [ "$mode" = "--witness-red" ]; then
       out=$(GATESEG="$tmp" WITNESS_ONLY=GATESEG run_cases 2>/dev/null)
     elif [ "$target" = "$doc_paths" ]; then
       out=$(DOC_PATHS="$tmp" WITNESS_ONLY=DOC_PATHS run_cases 2>/dev/null)
+    elif [ "$target" = "$filter" ]; then
+      out=$(FILTER="$tmp" WITNESS_ONLY=FILTER run_cases 2>/dev/null)
+    elif [ "$target" = "$adopt_filter" ]; then
+      out=$(ADOPT_FILTER="$tmp" WITNESS_ONLY=ADOPT_FILTER run_cases 2>/dev/null)
+    elif [ "$target" = "$verify_filter" ]; then
+      out=$(VERIFY_FILTER="$tmp" WITNESS_ONLY=VERIFY_FILTER run_cases 2>/dev/null)
+    elif [ "$target" = "$apierr_filter" ]; then
+      out=$(APIERR_FILTER="$tmp" WITNESS_ONLY=APIERR_FILTER run_cases 2>/dev/null)
+    elif [ "$target" = "$openpr" ]; then
+      out=$(OPENPR="$tmp" WITNESS_ONLY=OPENPR run_cases 2>/dev/null)
+    elif [ "$target" = "$prbody" ]; then
+      out=$(PRBODY="$tmp" WITNESS_ONLY=PRBODY run_cases 2>/dev/null)
+    elif [ "$target" = "$lanecode" ]; then
+      out=$(LANECODE="$tmp" WITNESS_ONLY=LANECODE run_cases 2>/dev/null)
     else
       printf 'witness: no case family for %s\n' "$target" >&2
       out="FAIL no family"
@@ -355,6 +603,50 @@ if [ "$mode" = "--witness-red" ]; then
   mutate "verify ignores a missing segment"     "$gateseg" 's#bad=1; continue; fi#continue; fi#'
   mutate "verify ignores a moved HEAD"          "$gateseg" 's#elif \[ "\$sha" != "\$ref" \]; then bad=1; fi#fi#'
   mutate "doc-paths: accept a missing path"     "$doc_paths" 's#^exists\(\) .*#exists() { true; }#'
+  # ---- frontier (C1) ----
+  mutate "ignore open blockers"             "$filter" "s#select\\(open_blockers == 0\\)#select(true)#"
+  mutate "ignore the priority label"        "$filter" 's#priority: has_label\("priority"\)#priority: false#'
+  mutate "read a quoted closing keyword"    "$filter" 's#\(\^\|\\\\n\)\[ \\\\t\]\*#(?:)#'
+  mutate "ignore the wip limit"             "$filter" "s#>= \\.wip#>= 999#g"
+  mutate "ignore the BLOCKED signal"        "$filter" "s#test\\(\"<promise>BLOCKED</promise>\"\\)#false#"
+  mutate "ignore the stall timeout"         "$filter" "s#> stalled_after#> 999999999#"
+  mutate "ignore the silence timeout"       "$filter" "s#> window#> 999999999#"
+  mutate "wait an hour for a lane that wrote its evidence" "$filter" 's#then evidence_quiet_after else#then silent_after else#'
+  mutate "trust an error reply as an acknowledgement" "$filter" 's#\(\.kiroAckError // false\)#false#'
+  mutate "redispatch on an error reply before the session had time" "$filter" 's#> error_ack_after#> -1#'
+  mutate "redispatch on an error reply while the branch moves" "$filter" 's#and \(\.lanePushedAt == null\)#and true#'
+  mutate "let a priority ticket jump a resumed lane" "$filter" 's#resumed: \(\.laneBranch // false\)#resumed: false#'
+  mutate "stretch the silence window to 120 minutes" "$filter" "s#silent_after: 3600#silent_after: 7200#"
+  mutate "retry a silent lane forever"      "$filter" "s#<= silent_retries#<= 999#"
+  mutate "recall a productive lane forever" "$filter" 's#< max_dispatches#< 999#'
+  mutate "ignore progress since the last dispatch" "$filter" 's#\(\.progressSinceDispatch // false\)#false#'
+  mutate "count a silent lane in flight"    "$filter" "s#and \\(silent\\(\\\$now; \\\$closes\\) \\| not\\)#and true#"
+  mutate "ignore a lane that still pushes"  "$filter" 's#\.lanePushedAt == null or#true or#'
+  mutate "dispatch a ready-for-human ticket" "$filter" 's#select\(has_label\("ready-for-human"\) \| not\)#select(true)#'
+  mutate "dispatch the spec issue as a lane" "$filter" 's#^def is_parent: .*#def is_parent: false;#'
+  mutate "allocate onto master"             "$filter" 's#^def target_branch: "main";#def target_branch: "master";#'
+  # ---- lane adoption (D24) ----
+  mutate "adopt a lane that already has a pull request" "$adopt_filter" 's#if \.openPr != null#if false#'
+  mutate "adopt a branch that just moved"        "$adopt_filter" 's#< quiet_after#< -1#'
+  mutate "adopt without an evidence file"        "$adopt_filter" 's#if \.evidence == null#if false#'
+  mutate "adopt without the green verdict"       "$adopt_filter" 's#green \| not\)#false)#'
+  mutate "adopt a branch that has not moved past the base" "$adopt_filter" 's#\(\.ahead // 0\) == 0#false#'
+  mutate "open the harness pull request without Closes" "$prbody" 's#^Closes \#\$n$#Đóng \#$n#'
+  mutate "hide the reason of a failed API call"   "$apierr_filter" 's#\.errors\[\]\?#.never[]?#'
+  # ---- verify-pick (D47, D51) ----
+  mutate "drop a recalled pick because it still carries kiro" "$verify_filter" 's#^def recalled: .*#def recalled: false;#'
+  mutate "dispatch a ticket that already carries kiro" "$verify_filter" 's#^def clean: .*#def clean: true;#'
+  mutate "dispatch a closed ticket"                    "$verify_filter" 's#^def open: .*#def open: true;#'
+  # ---- lane PR opener (D26) ----
+  mutate "open a PR from an unpushed HEAD"      "$openpr" 's#^on_origin\(\) .*#on_origin() { true; }#'
+  mutate "open a PR without Closes"             "$openpr" 's#^names_closes\(\) .*#names_closes() { true; }#'
+  mutate "open a PR without the COMPLETE promise" "$openpr" 's#^ends_complete\(\) .*#ends_complete() { true; }#'
+  mutate "open a second PR for the same branch" "$openpr" 's#^open_pr_number\(\) .*#open_pr_number() { :; }#'
+  mutate "open a PR from any branch"            "$openpr" 's#^on_lane_branch\(\) .*#on_lane_branch() { true; }#'
+  mutate "open a PR over a dirty tree"          "$openpr" 's#^tree_clean\(\) .*#tree_clean() { true; }#'
+  mutate "open a PR against master"             "$openpr" 's#^base=\$\{HARNESS_BASE:-main\}#base=master#'
+  # ---- the code commit of a lane (D40) ----
+  mutate "count a ledger commit as code"       "$lanecode" 's#^ledger=.*#ledger=#'
   }
   # The mutations run in parallel. Each `mutate` line above is numbered in order; this script
   # re-runs itself once per number with WITNESS_MUTATION set, and that child runs the one mutation

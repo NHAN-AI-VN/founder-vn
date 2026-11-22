@@ -1,0 +1,5 @@
+{
+  "pick": 12,
+  "live": { "state": "open", "labels": ["ready-for-agent"] },
+  "reconcile": []
+}

@@ -1,0 +1,9 @@
+{
+  "wip": 1,
+  "now": "2026-09-04T14:00:00Z",
+  "issues": [
+    { "number": 9, "title": "09 · Idempotency", "labels": ["ready-for-agent", "kiro"], "assignees": [], "blockedBy": [], "labeledAt": "2026-09-04T13:00:00Z", "kiroAckAt": "2026-09-04T13:00:07Z", "lastComment": "Taking a look at this issue and I'll get started soon." },
+    { "number": 10, "title": "10 · Tracer", "labels": ["ready-for-agent"], "assignees": [], "blockedBy": [] }
+  ],
+  "prs": []
+}
