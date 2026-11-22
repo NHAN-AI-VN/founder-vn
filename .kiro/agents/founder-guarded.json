@@ -1,0 +1,19 @@
+{
+  "name": "founder-guarded",
+  "description": "Workspace default for interactive CLI work on founder-vn: the full toolset, the project skills, and the .kiro/hooks guard (secret paths, protected git operations, single-owner files).",
+  "tools": ["*"],
+  "resources": [
+    "file://AGENTS.md",
+    "file://docs/founder-vn-design.md",
+    "skill://.kiro/skills/*/SKILL.md"
+  ],
+  "hooks": {
+    "preToolUse": [
+      {
+        "matcher": "*",
+        "command": "bash -c 'd=$PWD; while [ \"$d\" != / ]; do s=\"$d/.kiro/hooks/guard.sh\"; if [ -f \"$s\" ]; then exec bash \"$s\"; fi; d=$(dirname \"$d\"); done; printf \"Refused: .kiro/hooks/guard.sh not found from %s; failing closed. Blocked by .kiro/hooks/guard.sh.\\n\" \"$PWD\" >&2; exit 2'",
+        "timeout_ms": 10000
+      }
+    ]
+  }
+}

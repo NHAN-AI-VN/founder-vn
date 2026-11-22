@@ -92,6 +92,9 @@ jobs:
       # Standard library only (Python >= 3.11, tomllib); the runner's python3 is enough.
       - name: skill-lint
         run: python3 scripts/skill_lint.py
+      # The rule documents an unattended lane reads must name files that exist.
+      - name: check-doc-paths
+        run: bash scripts/harness/check-doc-paths.sh
       # The harness's own gate: every case holds, then every mutation is caught. A failure here
       # fails the run, so the merger refuses the pull request.
       - name: 'Witness: every case holds'

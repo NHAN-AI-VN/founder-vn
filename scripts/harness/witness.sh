@@ -21,6 +21,7 @@ hook="$root/.githooks/post-commit"
 precommit="$root/.githooks/pre-commit"
 runlog="$here/run-logged.sh"
 gateseg="$here/gate-segment.sh"
+doc_paths="$here/check-doc-paths.sh"
 fixtures="$here/fixtures"
 mode=${1:-}
 failures=0
@@ -176,6 +177,30 @@ expect_gateseg() {
   if [ "$rc" -eq "$want" ] && [ "$logged" = yes ]; then ok "gate-segment: $name (verify exit $rc)"; else fail "gate-segment: $name (want verify exit $want, got $rc; static log $logged; $(printf '%s' "$out" | tail -n1))"; fi
 }
 
+# expect_doc_paths <name> <expected-exit> <scenario>: the rule-document path check. A throwaway
+# git checkout with one doc naming paths; scenarios: present (every path exists), missing (one
+# does not), placeholder (`<n>` skipped), directory (trailing slash skipped), slug (Owner/repo
+# skipped), ignored (a git-ignored runtime file skipped), bare (no directory component skipped).
+expect_doc_paths() {
+  skip DOC_PATHS && return 0
+  local name=$1 want=$2 scenario=$3 d got
+  d=$(mktemp -d)
+  wgit init -q "$d" && mkdir -p "$d/docs/agents" "$d/scripts"
+  echo x > "$d/docs/agents/real.md"; echo x > "$d/scripts/real.sh"; printf '.harness/\n' > "$d/.gitignore"
+  case "$scenario" in
+    present)     printf 'See `docs/agents/real.md` and `scripts/real.sh`.\n' > "$d/RULES.md" ;;
+    missing)     printf 'See `docs/agents/real.md` and `docs/agents/gone.md`.\n' > "$d/RULES.md" ;;
+    placeholder) printf 'Write `docs/evidence/issue-<n>-<slug>.md` and `reviews/issue-*/x.md`.\n' > "$d/RULES.md" ;;
+    directory)   printf 'ADRs go under `docs/adr/`.\n' > "$d/RULES.md" ;;
+    slug)        printf 'Issues live in `NHAN-AI-VN/founder-vn`.\n' > "$d/RULES.md" ;;
+    ignored)     printf 'The ledger is `.harness/gate-segments.txt`.\n' > "$d/RULES.md" ;;
+    bare)        printf 'The manifest is `pyproject.toml`; the glossary `GLOSSARY.md`.\n' > "$d/RULES.md" ;;
+  esac
+  DOC_PATHS_ROOT="$d" bash "${DOC_PATHS:-$doc_paths}" RULES.md >/dev/null 2>"$stderr_file"; got=$?
+  rm -rf "$d"
+  if [ "$got" -eq "$want" ]; then ok "doc-paths: $name (exit $got)"; else fail "doc-paths: $name (want exit $want, got $got: $(head -c 160 "$stderr_file"))"; fi
+}
+
 run_cases() {
   # ---- guard rule 1: secret paths and names ----
   expect_guard "read .env is refused"                      2 '{"tool_name":"fs_read","tool_input":{"path":".env"}}'
@@ -253,6 +278,14 @@ run_cases() {
   expect_gateseg "a segment never run is RED"                    1 missing
   expect_gateseg "segments on different HEADs are RED"           1 moved
   expect_gateseg "a docs commit after the segments stays GREEN"  0 docs-after
+  # ---- rule documents name real paths ----
+  expect_doc_paths "every named path exists"                 0 present
+  expect_doc_paths "a missing path is refused"               1 missing
+  expect_doc_paths "a placeholder path is skipped"           0 placeholder
+  expect_doc_paths "a directory reference is skipped"        0 directory
+  expect_doc_paths "an Owner/repo slug is skipped"           0 slug
+  expect_doc_paths "a git-ignored runtime file is skipped"   0 ignored
+  expect_doc_paths "a bare file name is skipped"             0 bare
 }
 
 if [ "$mode" = "--witness-red" ]; then
@@ -276,6 +309,8 @@ if [ "$mode" = "--witness-red" ]; then
       out=$(RUNLOG="$tmp" WITNESS_ONLY=RUNLOG run_cases 2>/dev/null)
     elif [ "$target" = "$gateseg" ]; then
       out=$(GATESEG="$tmp" WITNESS_ONLY=GATESEG run_cases 2>/dev/null)
+    elif [ "$target" = "$doc_paths" ]; then
+      out=$(DOC_PATHS="$tmp" WITNESS_ONLY=DOC_PATHS run_cases 2>/dev/null)
     else
       printf 'witness: no case family for %s\n' "$target" >&2
       out="FAIL no family"
@@ -319,6 +354,7 @@ if [ "$mode" = "--witness-red" ]; then
   mutate "verify ignores a failed segment"      "$gateseg" 's#\[ "\$rc" = 0 \] \|\| bad=1#true#'
   mutate "verify ignores a missing segment"     "$gateseg" 's#bad=1; continue; fi#continue; fi#'
   mutate "verify ignores a moved HEAD"          "$gateseg" 's#elif \[ "\$sha" != "\$ref" \]; then bad=1; fi#fi#'
+  mutate "doc-paths: accept a missing path"     "$doc_paths" 's#^exists\(\) .*#exists() { true; }#'
   }
   # The mutations run in parallel. Each `mutate` line above is numbered in order; this script
   # re-runs itself once per number with WITNESS_MUTATION set, and that child runs the one mutation
