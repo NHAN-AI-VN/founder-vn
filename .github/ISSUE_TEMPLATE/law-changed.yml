@@ -1,0 +1,33 @@
+name: Law changed
+description: A law, rate or threshold used by a founder-vn skill has changed.
+title: "Law changed: "
+labels: ["needs-triage"]
+body:
+  - type: textarea
+    id: what_changed
+    attributes:
+      label: What changed
+      description: Describe the old rule and the new rule.
+    validations:
+      required: true
+  - type: input
+    id: source_link
+    attributes:
+      label: Source link
+      description: Official link (government or regulator page), not a news article.
+    validations:
+      required: true
+  - type: input
+    id: effective_date
+    attributes:
+      label: Effective date
+      description: Date the change takes effect (YYYY-MM-DD).
+    validations:
+      required: true
+  - type: input
+    id: affected_skill
+    attributes:
+      label: Affected skill
+      description: Name of the skill or skills that cite the old rule.
+    validations:
+      required: true

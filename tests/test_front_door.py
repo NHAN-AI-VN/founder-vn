@@ -50,3 +50,17 @@ def test_readme_credits_upstream_with_a_commit_hash() -> None:
 
 def test_readme_has_no_dollar_next_to_a_digit() -> None:
     assert not DOLLAR.search(_read("README.md"))
+
+
+def test_contributing_states_the_legal_rule_and_the_definition_of_done() -> None:
+    text = _read("CONTRIBUTING.md")
+    assert "every legal claim needs an official link and a verification date" in text.lower()
+    for needle in ("golden", "tests", "docs/review-checklist.md", "Law changed"):
+        assert needle in text, needle
+
+
+def test_law_changed_issue_template_has_the_four_fields() -> None:
+    text = _read(".github/ISSUE_TEMPLATE/law-changed.yml")
+    assert "name: Law changed" in text
+    for field_id in ("what_changed", "source_link", "effective_date", "affected_skill"):
+        assert f"id: {field_id}" in text, field_id
