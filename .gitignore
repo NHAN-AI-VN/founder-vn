@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Secrets (FOUNDER_LLM_API_KEY, ...)
+.env
+.env.*
+!.env.example
+
+# Agent skills installed locally for development. Not part of the product.
+# - .agents/skills: mattpocock dev skills, pinned in skills-lock.json
+# - .kiro/skills: symlinks to the above, upstream founder-* (MIT, rewritten into skills/),
+#   and ID8Labs analyst skills (no license, must not be redistributed)
+.agents/skills/
+.kiro/skills/
