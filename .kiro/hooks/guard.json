@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "founder-vn-guard",
+      "trigger": "PreToolUse",
+      "action": {
+        "type": "command",
+        "command": "bash .kiro/hooks/guard.sh"
+      },
+      "timeout": 10
+    }
+  ]
+}
