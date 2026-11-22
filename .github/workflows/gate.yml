@@ -143,9 +143,18 @@ jobs:
           echo "harness scripts from main $(git rev-parse --short origin/main); this run ${{ github.run_id }} concluded ${{ job.status }}"
           export HARNESS_DECISION_FILE="$RUNNER_TEMP/review-decision.json"
           bash "$h/scripts/harness/review-web.sh" --pr "$pr" --repo "$GITHUB_REPOSITORY" --apply
-          if jq -e '.action == "wait" and (.reasons | any(test("settling")))' "$HARNESS_DECISION_FILE" >/dev/null 2>&1; then
-            echo "branch still settling after an address turn: the next sweep posts the round once it is quiet"
-          fi
+          # FV-D15 (nhan D41, dropped there in D49 to save billed minutes; runs are free here): after
+          # an address turn the fix session pushes several commits minutes apart and the orchestrator
+          # answers "wait: settling" until HEAD has been quiet for quiet_minutes. Lane #2 then waited
+          # 11 minutes for a cron that never fired (FV-M-7). So this step waits here, one minute at
+          # a time, up to twelve, and decides again; a newer push cancels this run and its own Gate
+          # takes over.
+          for i in $(seq 1 12); do
+            jq -e '.action == "wait" and (.reasons | any(test("settling")))' "$HARNESS_DECISION_FILE" >/dev/null 2>&1 || break
+            echo "branch still settling after an address turn (minute $i of 12): deciding again in 60 s"
+            sleep 60
+            bash "$h/scripts/harness/review-web.sh" --pr "$pr" --repo "$GITHUB_REPOSITORY" --apply
+          done
           if [ "${{ job.status }}" = success ]; then
             bash "$h/scripts/harness/merge-check.sh" --pr "$pr" --repo "$GITHUB_REPOSITORY" --apply
           else
