@@ -16,6 +16,7 @@ here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
 guard="$root/.kiro/hooks/guard.sh"
 skill_links="$here/check-skill-links.sh"
+skill_lint="$root/scripts/skill_lint.py"
 fixtures="$here/fixtures"
 mode=${1:-}
 failures=0
@@ -75,6 +76,17 @@ expect_skill_links() {
   if [ "$got" -eq "$want" ]; then ok "skill-links: $name (exit $got)"; else fail "skill-links: $name (want exit $want, got $got: $(head -c 160 "$stderr_file"))"; fi
 }
 
+# expect_skill_lint <fixture-dir> <expected-exit> [substring the findings must contain]: the
+# machine half of the skill review checklist (scripts/skill_lint.py, FV-D2) over one fixture root.
+expect_skill_lint() {
+  skip SKILL_LINT && return 0
+  local fixture=$1 want=$2 sub=${3:-} got
+  python3 "${SKILL_LINT:-$skill_lint}" --root "$fixtures/skill-lint/$fixture" >/dev/null 2>"$stderr_file"; got=$?
+  if [ "$got" -ne "$want" ]; then fail "skill-lint: $fixture (want exit $want, got $got: $(head -c 160 "$stderr_file"))"; return; fi
+  if [ -n "$sub" ] && ! grep -qF -- "$sub" "$stderr_file"; then fail "skill-lint: $fixture (findings lack \"$sub\": $(head -c 160 "$stderr_file"))"; return; fi
+  ok "skill-lint: $fixture (exit $got${sub:+, names \"$sub\"})"
+}
+
 run_cases() {
   # ---- guard rule 1: secret paths and names ----
   expect_guard "read .env is refused"                      2 '{"tool_name":"fs_read","tool_input":{"path":".env"}}'
@@ -120,6 +132,16 @@ run_cases() {
   expect_skill_links "a directory instead of a link is refused"   1 notlink
   expect_skill_links "no links at all is refused"                 1 none
   expect_skill_links "link to another skill's folder is refused"  1 wrongname
+  # ---- skill-lint (FV-D2): the machine half of the review checklist ----
+  expect_skill_lint "ok"                  0
+  expect_skill_lint "empty"               0
+  expect_skill_lint "missing-frontmatter" 1 "no frontmatter"
+  expect_skill_lint "name-mismatch"       1 "expected 'founder-cfo'"
+  expect_skill_lint "no-vietnamese"       1 "no Vietnamese trigger phrase"
+  expect_skill_lint "no-license"          1 "license missing"
+  expect_skill_lint "version-mismatch"    1 "differs from pyproject"
+  expect_skill_lint "dollar"              1 "SKILL.md:21:"
+  expect_skill_lint "examples-dollar"     1 "cfo.md:3:"
 }
 
 if [ "$mode" = "--witness-red" ]; then
@@ -133,6 +155,8 @@ if [ "$mode" = "--witness-red" ]; then
       out=$(GUARD="$tmp" WITNESS_ONLY=GUARD run_cases 2>/dev/null)
     elif [ "$target" = "$skill_links" ]; then
       out=$(SKILL_LINKS="$tmp" WITNESS_ONLY=SKILL_LINKS run_cases 2>/dev/null)
+    elif [ "$target" = "$skill_lint" ]; then
+      out=$(SKILL_LINT="$tmp" WITNESS_ONLY=SKILL_LINT run_cases 2>/dev/null)
     else
       printf 'witness: no case family for %s\n' "$target" >&2
       out="FAIL no family"
@@ -158,6 +182,12 @@ if [ "$mode" = "--witness-red" ]; then
   mutate "accept a link to a missing SKILL.md"   "$skill_links" 's#^has_skill\(\) .*#has_skill() { true; }#'
   mutate "accept an uncommitted link or skill"   "$skill_links" 's#^tracked\(\) .*#tracked() { true; }#'
   mutate "accept a checkout with no links"       "$skill_links" 's#if \[ "\$count" -eq 0 \]; then#if false; then#'
+  mutate "lint: accept a dollar sign next to a digit" "$skill_lint" 's#^def rule_no_dollar\(.*#def rule_no_dollar(line): return True#'
+  mutate "lint: accept a skill named unlike its folder" "$skill_lint" 's#^def rule_name_matches\(.*#def rule_name_matches(fm, folder): return True#'
+  mutate "lint: accept an English-only description" "$skill_lint" 's#^def rule_has_vietnamese\(.*#def rule_has_vietnamese(text): return True#'
+  mutate "lint: accept a skill without a license" "$skill_lint" 's#^def rule_has_license\(.*#def rule_has_license(fm): return True#'
+  mutate "lint: accept a version unlike the package" "$skill_lint" 's#^def rule_version_matches\(.*#def rule_version_matches(skill, project): return True#'
+  mutate "lint: accept a SKILL.md without frontmatter" "$skill_lint" 's#^        findings\.append\(f"\{rel\}:1: no frontmatter.*#        pass#'
   }
   # The mutations run in parallel. Each `mutate` line above is numbered in order; this script
   # re-runs itself once per number with WITNESS_MUTATION set, and that child runs the one mutation
