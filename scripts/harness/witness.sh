@@ -17,6 +17,10 @@ root=$(cd "$here/../.." && pwd)
 guard="$root/.kiro/hooks/guard.sh"
 skill_links="$here/check-skill-links.sh"
 skill_lint="$root/scripts/skill_lint.py"
+hook="$root/.githooks/post-commit"
+precommit="$root/.githooks/pre-commit"
+runlog="$here/run-logged.sh"
+gateseg="$here/gate-segment.sh"
 fixtures="$here/fixtures"
 mode=${1:-}
 failures=0
@@ -87,6 +91,91 @@ expect_skill_lint() {
   ok "skill-lint: $fixture (exit $got${sub:+, names \"$sub\"})"
 }
 
+# expect_autopush <name> <branch> <pushed|kept> [rebase] [env assignments...]
+# A throwaway repository with a bare origin and the post-commit hook as its only hook: one empty
+# commit on <branch>, then origin either has the branch (pushed) or does not (kept).
+expect_autopush() {
+  skip HOOK && return 0
+  local name=$1 branch=$2 want=$3 rebase=${4:-}
+  shift 3; [ $# -gt 0 ] && shift
+  local d got
+  d=$(mktemp -d)
+  mkdir -p "$d/hooks" && cp "${HOOK:-$hook}" "$d/hooks/post-commit" && chmod +x "$d/hooks/post-commit"
+  git init -q --bare "$d/origin.git"
+  git init -q "$d/work" && git -C "$d/work" checkout -q -b "$branch"
+  git -C "$d/work" remote add origin "$d/origin.git"
+  git -C "$d/work" config core.hooksPath "$d/hooks"
+  [ "$rebase" = rebase ] && mkdir -p "$d/work/.git/rebase-merge"
+  env ${1+"$@"} git -C "$d/work" -c user.name=witness -c user.email=witness@example.invalid -c commit.gpgsign=false commit -q --allow-empty -m one 2>/dev/null
+  if git -C "$d/origin.git" show-ref --verify -q "refs/heads/$branch"; then got=pushed; else got=kept; fi
+  rm -rf "$d"
+  if [ "$got" = "$want" ]; then ok "autopush: $name ($got)"; else fail "autopush: $name (want $want, got $got)"; fi
+}
+
+# expect_precommit <name> <file content> <refused|committed> [ENV=val...]: the staged-files
+# ruff format check. A fake .venv/bin/ruff refuses any file containing UNFORMATTED.
+expect_precommit() {
+  skip PRECOMMIT && return 0
+  local name=$1 content=$2 want=$3; shift 3
+  local d got
+  d=$(mktemp -d)
+  mkdir -p "$d/hooks" "$d/work/.venv/bin" && cp "${PRECOMMIT:-$precommit}" "$d/hooks/pre-commit" && chmod +x "$d/hooks/pre-commit"
+  printf '#!/bin/sh\nfor f in "$@"; do case "$f" in -*|format|check) continue;; esac; grep -q UNFORMATTED "$f" && { echo "Would reformat: $f"; exit 1; }; done; exit 0\n' > "$d/work/.venv/bin/ruff"
+  chmod +x "$d/work/.venv/bin/ruff"
+  git init -q "$d/work" && git -C "$d/work" checkout -q -b lane/issue-9
+  git -C "$d/work" config core.hooksPath "$d/hooks"
+  [ "$name" = "no ruff installed, commit stands" ] && rm -f "$d/work/.venv/bin/ruff"
+  local file=a.py; [ "$name" = "a non-Python file is not checked" ] && file=a.md
+  printf '%s\n' "$content" > "$d/work/$file" && git -C "$d/work" add "$file"
+  if env ${1+"$@"} git -C "$d/work" -c user.name=witness -c user.email=witness@example.invalid -c commit.gpgsign=false commit -q -m one >/dev/null 2>&1; then got=committed; else got=refused; fi
+  rm -rf "$d"
+  if [ "$got" = "$want" ]; then ok "precommit: $name ($got)"; else fail "precommit: $name (want $want, got $got)"; fi
+}
+
+# expect_runlog <name> <want-exit> <logged|unlogged> <summary|nosummary> <command...>: the gate
+# logger (D27). Runs the command through run-logged.sh into a temp log and checks the exit code,
+# whether the log holds the command's output, and whether the summary repeats the pytest line.
+expect_runlog() {
+  skip RUNLOG && return 0
+  local name=$1 want_rc=$2 want_log=$3 want_sum=$4; shift 4
+  local d out rc got_log got_sum
+  d=$(mktemp -d)
+  out=$(bash "${RUNLOG:-$runlog}" "$d/nested/check.log" "$@" 2>/dev/null); rc=$?
+  if [ -f "$d/nested/check.log" ] && grep -q 'passed in' "$d/nested/check.log"; then got_log=logged; else got_log=unlogged; fi
+  if printf '%s' "$out" | sed -n '/^--- run-logged: summary/,$p' | grep -q 'passed in'; then got_sum=summary; else got_sum=nosummary; fi
+  rm -rf "$d"
+  if [ "$rc" -eq "$want_rc" ] && [ "$got_log" = "$want_log" ] && [ "$got_sum" = "$want_sum" ]; then ok "run-logged: $name (exit $rc, $got_log, $got_sum)"
+  else fail "run-logged: $name (want exit $want_rc $want_log $want_sum, got exit $rc $got_log $got_sum)"; fi
+}
+
+# expect_gateseg <name> <want-verify-exit> <scenario>: the segmented final gate (D28). A throwaway
+# repository with one commit and a fake `uv` first on PATH (prints a pytest-like line; FAKE_FAIL
+# names a word of the uv command line that must exit 1). Scenarios: three (all green), fail (unit
+# red), missing (build never run), moved (HEAD changes between static and the rest), docs-after
+# (a commit after all three).
+expect_gateseg() {
+  skip GATESEG && return 0
+  local name=$1 want=$2 scenario=$3
+  local d rc seg out
+  d=$(mktemp -d)
+  mkdir -p "$d/bin"
+  printf '#!/bin/bash\necho "fake uv: $*"; echo "== 1 passed in 0.01s =="; if [ -n "${FAKE_FAIL:-}" ]; then case " $* " in *" $FAKE_FAIL "*) exit 1;; esac; fi; exit 0\n' > "$d/bin/uv"
+  chmod +x "$d/bin/uv"
+  git init -q "$d/repo" && git -C "$d/repo" -c user.name=witness -c user.email=witness@example.invalid -c commit.gpgsign=false commit -q --allow-empty -m one
+  seg_run() { (cd "$d/repo" && PATH="$d/bin:$PATH" HARNESS_RUN_LOGGED="$runlog" HARNESS_SKILL_LINT="$skill_lint" FAKE_FAIL="${2:-}" bash "${GATESEG:-$gateseg}" "$1" >/dev/null 2>&1); }
+  case "$scenario" in
+    three)      for seg in static unit build; do seg_run "$seg"; done ;;
+    fail)       seg_run static; seg_run unit pytest; seg_run build ;;
+    missing)    seg_run static; seg_run unit ;;
+    moved)      seg_run static; git -C "$d/repo" -c user.name=witness -c user.email=witness@example.invalid -c commit.gpgsign=false commit -q --allow-empty -m two; seg_run unit; seg_run build ;;
+    docs-after) for seg in static unit build; do seg_run "$seg"; done; git -C "$d/repo" -c user.name=witness -c user.email=witness@example.invalid -c commit.gpgsign=false commit -q --allow-empty -m docs ;;
+  esac
+  out=$(cd "$d/repo" && HARNESS_RUN_LOGGED="$runlog" HARNESS_SKILL_LINT="$skill_lint" bash "${GATESEG:-$gateseg}" verify 2>/dev/null); rc=$?
+  local logged=yes; [ -f "$d/repo/.harness/gate-static.log" ] && grep -q 'passed in' "$d/repo/.harness/gate-static.log" || logged=no
+  rm -rf "$d"
+  if [ "$rc" -eq "$want" ] && [ "$logged" = yes ]; then ok "gate-segment: $name (verify exit $rc)"; else fail "gate-segment: $name (want verify exit $want, got $rc; static log $logged; $(printf '%s' "$out" | tail -n1))"; fi
+}
+
 run_cases() {
   # ---- guard rule 1: secret paths and names ----
   expect_guard "read .env is refused"                      2 '{"tool_name":"fs_read","tool_input":{"path":".env"}}'
@@ -142,6 +231,28 @@ run_cases() {
   expect_skill_lint "version-mismatch"    1 "differs from pyproject"
   expect_skill_lint "dollar"              1 "SKILL.md:21:"
   expect_skill_lint "examples-dollar"     1 "cfo.md:3:"
+  # ---- post-commit autopush (D23) ----
+  expect_autopush "commit on a lane branch is pushed"        lane/issue-9 pushed
+  expect_autopush "commit on main stays local"               main         kept
+  expect_autopush "commit on a harness branch stays local"   harness/x    kept
+  expect_autopush "commit during a rebase stays local"       lane/issue-9 kept rebase
+  expect_autopush "HARNESS_AUTOPUSH=0 keeps the commit local" lane/issue-9 kept "" HARNESS_AUTOPUSH=0
+  # ---- pre-commit ruff format check ----
+  expect_precommit "unformatted staged file is refused"       "UNFORMATTED" refused
+  expect_precommit "formatted staged file is committed"      "fine"        committed
+  expect_precommit "HARNESS_PRECOMMIT=0 commits anyway"      "UNFORMATTED" committed HARNESS_PRECOMMIT=0
+  expect_precommit "no ruff installed, commit stands"        "UNFORMATTED" committed
+  expect_precommit "a non-Python file is not checked"        "UNFORMATTED" committed
+  # ---- gate logger (D27) ----
+  expect_runlog "green gate: log kept, summary printed, exit 0" 0 logged summary sh -c 'echo "== 3 passed in 0.12s =="; echo noise'
+  expect_runlog "red gate keeps its own exit code"              3 logged summary sh -c 'echo "== 1 failed, 2 passed in 0.12s =="; exit 3'
+  expect_runlog "stderr is logged too"                          0 logged summary sh -c 'echo "== 2 passed in 0.05s ==" >&2'
+  # ---- segmented final gate (D28) ----
+  expect_gateseg "three green segments verify GREEN"             0 three
+  expect_gateseg "a red segment keeps its exit code, verify RED" 1 fail
+  expect_gateseg "a segment never run is RED"                    1 missing
+  expect_gateseg "segments on different HEADs are RED"           1 moved
+  expect_gateseg "a docs commit after the segments stays GREEN"  0 docs-after
 }
 
 if [ "$mode" = "--witness-red" ]; then
@@ -157,6 +268,14 @@ if [ "$mode" = "--witness-red" ]; then
       out=$(SKILL_LINKS="$tmp" WITNESS_ONLY=SKILL_LINKS run_cases 2>/dev/null)
     elif [ "$target" = "$skill_lint" ]; then
       out=$(SKILL_LINT="$tmp" WITNESS_ONLY=SKILL_LINT run_cases 2>/dev/null)
+    elif [ "$target" = "$hook" ]; then
+      out=$(HOOK="$tmp" WITNESS_ONLY=HOOK run_cases 2>/dev/null)
+    elif [ "$target" = "$precommit" ]; then
+      out=$(PRECOMMIT="$tmp" WITNESS_ONLY=PRECOMMIT run_cases 2>/dev/null)
+    elif [ "$target" = "$runlog" ]; then
+      out=$(RUNLOG="$tmp" WITNESS_ONLY=RUNLOG run_cases 2>/dev/null)
+    elif [ "$target" = "$gateseg" ]; then
+      out=$(GATESEG="$tmp" WITNESS_ONLY=GATESEG run_cases 2>/dev/null)
     else
       printf 'witness: no case family for %s\n' "$target" >&2
       out="FAIL no family"
@@ -188,6 +307,18 @@ if [ "$mode" = "--witness-red" ]; then
   mutate "lint: accept a skill without a license" "$skill_lint" 's#^def rule_has_license\(.*#def rule_has_license(fm): return True#'
   mutate "lint: accept a version unlike the package" "$skill_lint" 's#^def rule_version_matches\(.*#def rule_version_matches(skill, project): return True#'
   mutate "lint: accept a SKILL.md without frontmatter" "$skill_lint" 's#^        findings\.append\(f"\{rel\}:1: no frontmatter.*#        pass#'
+  mutate "never push a lane branch"          "$hook"   's#lane/issue-\*\) ;;#never/*) ;;#'
+  mutate "push from inside a rebase"         "$hook"   's#-d "\$gitdir/rebase-merge"#-d "$gitdir/never-a-dir"#'
+  mutate "drop the HARNESS_AUTOPUSH switch"  "$hook"   's#HARNESS_AUTOPUSH:-1#HARNESS_AUTOPUSH_NEVER:-1#'
+  mutate "commit unformatted code"            "$precommit" 's#^  exit 1$#  exit 0#'
+  mutate "drop the HARNESS_PRECOMMIT switch"  "$precommit" 's#HARNESS_PRECOMMIT:-1#HARNESS_PRECOMMIT_NEVER:-1#'
+  mutate "swallow the gate's exit code"         "$runlog" 's#^exit "\$rc"#exit 0#'
+  mutate "run the gate without keeping a log"   "$runlog" 's#\| tee "\$log"#| cat#'
+  mutate "print no summary"                     "$runlog" 's#^grep -E .*#true#'
+  mutate "record every segment as exit 0"       "$gateseg" 's#^    record "\$seg" "\$rc"#    record "$seg" 0#'
+  mutate "verify ignores a failed segment"      "$gateseg" 's#\[ "\$rc" = 0 \] \|\| bad=1#true#'
+  mutate "verify ignores a missing segment"     "$gateseg" 's#bad=1; continue; fi#continue; fi#'
+  mutate "verify ignores a moved HEAD"          "$gateseg" 's#elif \[ "\$sha" != "\$ref" \]; then bad=1; fi#fi#'
   }
   # The mutations run in parallel. Each `mutate` line above is numbered in order; this script
   # re-runs itself once per number with WITNESS_MUTATION set, and that child runs the one mutation

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# D23 (nhan): a commit on a lane branch is pushed the moment it exists. A Kiro Web session works
+# in a sandbox and stops without notice around its time budget (nhan M-33); commits it has not
+# pushed are lost to the recall. The steering asks for a push after every commit, and two lanes
+# in a row committed for an hour without one. Enabled by `bash scripts/harness/install-hooks.sh`
+# (core.hooksPath = .githooks); off with HARNESS_AUTOPUSH=0. Never a force push, never a push
+# from a rebase in progress, never a failing exit: the commit stands whatever the push does.
+branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null) || exit 0
+case "$branch" in lane/issue-*) ;; *) exit 0 ;; esac
+[ "${HARNESS_AUTOPUSH:-1}" = 0 ] && exit 0
+gitdir=$(git rev-parse --git-dir 2>/dev/null) || exit 0
+if [ -d "$gitdir/rebase-merge" ] || [ -d "$gitdir/rebase-apply" ]; then exit 0; fi
+git remote get-url origin >/dev/null 2>&1 || exit 0
+if git push -q -u origin "HEAD:refs/heads/$branch" 2>/dev/null; then
+  printf 'post-commit: pushed %s\n' "$branch" >&2
+else
+  printf 'post-commit: push of %s failed; the commit stands, push by hand (git push -u origin %s)\n' "$branch" "$branch" >&2
+fi
+exit 0

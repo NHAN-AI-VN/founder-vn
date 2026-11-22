@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# The staged Python files pass `ruff format --check` before the commit exists (D31 in nhan, with
+# prettier; here ruff). A Gate that goes red on formatting costs a review round and an address
+# turn. Enabled by `bash scripts/harness/install-hooks.sh` (core.hooksPath = .githooks); off with
+# HARNESS_PRECOMMIT=0; silent when the project environment has no ruff (a checkout before
+# `uv sync`) or nothing Python is staged. Deleted files are not checked.
+[ "${HARNESS_PRECOMMIT:-1}" = 0 ] && exit 0
+top=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+ruff="$top/.venv/bin/ruff"
+[ -x "$ruff" ] || exit 0
+files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.py') || exit 0
+[ -n "$files" ] || exit 0
+# shellcheck disable=SC2086
+if ! out=$(cd "$top" && "$ruff" format --check $files 2>&1); then
+  printf 'pre-commit: ruff format --check failed on staged files; run `uv run ruff format <file>` and stage again:\n%s\n' "$out" >&2
+  exit 1
+fi
+exit 0
