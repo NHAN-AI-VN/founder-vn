@@ -14,7 +14,7 @@ Derived from the acceptance criteria (the ticket has no `## Seam` section); ever
 
 | Slice | Test | Assertion while red | Green rerun |
 |---|---|---|---|
-| scaffold | `tests/test_package.py::test_package_has_single_source_version` | No witnessed red: manifest slice, the test only proves the environment runs | `uv run pytest tests/test_package.py -q` |
+| scaffold | `tests/test_package.py::test_package_has_single_source_version` | No witnessed red: manifest slice. Review S3: the test compares `importlib.metadata.version("founder-vn")` (the version hatch took from `[tool.hatch.version].path`) with `founder_vn.__version__`; no literal version is asserted in `tests/test_package.py` or `tests/test_release.py` | `uv run pytest tests/test_package.py -q` |
 | files | `tests/test_files.py` (16 tests, one per refusal) | `ImportError: cannot import name 'files' from 'founder_vn'` | `uv run pytest tests/test_files.py -q` |
 | parity | `tests/test_parity.py::test_cli_version_equals_mcp_server_info` | `ImportError: cannot import name 'info' from 'founder_vn'` | `uv run pytest tests/test_parity.py -q` |
 | fixtures | `tests/test_fixtures.py` (7 tests) | Gate witness (review S1), by mutation: in `tests/conftest.py` the `raise RuntimeError(...)` of `no_external_network` was replaced by `return`, then the `assert {"stdout": ..., "files": ...} == expected` of `assert_golden` by `pass`. Red 1: `Failed: DID NOT RAISE RuntimeError` in `test_network_guard_refuses_a_non_loopback_connection`. Red 2: `Failed: DID NOT RAISE AssertionError` in `test_cli_golden_runner_detects_a_changed_output`. Both mutations reverted | `uv run pytest tests/test_fixtures.py -q` (7 passed) |

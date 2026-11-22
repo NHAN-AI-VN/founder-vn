@@ -5,8 +5,6 @@ from pathlib import Path
 
 import pytest
 
-import founder_vn
-
 WORKFLOW = "release.yml"
 
 
@@ -31,4 +29,3 @@ def test_release_builds_with_uv_and_checks_tag_against_version(workflow: str) ->
     assert "uv build" in workflow
     assert "GITHUB_REF_NAME" in workflow
     assert 'v${version}"' in workflow or "v$version" in workflow
-    assert founder_vn.__version__ == "0.1.0"
