@@ -7,10 +7,10 @@ name = "founder-vn"
 dynamic = ["version"]
 description = "Founder skills for Vietnam: CLI and MCP server over one package."
 requires-python = ">=3.11"
-dependencies = ["mcp", "httpx"]
+dependencies = ["mcp>=2,<3", "httpx"]
 
 [project.scripts]
-founder-vn = "founder_vn.cli:main"
+founder-vn = "founder_vn.cli:run"
 founder-vn-mcp = "founder_vn.server:main"
 
 [dependency-groups]

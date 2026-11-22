@@ -249,7 +249,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "httpx" },
-    { name = "mcp" },
+    { name = "mcp", specifier = ">=2,<3" },
 ]
 
 [package.metadata.requires-dev]
