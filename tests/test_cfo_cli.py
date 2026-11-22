@@ -105,3 +105,12 @@ def test_missing_field_exits_2_naming_it(
     captured = capsys.readouterr()
     assert captured.out == ""
     assert captured.err == "lỗi: thiếu trường 'tax_rate_on_revenue'\n"
+
+
+def test_report_carries_disclaimer(numbers: Path, run_cli: RunCli) -> None:
+    run = run_cli("cfo", "numbers.json")
+    assert run.exit_code == 0
+    assert "mô hình tính toán" in run.stdout
+    assert "không phải tư vấn thuế" in run.stdout
+    assert "đối chiếu với quy định hiện hành" in run.stdout
+    assert "$" not in run.stdout

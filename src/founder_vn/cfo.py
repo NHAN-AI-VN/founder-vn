@@ -305,6 +305,15 @@ def report(
             "Không có cảnh báo trong các con số này. Chúng chỉ đúng bằng dữ liệu đầu vào: "
             "anh/chị hãy đối chiếu từng khoản chi với báo giá thật."
         )
+    lines += [
+        "",
+        "## Lưu ý",
+        "",
+        "Báo cáo này là mô hình tính toán từ các con số anh/chị nhập, không phải tư vấn thuế "
+        "hay tư vấn tài chính. Thuế suất và ngưỡng miễn thuế là số anh/chị nhập: "
+        "anh/chị cần đối chiếu với quy định hiện hành (hoặc hỏi cơ quan thuế, kế toán) "
+        "trước khi quyết định bỏ vốn.",
+    ]
     return "\n".join(lines) + "\n"
 
 
