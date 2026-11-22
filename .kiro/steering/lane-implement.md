@@ -20,7 +20,8 @@ Steering này áp cho một lượt chạy không người trông nhận đúng 
 
 ## Toolchain trong sandbox
 
-- `uv` có thể chưa có: `command -v uv || curl -LsSf https://astral.sh/uv/install.sh | sh` rồi `export PATH="$HOME/.local/bin:$PATH"`. Python ≥ 3.11 theo `pyproject.toml`; `uv sync --frozen` dựng `.venv/` từ `uv.lock` (ticket đổi dependency thì `uv lock` và commit lock cùng commit).
+- Sandbox Kiro Web (đo 2026-11-22, FV-M-6 trong `docs/agents/kiro-harness.md`): Python 3.11, `uv` có sẵn, git, jq, gh, internet mở, 8 CPU. Nếu một sandbox khác thiếu `uv`: `command -v uv || curl -LsSf https://astral.sh/uv/install.sh | sh` rồi `export PATH="$HOME/.local/bin:$PATH"`. `uv sync --frozen` dựng `.venv/` từ `uv.lock` (ticket đổi dependency thì `uv lock` và commit lock cùng commit).
+- **Sandbox không nạp steering này, `AGENTS.md` hay skill vào ngữ cảnh của sub-agent** (FV-M-6): đọc `AGENTS.md` và file này bằng đường dẫn trước mọi việc; khi giao việc cho sub-agent, chép nguyên văn hai file và bảng cấp phát vào tin nhắn giao việc. **Guard `.kiro/hooks/guard.sh` không chạy trong sandbox** (FV-M-6): các luật nó thi hành trên CLI (không push `main`, không force-push, không merge, không nêu giá trị biến bí mật) ở đây là luật lane tự giữ; vi phạm là finding chặn của lượt review và GitHub từ chối push thẳng lên `main` khi nhánh được bảo vệ (H-8).
 - `bash scripts/harness/install-hooks.sh` **trước lát đầu**: đặt `core.hooksPath` để hook `post-commit` push từng commit trên `lane/issue-*` và hook `pre-commit` chạy `ruff format --check` trên file `.py` đã stage.
 - Chưa có `pyproject.toml` (chính ticket T01 tạo nó) thì các lệnh `uv run` chưa chạy được: lát đầu của T01 là dựng manifest và một test rỗng để cổng `unit` xanh, rồi mới tới hành vi.
 
@@ -33,7 +34,7 @@ Steering này áp cho một lượt chạy không người trông nhận đúng 
 - Refactor không nằm trong lát; lượt review nêu, lượt sửa làm.
 - **Ngân sách một session khoảng 60 phút** (`docs/agents/kiro-harness.md`, kế thừa phép đo của `nhan`: session Kiro Web dừng không báo ở phút 55–66, thường ngay sau commit bằng chứng). Ba luật giữ lane trong ngân sách: (1) **không chạy cổng thăm dò trước lát đầu**: cài toolchain rồi bắt đầu ngay từ seam; (2) trong lát chỉ chạy đúng file test của lát (`uv run pytest tests/<file>.py -q`), không chạy cả bộ; (3) sau lát cuối đi thẳng: cổng ba đoạn, `verify`, commit bằng chứng, mở PR, không quay lại rà soát. Lane vượt ngân sách vẫn không mất gì nhờ push từng commit và harness gọi lại khi im lặng.
 - Hai câu của skill `implement` bị lane ghi đè. **Không tự chạy `/code-review`**: review là hai lượt độc lập do harness dispatch sau khi PR mở; bước tự review của skill ghi vào mục `## Giải quyết review nội bộ` của file bằng chứng. **Commit lên `laneBranch`, push sau mỗi commit, rồi mở PR**; merge là việc của harness.
-- **File tạm đặt trong cây repo** (`.harness/`, đã git-ignore), không đặt ở `/tmp`: sandbox không giữ `/tmp` từ lần gọi tool này sang lần sau, và file viết bằng tool soạn thảo có thể không thấy từ shell; output dài bị cắt, nên ghi ra file rồi `grep`.
+- **File tạm đặt trong cây repo** (`.harness/`, đã git-ignore), không đặt ở `/tmp`: sandbox không giữ `/tmp` từ lần gọi tool này sang lần sau (đo FV-M-6: file ghi vào `/tmp` ở một bước không còn ở bước sau), và file viết bằng tool soạn thảo có thể không thấy từ shell; output dài bị cắt, nên ghi ra file rồi `grep`.
 - **Cổng tổng cuối, trước khi mở PR, chạy theo ba đoạn, mỗi đoạn một lệnh riêng** (cùng các bước của CI `Gate`, cùng thứ tự; một lượt tool có ngân sách thời gian):
 
   ```bash

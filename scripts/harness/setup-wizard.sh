@@ -209,10 +209,12 @@ STAGE_NAMES=(
   "H-1 · Kiro Agent GitHub App covers $REPO"
   "H-2 · Kiro Web: project connected, sandbox env FOUNDER_LLM_*, internet, PR author"
   "H-3 · Dispatch token (fine-grained) → secret HARNESS_DISPATCH_TOKEN"
-  "H-4 · Repository variable HARNESS_WEB_REVIEW"
+  "H-4 · Repository variables HARNESS_WEB_REVIEW and HARNESS_DISPATCH"
   "H-5 · Actions permissions (check only)"
   "H-6 · PyPI trusted publisher for founder-vn (optional, needed by T01)"
   "H-7 · Ticket #5 (T04, ready-for-human) and a dry run of the dispatcher"
+  "H-8 · Protect main on GitHub (the guard does not run in the Kiro Web sandbox)"
+  "H-9 · Start the loop: workflows enabled, HARNESS_DISPATCH=on"
 )
 
 run_wizard() {
@@ -222,7 +224,7 @@ TOTAL_STAGES=${#STAGE_NAMES[@]}
 if [[ "${1:-}" == "--list" ]]; then
   printf 'founder-vn harness setup: %s stages\n' "$TOTAL_STAGES"
   local i=0; for s in "${STAGE_NAMES[@]}"; do i=$((i + 1)); printf '  %s. %s\n' "$i" "$s"; done
-  printf '\nValues produced: secret HARNESS_DISPATCH_TOKEN, variable HARNESS_WEB_REVIEW, local %s with FOUNDER_LLM_BASE_URL and FOUNDER_LLM_MODEL (and the key, hidden). The rest are checks and actions.\n' "$ENV_FILE"
+  printf '\nValues produced: secret HARNESS_DISPATCH_TOKEN, variables HARNESS_WEB_REVIEW and HARNESS_DISPATCH, local %s with FOUNDER_LLM_BASE_URL and FOUNDER_LLM_MODEL (and the key, hidden), branch protection on main. The rest are checks and actions.\n' "$ENV_FILE"
   return 0
 fi
 
@@ -314,6 +316,9 @@ set_secret HARNESS_DISPATCH_TOKEN "$HARNESS_DISPATCH_TOKEN"
 stage "${STAGE_NAMES[4]}"
 say "HARNESS_WEB_REVIEW=on lets the orchestrator post review and address turns; 'off' pauses them without touching code."
 set_var HARNESS_WEB_REVIEW on
+say "HARNESS_DISPATCH=off keeps the dispatcher from allocating new lanes (FV-D13) until stage 10 turns it on;"
+say "review and merge of lanes already running are not affected."
+set_var HARNESS_DISPATCH off
 
 # ── 6 ────────────────────────────────────────────────────────────────────────
 stage "${STAGE_NAMES[5]}"
@@ -356,9 +361,48 @@ else
   bash scripts/harness/dispatch.sh --repo "$REPO" 2>&1 | grep -E '^gathered|"pick"|"frontier"|dispatch token|dry run' | sed 's/^/    /' || true
 fi
 say ""
-say "To start the loop (after the probe of docs/agents/kiro-harness.md §6 if you want one first):"
-note "  gh workflow run frontier-dispatch.yml --repo $REPO                 # dry run, read the decision in the run log"
-note "  gh workflow run frontier-dispatch.yml --repo $REPO -f apply=true   # dispatch the first ticket"
+say "The loop starts in stage 10. Before that, stage 9 protects main."
+pause
+
+# ── 9 ────────────────────────────────────────────────────────────────────────
+stage "${STAGE_NAMES[8]}"
+say "The PreToolUse guard (.kiro/hooks/guard.sh) does not run inside the Kiro Web sandbox (measured 2026-11-22,"
+say "FV-M-6), so nothing on the lane's side stops a direct push to main except the rules in its message."
+say "GitHub branch protection does: pull requests only (0 required approvals, so the machine merger still merges),"
+say "no force pushes, no deletion. You, the operator, go through pull requests too (as PR #21 did)."
+local prot; prot=$(gh api "repos/$REPO/branches/main/protection" --jq '.required_pull_request_reviews != null' 2>/dev/null || echo false)
+if [[ "$prot" == true ]]; then
+  say "main already requires pull requests."
+elif confirm "Protect main now (require pull request, no force push, no deletion)?"; then
+  if printf '%s' '{"required_status_checks":null,"enforce_admins":false,"required_pull_request_reviews":{"required_approving_review_count":0},"restrictions":null,"allow_force_pushes":false,"allow_deletions":false}' \
+     | gh api --method PUT "repos/$REPO/branches/main/protection" --input - >/dev/null 2>&1; then
+    say "main protected: pull requests required (0 approvals), no force pushes, no deletions."
+  else
+    SKIPPED+=("branch protection on main (https://github.com/$REPO/settings/branches): require a pull request before merging, 0 approvals")
+    warn "could not set branch protection by API; set it by hand (link in the closing summary)"
+  fi
+else
+  SKIPPED+=("branch protection on main (https://github.com/$REPO/settings/branches): require a pull request before merging, 0 approvals")
+fi
+
+# ── 10 ───────────────────────────────────────────────────────────────────────
+stage "${STAGE_NAMES[9]}"
+say "Three workflows carry the loop: gate.yml (always on), after-gate.yml (the */15 cron) and frontier-dispatch.yml."
+say "Both dispatching workflows were disabled while the harness was built; the dispatcher also reads HARNESS_DISPATCH."
+local wf
+for wf in after-gate.yml frontier-dispatch.yml; do
+  if gh workflow enable "$wf" --repo "$REPO" >/dev/null 2>&1; then say "enabled $wf"; else warn "could not enable $wf (gh workflow enable $wf)"; fi
+done
+if confirm "Start the loop now: set HARNESS_DISPATCH=on? The next sweep (cron */15, or a manual frontier-dispatch run) allocates ticket #2 to Kiro Web."; then
+  set_var HARNESS_DISPATCH on
+  say "To allocate without waiting for the cron:"
+  note "  gh workflow run frontier-dispatch.yml --repo $REPO -f apply=true"
+  say "To pause again at any time:"
+  note "  gh variable set HARNESS_DISPATCH --body off --repo $REPO"
+else
+  say "Loop left paused (HARNESS_DISPATCH=off). Start it later with:"
+  note "  gh variable set HARNESS_DISPATCH --body on --repo $REPO && gh workflow run frontier-dispatch.yml --repo $REPO -f apply=true"
+fi
 pause
 
 finish
