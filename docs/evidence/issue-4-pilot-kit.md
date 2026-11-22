@@ -26,6 +26,10 @@ gate-segment verify: GREEN on 089386c2f37eefa660820e7662de551195599b21
 
 The commit after that HEAD touches only this evidence file.
 
+## Cổng sau review
+
+Rerun on 8687a06648a7d7c142e137c41f3796a1d6aa4a4e: static, unit, build exit 0; `gate-segment verify: GREEN`. The commit after that HEAD touches only this evidence file.
+
 ## Giới hạn
 
 - Tests check content strings, not the quality of the Vietnamese or whether the kit works in a real session; nothing was run with a real Owner.
