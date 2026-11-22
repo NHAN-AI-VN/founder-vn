@@ -13,7 +13,18 @@ Derived from the acceptance criteria (the ticket has no `## Seam` section); ever
 
 ## Lát
 
-One slice, in `tests/test_pilot_kit.py` (6 tests). Run red before `pilot/` existed: 5 failed (`FileNotFoundError: ... pilot/consent.md` and the other four files), 1 passed vacuously; the vacuous test (no `$`, no phone numbers) was then given `assert len(paths) == 5` so it cannot pass on an empty folder. Rerun green: `uv run pytest tests/test_pilot_kit.py -q` (6 passed).
+Red run reproduced in the address turn of round 2: `pilot/` moved out of the working tree, `uv run pytest tests/test_pilot_kit.py -q` gave `6 failed`. The test and `pilot/` landed together in `089386c`, so the original red run is not separable in git; this table records the reproduced one. Green rerun: `uv run pytest tests/test_pilot_kit.py -q` (6 passed) with `pilot/` restored.
+
+| Test | Assertion line while red | Green rerun |
+| --- | --- | --- |
+| `test_consent_names_api_publication_deletion_withdrawal_and_law` | `FileNotFoundError: ... pilot/consent.md` | passed |
+| `test_baseline_has_four_fields_date_and_acknowledgement` | `FileNotFoundError: ... pilot/baseline.md` | passed |
+| `test_follow_up_questions_are_three_preregistered_and_sent_by_someone_else` | `FileNotFoundError: ... pilot/follow-up-questions.md` | passed |
+| `test_results_template_has_columns_and_descriptive_caveat` | `FileNotFoundError: ... pilot/results-template.md` | passed |
+| `test_runbook_covers_two_sessions_offline_run_pdf_root_and_deletion` | `FileNotFoundError: ... pilot/runbook.md` | passed |
+| `test_pilot_kit_has_no_dollar_and_no_phone_numbers` | `assert 0 == 5` (`len(paths)` is 0 on an empty `pilot/`) | passed |
+
+Path check: every `pilot/*.md` file and `docs/founder-vn-design.md` (section 6, `## 6. Pilot`) cited by `pilot/runbook.md` exists in the tree (`business-plan.md` is a generated artifact of the Wave A run, not a repo file).
 
 ## Cổng ba đoạn
 
