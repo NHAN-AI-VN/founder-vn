@@ -1,10 +1,23 @@
 # KiroCrew
 
-Status: stub.
+Status: written from the installer's output; the dashboard steps and a golden-case run are not yet witnessed.
 
-- Skills: `founder-vn install --host kirocrew` (not yet released). KiroCrew reads
-  `<project>/.kiro/skills/` once the project is trusted.
-- MCP server: add `uvx founder-vn-mcp` through the KiroCrew dashboard. KiroCrew does not read the
-  workspace `mcp.json`, so the registration in [kiro.md](kiro.md) does not apply.
-- Environment: set `FOUNDER_LLM_BASE_URL`, `FOUNDER_LLM_API_KEY` and `FOUNDER_LLM_MODEL` in the
-  dashboard or host environment; never write their values into a file in this repository.
+## Install
+
+```bash
+founder-vn install --host kirocrew
+```
+
+Copies the skills into `.kiro/skills/` of the current project (idempotent; `--print-only` shows the plan and the snippet without writing). KiroCrew reads `<project>/.kiro/skills/` once the project is trusted.
+
+## MCP registration
+
+KiroCrew does not read the workspace `.kiro/settings/mcp.json`, so the registration in [kiro.md](kiro.md) does not apply. Register through the dashboard:
+
+1. Open the KiroCrew dashboard, MCP Servers page, and add a server.
+2. Name `founder-vn`, command `uvx`, arguments `founder-vn-mcp`.
+3. Trust the project in KiroCrew; skills and servers load only for a trusted project.
+
+## Environment
+
+Model calls read `FOUNDER_LLM_BASE_URL`, `FOUNDER_LLM_API_KEY` and `FOUNDER_LLM_MODEL` from the host environment. Set them there; never write their values into a config file or this repository. In KiroCrew use the dashboard or the host environment.
