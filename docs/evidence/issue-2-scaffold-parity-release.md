@@ -39,17 +39,17 @@ Both come from design §5 and are pinned in `uv.lock`: `mcp` 2.3.0 (MIT) and `ht
 
 ## Cổng ba đoạn
 
-Run on the last code commit (`1bca122`); the commits after it change only this file.
+Run on the last code commit (`0e7f0f5`); the commits after it change only this file.
 
 ```
 gate-segment verify: latest line per segment (.harness/gate-segments.txt)
-  static 0 1bca1223cebd05cffd68bcfbdd91b381873b7527 2026-11-22T08:34:35Z
-  unit 0 1bca1223cebd05cffd68bcfbdd91b381873b7527 2026-11-22T08:34:37Z
-  build 0 1bca1223cebd05cffd68bcfbdd91b381873b7527 2026-11-22T08:34:38Z
-gate-segment verify: GREEN on 1bca1223cebd05cffd68bcfbdd91b381873b7527
+  static 0 0e7f0f508ad0b7a989ec0d484b281788ce6bef76 2026-11-22T08:47:21Z
+  unit 0 0e7f0f508ad0b7a989ec0d484b281788ce6bef76 2026-11-22T08:47:23Z
+  build 0 0e7f0f508ad0b7a989ec0d484b281788ce6bef76 2026-11-22T08:47:24Z
+gate-segment verify: GREEN on 0e7f0f508ad0b7a989ec0d484b281788ce6bef76
 ```
 
-Logs: `All checks passed!`, `32 passed in 1.31s`, `Successfully built dist/founder_vn-0.1.0-py3-none-any.whl`.
+Logs: `All checks passed!`, `34 passed in 1.41s`, `Successfully built dist/founder_vn-0.1.0-py3-none-any.whl`.
 
 ## Giới hạn
 
