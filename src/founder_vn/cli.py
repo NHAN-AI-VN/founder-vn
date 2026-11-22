@@ -3,8 +3,9 @@
 import argparse
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 
-from founder_vn import info
+from founder_vn import cfo, files, info
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -12,6 +13,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="store_true", help="print the version and exit")
     sub = parser.add_subparsers(dest="command")
     sub.add_parser("version", help="print the package version")
+    cfo_parser = sub.add_parser("cfo", help="unit economics report from numbers.json")
+    cfo_parser.add_argument("numbers", help="numbers.json under founder/")
+    cfo_parser.add_argument("--price", help="what-if price, e.g. 40.000 or 40k")
+    cfo_parser.add_argument("--volume", type=float, default=1.0, help="what-if volume multiplier")
+    cfo_parser.add_argument("--json", action="store_true", help="print the numbers as JSON")
+    cfo_parser.add_argument("--out", help="write the report under founder/ (e.g. cfo.md)")
     return parser
 
 
@@ -21,6 +28,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.version or args.command == "version":
         print(info.version_text())
+        return 0
+    if args.command == "cfo":
+        try:
+            sys.stdout.write(
+                cfo.run(Path.cwd(), args.numbers, args.price, args.volume, args.json, args.out)
+            )
+        except (cfo.NumbersError, files.PathRefused, ValueError) as e:
+            print(f"lỗi: {e}", file=sys.stderr)
+            return 2
         return 0
     parser.print_help()
     return 2
