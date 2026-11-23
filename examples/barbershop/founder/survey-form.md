@@ -10,7 +10,7 @@ Ngày khảo sát: 23 / 11 / 2026    Người khảo sát: chủ dự án (qua t
 ## Phiếu đối thủ số 1 (trong Quận 7 cũ, đối thủ trực tiếp)
 
 1. **Tên đối thủ**: Tony Barber House, chi nhánh Quận 7
-2. **Địa chỉ**: Quận 7 cũ, ngoài khu Phú Mỹ Hưng (chuỗi 4 chi nhánh tại TP.HCM: Quận 1 cũ, Quận 3 cũ, Quận 7 cũ, Phú Nhuận cũ; địa chỉ đầy đủ tại link nguồn)
+2. **Địa chỉ**: Quận 7 cũ, ngoài khu đô thị trung tâm (chuỗi 4 chi nhánh tại TP.HCM: Quận 1 cũ, Quận 3 cũ, Quận 7 cũ, Phú Nhuận cũ; địa chỉ đầy đủ tại link nguồn)
 3. **Khoảng cách**: chưa có số liệu (vị trí dự kiến chưa chốt; cùng Quận 7 cũ)
 4. **Giá** (bảng giá 2025 đăng trên trang chính thức, truy cập 23/11/2026):
 
@@ -42,7 +42,7 @@ Ngày khảo sát: 23 / 11 / 2026    Người khảo sát: chủ dự án (qua t
 ## Phiếu đối thủ số 2 (trong Quận 7 cũ, chuỗi đại chúng)
 
 1. **Tên đối thủ**: 30Shine (hai chi nhánh Quận 7)
-2. **Địa chỉ**: Quận 7 cũ, hai chi nhánh ngoài khu Phú Mỹ Hưng (danh sách chi nhánh trên trang chính thức)
+2. **Địa chỉ**: Quận 7 cũ, hai chi nhánh ngoài khu đô thị trung tâm (danh sách chi nhánh trên trang chính thức)
 3. **Khoảng cách**: chưa có số liệu (vị trí dự kiến chưa chốt; cùng Quận 7 cũ)
 4. **Giá** (trang chính thức, truy cập 23/11/2026; chuỗi niêm yết "giá từ"):
 
@@ -77,7 +77,7 @@ Ngày khảo sát: 23 / 11 / 2026    Người khảo sát: chủ dự án (qua t
 ## Phiếu đối thủ số 3 (trong Quận 7 cũ, salon cao cấp thay thế)
 
 1. **Tên đối thủ**: emo. Hair Salon (salon tóc Nhật Bản, nam và nữ)
-2. **Địa chỉ**: Quận 7 cũ, khu Phú Mỹ Hưng (khu Starhill)
+2. **Địa chỉ**: Quận 7 cũ, trong khu đô thị trung tâm
 3. **Khoảng cách**: chưa có số liệu (vị trí dự kiến chưa chốt; cùng Quận 7 cũ)
 4. **Giá** (menu trên trang chính thức, truy cập 23/11/2026; hai mức theo thợ Nhật hoặc thợ Việt):
 
@@ -101,7 +101,7 @@ Ngày khảo sát: 23 / 11 / 2026    Người khảo sát: chủ dự án (qua t
    | ShopeeFood | | | |
    | GrabFood | | | |
 
-9. **Nhận xét khác**: không phải barbershop mà là salon Nhật unisex, nhưng là nơi khách nam thu nhập cao trong khu Phú Mỹ Hưng đang trả 350.000–750.000 đ cho một lần cắt, tức cao hơn Signature Cut 279.000 đ của anh/chị. Nghỉ thứ Hai (trùng ngày nghỉ của ý tưởng); thứ Ba–thứ Sáu 09:00–19:00, thứ Bảy–Chủ nhật 09:00–18:30. Nguồn: https://emo-salon.com/vi/trang-dau/ và https://emo-salon.com/menu/, truy cập 23/11/2026.
+9. **Nhận xét khác**: không phải barbershop mà là salon Nhật unisex, nhưng là nơi khách nam thu nhập cao trong khu đô thị trung tâm Quận 7 cũ đang trả 350.000–750.000 đ cho một lần cắt, tức cao hơn Signature Cut 279.000 đ của anh/chị. Nghỉ thứ Hai (trùng ngày nghỉ của ý tưởng); thứ Ba–thứ Sáu 09:00–19:00, thứ Bảy–Chủ nhật 09:00–18:30. Nguồn: https://emo-salon.com/vi/trang-dau/ và https://emo-salon.com/menu/, truy cập 23/11/2026.
 
 ---
 
@@ -228,7 +228,7 @@ Ngày khảo sát: 23 / 11 / 2026    Người khảo sát: chủ dự án (qua t
 ## Phiếu đối thủ số 8 (mốc tham chiếu ngoài quận, barbershop cho khách nước ngoài)
 
 1. **Tên đối thủ**: Le Barbier de Saigon
-2. **Địa chỉ**: Thủ Đức cũ (khu Thảo Điền)
+2. **Địa chỉ**: Thủ Đức cũ (khu nhiều người nước ngoài sinh sống)
 3. **Khoảng cách**: ngoài Quận 7 cũ; chưa đo
 4. **Giá**: chưa có bảng giá niêm yết trong nguồn; saigon-scene (09/2026) xếp vào nhóm "barbershop cho người nước ngoài 200.000–350.000 đ" (khoảng giá của nhóm, không phải giá của tiệm)
 
