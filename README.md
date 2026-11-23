@@ -37,6 +37,15 @@ Version 0.1.0 is not published yet. The PyPI package and the `founder-vn install
 |---|---|
 | (filled in as each skill ticket lands) | placeholder |
 
+## Golden case
+
+`examples/barbershop/` is the project's worked example: one real business idea, a four-chair men's
+barbershop in Ho Chi Minh City planned as a household business, anonymised (working name, no personal
+names, location at former-district level) and published with the case owner's consent (the case owner
+is the project owner; design decision Q51). Every skill is developed and demonstrated on it, and
+[`examples/barbershop/founder/idea.md`](examples/barbershop/founder/idea.md) is the idea file every
+skill reads first. Pilot participants' folders stay outside version control (design §6).
+
 ## Contributing and law updates
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Every legal claim needs an official link and a verification

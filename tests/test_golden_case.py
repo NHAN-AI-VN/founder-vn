@@ -47,3 +47,9 @@ def test_example_is_anonymised() -> None:
         assert not PHONE.search(text), path
         assert "@" not in text, path
         assert not STREET_ADDRESS.search(text), path
+
+
+def test_readme_names_the_example_directory_as_the_golden_case() -> None:
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "examples/barbershop/" in text
+    assert "golden case" in text.lower()
