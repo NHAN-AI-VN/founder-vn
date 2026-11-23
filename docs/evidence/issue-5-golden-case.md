@@ -28,21 +28,23 @@ No automated seam exists for the skills that will consume the file (spec #1: "Sk
 | `test_idea_file_prices_are_vnd_in_vietnamese_format` | `FileNotFoundError` (same path) | same run, passed |
 | `test_example_is_anonymised` | `AssertionError: PosixPath('.../examples/barbershop')` / `assert []` | same run, passed |
 | `test_readme_names_the_example_directory_as_the_golden_case` | `AssertionError: assert 'examples/barbershop/' in '# founder-vn\n\nFounder skills for Vietnam...'` (1 failed, 4 passed) | `uv run pytest tests/test_golden_case.py -q`: 5 passed (commit `811b7bf`) |
+| `test_idea_file_carries_no_unsourced_legal_or_tax_claim` (round 1, S2) | `AssertionError: thuế thuê nhà 10%` / `1 failed, 5 passed` | `uv run pytest tests/test_golden_case.py -q`: 6 passed (commit `c68fc52`) |
+| `test_example_is_anonymised` (round 1, S1, SPEC-1: sub-district name check) | `AssertionError: (PosixPath('.../idea.md'), 'Phú Mỹ Hưng')` | 6 passed (commit `8b92b89`) |
 
 The README slice: `.kiro/hooks/guard.sh` refused the lane's edit of `README.md` (single-owner rule; the guard reads `HARNESS_SINGLE_OWNER_FILES`, unset in this CLI session, and does not read the allocation comment). The lane did not work around the guard: it wrote the patch to `.harness/readme-golden-case.patch`, checked it with `git apply --check`, and the operator applied it in their own shell; the lane then ran the test green and committed. `skill_lint.py` at `811b7bf`: `0 skill checked, 1 example file(s), 0 finding(s)`.
 
 ## Cổng ba đoạn
 
-First run at `811b7bf` (the README slice): static 0, unit 0 (224 passed in 21.53s), build 0, verify GREEN. The checklist fix of `idea.md` (`9269c4e`, example content only) made that block stale, so the three segments ran again at the last commit that touches the example:
+Round 1 (address turn): the review fixes changed example text and `tests/test_golden_case.py`, so the earlier block at `9269c4e` is stale. Segments rerun at the last code commit `be96eb7` (an earlier run at `c68fc52` failed `ruff format --check` on the test file; fixed in `be96eb7`):
 
 ```
-static 0 9269c4e69ee679641e26cdb1ff48c00081ff97a2 (ruff check: All checks passed!; ruff format --check: 175 files already formatted; skill-lint: 0 skill checked, 1 example file(s), 0 finding(s))
-unit   0 9269c4e69ee679641e26cdb1ff48c00081ff97a2 (224 passed in 21.10s)
-build  0 9269c4e69ee679641e26cdb1ff48c00081ff97a2 (founder_vn-0.1.0 tar.gz and wheel built)
-gate-segment verify: GREEN on 9269c4e69ee679641e26cdb1ff48c00081ff97a2
+static 0 be96eb7df82a0bafe2536a1e8678f05d032ddee5 (ruff check and ruff format --check pass; skill-lint: 0 skill checked, 1 example file(s), 0 finding(s))
+unit   0 be96eb7df82a0bafe2536a1e8678f05d032ddee5 (225 passed)
+build  0 be96eb7df82a0bafe2536a1e8678f05d032ddee5 (founder_vn-0.1.0 tar.gz and wheel built)
+gate-segment verify: GREEN on be96eb7df82a0bafe2536a1e8678f05d032ddee5
 ```
 
-`check-doc-paths.sh` at `811b7bf`: 23 path(s) in 2 file(s) exist (no path-bearing document changed after that). The commits after `9269c4e` touch only this evidence file.
+The commits after `be96eb7` touch only this evidence file and `reviews/issue-5/ledger.md`.
 
 ## Giới hạn
 
