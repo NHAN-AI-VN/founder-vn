@@ -175,7 +175,7 @@ Sau pilot: `offer, brand`.
 
 | Tuần | Việc |
 |---|---|
-| 1 | Repo public, chốt case mẫu F&B (một người quen sắp mở quán), phiếu đồng thuận + mẫu baseline + 3 câu hỏi đăng ký trước, bắt đầu tuyển pilot |
+| 1 | Repo public, chốt case mẫu (barbershop của chủ dự án, Q51; trước đó dự định F&B của một người quen sắp mở quán), phiếu đồng thuận + mẫu baseline + 3 câu hỏi đăng ký trước, bắt đầu tuyển pilot |
 | 2 | Package `founder_vn`: gom 4 script, CLI, thuế theo doanh thu, định dạng/parser VND, test đơn vị; bake-off mô hình |
 | 3 | MCP server, job panel bất đồng bộ, khóa đường dẫn, test, bản PyPI đầu |
 | 4–6 | Đợt A trên case mẫu; `install --host`. **Mốc tuần 6: server chạy + 6 skill + 2 bản kế hoạch của người thật** |
@@ -203,7 +203,7 @@ bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; track star
 Kiro Power / Claude Code plugin; máy tính web tĩnh dùng chung công thức; mô hình tài chính bền vững
 cho dự án OSS (chưa bàn, không cần cho v1).
 
-## Phụ lục: nhật ký quyết định (Q1–Q50)
+## Phụ lục: nhật ký quyết định (Q1–Q51)
 
 Vòng 1
 
@@ -233,7 +233,7 @@ Vòng 3
 - Q18 Chính sách tươi mới pháp lý: lai (cấu trúc tĩnh, số liệu tra khi chạy, link bắt buộc) (chi tiết ở Q39).
 - Q19 Tên `founder-vn`.
 - Q20 Định nghĩa "xong": case mẫu + test script + checklist rà soát.
-- Q21 Một case mẫu F&B dùng chung, ẩn danh vào `examples/`.
+- Q21 Một case mẫu F&B dùng chung, ẩn danh vào `examples/` (ngành đổi sang barbershop ở Q51).
 - Q22 Pilot hai lần gặp.
 - Q23 Public từ ngày đầu; README nhắm người hỗ trợ; xưng anh/chị; CONTRIBUTING + mẫu issue.
 
@@ -276,3 +276,15 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   `job_status`; mục job; mục test LLM boundary) và ticket T08, T12, T15 đều đặt tên này vì hai loại
   job chạy trên cùng một runner (T08) và một tool poll chung đơn giản hơn hai tool theo loại. §2 sửa
   theo; `docs/review-round5.md` giữ nguyên vì là biên bản phản biện có ngày, không phải nguồn luật.
+- Q51 (2026-11-23, lane #5 T04, quyết định của chủ dự án) Case mẫu đổi từ F&B sang **tiệm cắt tóc nam
+  kiểu barbershop** (sửa Q21 và dòng tuần 1 của §7): tiệm đầu tiên 4 ghế cắt + 2 giường gội, 55–60 m²,
+  tại khu Phú Mỹ Hưng (Quận 7 cũ), TP.HCM, đăng ký hộ kinh doanh, lấy từ nghiên cứu thị trường riêng
+  của chủ dự án (concept chưa quyết mở: đúng tình huống "có nên mở, cần bao nhiêu vốn" của người dùng
+  v1). Lý do: chưa chốt được quán F&B thật nào trong khi T11–T17 đứng chờ ticket này (H-7 trong
+  `docs/agents/kiro-harness.md`); chủ case là chính chủ dự án nên đồng thuận công bố ẩn danh không
+  phụ thuộc người thứ ba; dữ liệu đủ cho đợt A. Hệ quả: (1) mục sổ nguồn đầu tiên của T11 là thuế
+  suất theo doanh thu của ngành dịch vụ, không phải ăn uống; (2) đường F&B đầy đủ của `founder-permits`
+  (Q47) không được case mẫu chạy qua, đợt B cần một case F&B phụ hoặc đổi ưu tiên, quyết khi tới đợt B;
+  (3) ticket T13 nói "ảnh menu", với barbershop đọc là ảnh bảng giá; (4) tên gọi của case là tên tạm
+  mô tả, không phải thương hiệu thật nào, kể cả thương hiệu tham chiếu của nghiên cứu; vị trí ghi tới
+  cấp quận cũ. Spec #1 (user story 48) và ticket #5 sửa cùng ngày; ví dụ ở `examples/barbershop/`.
