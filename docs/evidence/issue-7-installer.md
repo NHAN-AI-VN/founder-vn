@@ -24,6 +24,23 @@ Derived from the acceptance criteria (the ticket has no `## Seam` section); ever
 | wheel | `tests/test_install.py::test_pyproject_ships_skills_in_the_wheel` | `KeyError: 'force-include'` | `uv run pytest tests/test_install.py -q` |
 | host pages | `tests/test_hosts.py` (5 new tests) | `AssertionError: assert 'pending confirmation' in '# Gemini / Antigravity CLI ... Status: stub ...'` and 3 more reds | `uv run pytest tests/test_hosts.py -q` |
 
+| red by mutation (S2) | `tests/test_install_cli.py` (see "Red by mutation") | see below | `uv run pytest tests/test_install_cli.py -q` |
+| drop `--skills-dir` (S3) | all CLI tests, now via a fixture that patches `install.packaged_skills_dir` | n/a (refactor, goldens unchanged) | `uv run pytest -q` |
+
+### Red by mutation
+
+Each mutation was applied to the code, the named test run, then the code reverted.
+
+| Mutation | Test | Assertion while red |
+|---|---|---|
+| drop "60 seconds" from the Codex note | `test_codex_snippet_carries_the_timeout_note` | `AssertionError: assert ('60 seconds' in '...')` |
+| "Trust the project" reworded | `test_kirocrew_snippet_names_dashboard_and_trust` | `AssertionError: assert ('dashboard' in ... and 'Trust the project' in ...)` |
+| `run` appends the value of `FOUNDER_LLM_API_KEY` | `test_snippets_name_env_variables_without_values` | `AssertionError: assert 'synthetic-secret-value' not in '...'` |
+| drop the name `FOUNDER_LLM_API_KEY` from the note | same | `AssertionError: assert 'FOUNDER_LLM_API_KEY' in '...'` |
+| `gemini` added to `SKILL_FOLDERS`/`HOSTS` | `test_gemini_is_not_a_host_value` | `KeyError: 'gemini'` (the test expects `SystemExit` from argparse) |
+| CLI stops catching `InstallRefused` | `test_cli_refusal_exits_2` | `founder_vn.install.InstallRefused: refused: ...` |
+| CLI returns 0 on refusal | `test_cli_refusal_exits_2` | `AssertionError: assert 0 == 2` |
+
 New golden files `tests/golden/install_{kiro,claude,codex,grok,kirocrew}.json` are the first output of the new command (generated from the code, then read through once; no absolute path, no timestamp, source skills come from the synthetic `tests/fixtures/skills_src`).
 
 ## Cổng ba đoạn
@@ -45,5 +62,5 @@ Logs: `All checks passed!`, `132 passed`, `Successfully built dist/founder_vn-0.
 - The MCP snippets for Claude Code, Codex, Grok Build and KiroCrew come from the ticket and design; none was run on its host. Grok's `config.toml` table name and the Gemini `$NAME` expansion in `env` are unconfirmed. The Codex `tool_timeout_sec = 300` value is an example, not a measured need.
 - The golden outputs are English text for the Facilitator (design §4: docs in English); nothing Owner-facing is produced.
 - `install` is not an MCP tool (reasoning above); no parity test exists for it.
-- Some CLI tests (timeout note, trust note, env names, `gemini` refused, exit 2) had no witnessed red.
+- The CLI tests listed under "Red by mutation" had no red when first written; the reds were witnessed afterwards by mutating the code (S2 closure).
 - Existing files are overwritten when their content differs (`update`); local edits to an installed skill are lost on re-run. Nothing is deleted.
