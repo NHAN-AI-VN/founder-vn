@@ -1,32 +1,32 @@
-Commit mã đã chấm: 68a9c1deb50d
+Commit mã đã chấm: a442adab7b7a
 
-# Standards review, issue #7, vòng 1 (chấm lại sau câu trả lời của operator)
+# Standards review, issue #7, vòng 2
 
-Phạm vi: `git diff --stat main...HEAD` (26 file) và `git log --oneline main..HEAD` (11 commit). Kể từ lượt trước (`17a2a7f`), nhánh thêm `68a9c1d`, chỉ chạm `docs/agents/standards.md` và `reviews/issue-7/operator-answer.md`; không có mã mới, không có test mới, không có evidence mới. Đã đọc lại `AGENTS.md`, `docs/agents/standards.md` (bản sau `68a9c1d`), `docs/agents/evidence-gates.md`, `docs/agents/parallel-lanes.md`, `docs/evidence/issue-7-installer.md`, `reviews/issue-7/operator-answer.md`, `src/founder_vn/{install,cli}.py`, và design (các dòng nhắc `install`). Không có `docs/adr/` hay `CONTRIBUTING.md` cần xét. Diff không chạm `skills/` ngoài `.gitkeep`, nên checklist skill không áp dụng.
+Phán quyết: PASS. Không còn finding chặn trên trục Standards.
 
-Đã chạy tại HEAD: `uv run --frozen pytest -q` được 132 passed; `uv run --frozen ruff check .` sạch.
+## Phạm vi đã xét
 
-Hình dạng vòng lặp: (a) `seam:` (`eee6595`) đứng trước mọi `slice(`, đạt. (b) Ba commit chạm `src/` (`bbe41ed`, `1fae020`, `df19a24`) đều chạm test và có dòng trong `## Lát`, đạt. (c) Test đi qua `install.run` và CLI, đúng seam đã khai, đạt. (d) `## Cổng ba đoạn` ghi `verify` GREEN ở `c124219`, là commit mã cuối; các commit sau (`0ec3879`, `68a9c1d`) chỉ chạm tài liệu, đạt.
+`git diff --stat main...HEAD` và `git log --oneline main..HEAD` (từ `eee6595` đến `a442ada`). Kể từ vòng 1 (`0ea2211`) nhánh thêm bốn commit: `359ffee` (mã: `src/founder_vn/cli.py`, `tests/test_install_cli.py`), `ddb3ce2` và `a442ada` (chỉ `docs/evidence/issue-7-installer.md`), `94cb0d7` (`reviews/issue-7/ledger.md`).
 
-Việc ghi ngoài `founder/` của installer trước đây bị chặn vì chuẩn cấm. Operator đã quyết và `docs/agents/standards.md` (mục "Shape of the code") nay ghi ngoại lệ với phạm vi rõ. Mã tại `install.py:97-120` (thư mục lấy từ `SKILL_FOLDERS`, từ chối đích resolve ra ngoài project bằng `InstallRefused` trước khi ghi, không xoá, `--print-only` không ghi) nằm trong phạm vi đó. Phần này không còn là finding; ledger do lượt sửa ghi.
+Chuẩn đã đối chiếu: `AGENTS.md`, `docs/agents/standards.md` (gồm ngoại lệ installer do `68a9c1d`), `docs/agents/evidence-gates.md`, `docs/evidence/issue-7-installer.md`, `reviews/issue-7/ledger.md`, `src/founder_vn/install.py`, `src/founder_vn/cli.py`, `tests/test_install_cli.py`. Diff không chạm `skills/` ngoài `.gitkeep` nên checklist skill không áp dụng; không có `docs/adr/` hay `CONTRIBUTING.md` liên quan.
 
-## Finding chặn, lane sửa được
+## Đóng các finding vòng 1
 
-### S2: Hành vi mới không có đỏ rồi xanh (chưa được xử lý từ vòng trước)
-- Chỗ: `docs/evidence/issue-7-installer.md`, mục `## Giới hạn`: "Some CLI tests (timeout note, trust note, env names, `gemini` refused, exit 2) had no witnessed red"; mục `## Lát`, dòng "CLI, snippets, goldens" ("the other CLI tests were written together with the code and have no witnessed red") và dòng "host pages" ("and 3 more reds", không nêu assertion). Test tương ứng: `tests/test_install_cli.py`, `tests/test_hosts.py`.
-- Chuẩn: `docs/agents/evidence-gates.md`, "Evidence by change type" (Behavior: red assertion cho hành vi mong muốn) và "A test must fail for the expected assertion before the implementation makes it pass".
-- Vì sao chặn: `68a9c1d` không đụng tới mục này; evidence vẫn tự khai thiếu đỏ. Hai khẳng định bảo vệ ràng buộc quan trọng (giá trị `FOUNDER_LLM_*` không lọt đầu ra, exit 2 khi từ chối) chưa từng được thấy đỏ nên chỉ chứng minh lệnh thoát 0.
-- Cách sửa: commit bổ sung, không viết lại lịch sử. Với từng test, đột biến mã (ví dụ in giá trị `FOUNDER_LLM_API_KEY`, bỏ bắt `InstallRefused`, bỏ timeout note), ghi assertion đỏ vào `## Lát`, hoàn nguyên, chạy lại xanh, rồi chạy lại `gate-segment.sh verify` ở commit mã cuối.
+- S1 (ghi ngoài khoá đường dẫn): ngoại lệ đã nằm trong `docs/agents/standards.md`; `install.py` giữ trong phạm vi đó (thư mục từ `SKILL_FOLDERS`, từ chối đích resolve ra ngoài project bằng `InstallRefused` trước khi ghi, không xoá, `--print-only` không ghi).
+- S2 (thiếu đỏ rồi xanh): bảng "Red by mutation" trong evidence có 7 đột biến. Đã tự chạy lại hai đột biến rồi hoàn nguyên: đổi "60 seconds" làm `test_codex_snippet_carries_the_timeout_note` và golden codex đỏ; cho CLI trả 0 khi bị từ chối làm `test_cli_refusal_exits_2` đỏ. Cây làm việc sạch sau đó.
+- S3 (cờ `--skills-dir`): `359ffee` bỏ cờ khỏi CLI; `grep skills-dir` trong `src/` và `tests/` không còn kết quả. CLI luôn dùng `packaged_skills_dir()`, nên tập file ghi ra đúng như ngoại lệ mô tả. Test CLI chuyển sang patch `install.packaged_skills_dir` qua fixture autouse.
 
-### S3: cờ `--skills-dir` cho phép nguồn chọn lúc chạy, trái với ngoại lệ vừa ghi (likely)
-- Chỗ: `src/founder_vn/cli.py:29` và `:50-52`; `src/founder_vn/install.py:98` (`source = Path(skills_dir) if skills_dir is not None else packaged_skills_dir()`).
-- Sai gì: ngoại lệ trong chuẩn dựa trên việc tập file ghi ra "do package cố định và đã review trong repo", nên giới hạn `.md`/`.json` không cần áp dụng. Cờ công khai `--skills-dir` cho người gọi (hay một agent) trỏ nguồn vào thư mục bất kỳ, và mọi file, mọi đuôi, của thư mục đó có `SKILL.md` được ghi vào thư mục host. Với cờ này, lý do miễn giới hạn đuôi không còn đúng ở CLI. Cờ cũng không có trong design §5 hay ticket (grep `skills-dir` ở design không có kết quả) và không có test CLI ở đường mặc định đóng gói.
-- Chuẩn: `docs/agents/standards.md`, mục "Shape of the code", mục ngoại lệ của installer: "the files it writes are exactly the files shipped under the package's `skills/<name>/`".
-- Vì sao chặn: mã và chuẩn tự mâu thuẫn. Lane sửa được: bỏ cờ khỏi CLI (test đã có seam `install.run(..., skills_dir=...)`; test CLI cần nguồn tổng hợp thì dùng cách khác không công khai), hoặc giữ cờ nhưng khi đó phải ghi lại ngoại lệ cho nó. Cách thứ hai sửa chuẩn, nên cần operator xác nhận; chọn cách thứ nhất nếu không có xác nhận đó. Nếu operator muốn giữ cờ, đó là một quyết định thiết kế mới và lượt này chuyển thành `BLOCKED`.
+## Hình dạng vòng lặp
+
+(a) `seam:` (`eee6595`) đứng trước mọi `slice(`. (b) Mọi commit chạm `src/` (`bbe41ed`, `1fae020`, `df19a24`, `359ffee`) đều chạm test, và có dòng trong `## Lát` (`359ffee` ở dòng "drop `--skills-dir` (S3)"). (c) Test đi qua `install.run` và CLI, đúng seam đã khai. (d) `## Cổng ba đoạn` ghi `GREEN on 94cb0d7f…`; `94cb0d7` là hậu duệ của commit mã cuối `359ffee` và các commit sau đó (`94cb0d7`, `a442ada`) chỉ chạm evidence/review, nên cổng không stale.
+
+Chạy tại HEAD: `uv run --frozen pytest -q` được 132 passed; `uv run --frozen ruff check .` sạch; `uv run --frozen ruff format --check .` sạch.
 
 ## Chưa xác minh
-- Run Gate 45102747034 báo `success` nhưng job `Gate` còn `in_progress` trong tin nhắn giao việc; chưa xác nhận kết quả cuối từ CI. Kết quả cục bộ ở trên là bằng chứng thay thế một phần.
-- Chưa dựng wheel để xác nhận `founder_vn/skills/.gitkeep` có trong wheel; chỉ dựa vào evidence và `test_pyproject_ships_skills_in_the_wheel` (kiểm cấu hình, không kiểm wheel).
-- Việc mã không cần kiểm lại sau `mkdir` (operator answer): đồng ý với lập luận cho đường dẫn tới từ `SKILL_FOLDERS`; chưa thử một thư mục host là symlink có sẵn trỏ ra ngoài project, mà `resolve()` trước `mkdir` đáng lẽ bắt được.
 
-<promise>CHANGES_REQUESTED</promise>
+- Run Gate 45103219267 báo `success` nhưng job `Gate` còn `in_progress` trong tin nhắn giao việc; chưa xác nhận kết quả cuối từ CI. Cổng CI chạy lại trọn ở commit cuối.
+- `gate-segment.sh verify` không chạy lại được trong sandbox này (thiếu `.harness/gate-segments.txt`); dòng GREEN trong evidence chưa được tái tạo độc lập, chỉ có pytest và ruff chạy lại ở trên.
+- Không test nào khẳng định `founder-vn install --skills-dir` bị argparse từ chối; quy tắc "nguồn là gói" chỉ được giữ bằng việc cờ không còn trong mã. Không chặn (chuẩn không đòi test cho một tham số vắng mặt), ghi để lane sau cân nhắc.
+- Chưa dựng wheel để xác nhận `founder_vn/skills/.gitkeep`; dựa vào evidence và `test_pyproject_ships_skills_in_the_wheel`.
+
+<promise>PASS</promise>
