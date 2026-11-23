@@ -101,6 +101,7 @@ class FakeProvider:
     base_url: str
     requests: list[dict[str, Any]] = field(default_factory=list)
     reply: str = "xin chào"
+    headers: list[Any] = field(default_factory=list)
 
 
 @pytest.fixture
@@ -115,6 +116,7 @@ def fake_provider() -> Iterator[FakeProvider]:
                 self.send_error(404)
                 return
             state.requests.append(body)
+            state.headers.append(self.headers)
             payload = json.dumps(
                 {
                     "id": "fake-1",
