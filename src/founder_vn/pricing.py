@@ -6,6 +6,7 @@ Nothing is invented: an answer that cannot be read is dropped and counted.
 """
 
 import json
+import statistics
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -50,6 +51,47 @@ def _competitors(raw: Any) -> list[int | None]:
     return [_price(v) for v in raw]
 
 
+def _share(values: list[int], test: Any) -> Any:
+    return lambda p: sum(1 for v in values if test(v, p)) / len(values)
+
+
+def _curves(valid: list[dict[str, int]]) -> dict[str, Any]:
+    col = {q: [row[q] for row in valid] for q in QUESTIONS}
+    return {
+        "too_cheap": _share(col["too_cheap"], lambda v, p: v >= p),
+        "not_cheap": _share(col["bargain"], lambda v, p: v < p),
+        "bargain": _share(col["bargain"], lambda v, p: v >= p),
+        "getting_expensive": _share(col["getting_expensive"], lambda v, p: v <= p),
+        "not_expensive": _share(col["getting_expensive"], lambda v, p: v > p),
+        "too_expensive": _share(col["too_expensive"], lambda v, p: v <= p),
+    }
+
+
+def _cross(grid: list[int], f: Any, g: Any) -> int | None:
+    """Price where curves ``f`` and ``g`` meet: the first grid price where they are equal, else a
+    linear interpolation across the first sign change; None when they never meet."""
+    diffs = [f(p) - g(p) for p in grid]
+    for i, d in enumerate(diffs):
+        if d == 0:
+            return grid[i]
+        if i + 1 < len(grid) and d * diffs[i + 1] < 0:
+            share = d / (d - diffs[i + 1])
+            return round(grid[i] + share * (grid[i + 1] - grid[i]))
+    return None
+
+
+def _points(valid: list[dict[str, int]]) -> dict[str, int | None]:
+    if not valid:
+        return {"pmc": None, "ipp": None, "pme": None}
+    c = _curves(valid)
+    grid = sorted({v for row in valid for v in row.values()})
+    return {
+        "pmc": _cross(grid, c["too_cheap"], c["not_cheap"]),
+        "ipp": _cross(grid, c["bargain"], c["getting_expensive"]),
+        "pme": _cross(grid, c["too_expensive"], c["not_expensive"]),
+    }
+
+
 def analyse(spec: Mapping[str, Any]) -> dict[str, Any]:
     """Return every number in the report."""
     if "answers" not in spec:
@@ -59,6 +101,11 @@ def analyse(spec: Mapping[str, Any]) -> dict[str, Any]:
     kept = sorted(p for p in rivals if p is not None)
     return {
         "answers": {"valid": len(valid), "dropped": dropped},
+        "points": _points(valid),
+        "medians": {
+            q: round(statistics.median(row[q] for row in valid)) if valid else None
+            for q in QUESTIONS
+        },
         "competitors": {"prices": kept, "dropped": len(rivals) - len(kept)},
     }
 
