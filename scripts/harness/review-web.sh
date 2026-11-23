@@ -176,19 +176,30 @@ fi
 # ---- apply ----
 ci_summary() { # -> text for the message
   if [ "$gate_required" != true ]; then printf 'Repo chưa có workflow `%s`: không có kết quả CI ở HEAD; đừng kết luận gì từ việc đó.' "$gate_file"; return; fi
-  local id st cc url
+  local id st cc url self=""
   id=$(jq -r '.id // empty' <<< "$gate"); st=$(jq -r '.status // empty' <<< "$gate"); cc=$(jq -r '.conclusion // empty' <<< "$gate"); url=$(jq -r '.url // empty' <<< "$gate")
   if [ -z "$id" ]; then printf 'Chưa có run `Gate` nào ở HEAD này.'; return; fi
+  # D31 again, for the job lines (FV-M-8): when this script is the tail of the Gate job itself, the
+  # API still shows that job in_progress, and the message used to carry "Gate: in_progress" under
+  # a run that said success; the reviewers of lane #7 filed it under "chưa xác minh" twice. The job
+  # of the self-run reads as the outcome the workflow passed in (ci-jobs.jq), and its log, which
+  # gh refuses to read before the run completes, is replaced by the gate commands of the sandbox.
+  if [ -n "${HARNESS_GATE_SELF_RUN:-}" ] && [ "$id" = "$HARNESS_GATE_SELF_RUN" ]; then self=${HARNESS_GATE_SELF_CONCLUSION:-failure}; fi
   printf 'Run %s (%s): %s' "$id" "$url" "${cc:-$st}"
-  gh api "repos/$repo/actions/runs/$id/jobs?per_page=100" --jq '.jobs[] | "- \(.name): \(.conclusion // .status)" + (if .conclusion == "failure" then " — bước đỏ: " + ([ .steps[] | select(.conclusion == "failure") | .name ] | join(", ")) else "" end)' 2>/dev/null | sed '1s/^/\n/' || true
+  gh api "repos/$repo/actions/runs/$id/jobs?per_page=100" 2>/dev/null | jq -r --arg self "$self" -f "$here/ci-jobs.jq" 2>/dev/null | sed '1s/^/\n/' || true
+  if [ -n "$self" ]; then printf '\n\nKết quả của job `Gate` ở trên là của chính run này: bước đuôi của nó đang ghi tin nhắn này, nên API còn báo `in_progress`; `%s` là kết luận của các bước trước đó.' "$self"; fi
   # The session holds no GitHub credential, so the tail of the failed steps' log travels in the
   # message (colour codes, job/step prefixes and timestamps stripped; capped to keep the comment small).
   if [ "$cc" = failure ]; then
-    printf '\nTrích cuối log các bước đỏ (tối đa 80 dòng):\n\n```text\n'
-    gh run view "$id" --repo "$repo" --log-failed 2>/dev/null \
-      | perl -pe 's/\e\[[0-9;]*[A-Za-z]//g; s/\^\[\[[0-9;]*[A-Za-z]//g; s/^[^\t]*\t[^\t]*\t//; s/^\d{4}-\d\d-\d\dT[\d:.]+Z //' \
-      | grep -vE '^[[:space:]]*$' | tail -80 | cut -c1-240 || true
-    printf '```\n'
+    if [ -n "$self" ]; then
+      printf '\n\nLog của run này chưa đọc được khi nó còn chạy. Chạy lại `bash scripts/harness/gate-segment.sh static`, rồi `unit`, rồi `build` trong sandbox: cùng lệnh, cùng thứ tự với CI, lỗi của bước đỏ hiện ở đó.\n'
+    else
+      printf '\nTrích cuối log các bước đỏ (tối đa 80 dòng):\n\n```text\n'
+      gh run view "$id" --repo "$repo" --log-failed 2>/dev/null \
+        | perl -pe 's/\e\[[0-9;]*[A-Za-z]//g; s/\^\[\[[0-9;]*[A-Za-z]//g; s/^[^\t]*\t[^\t]*\t//; s/^\d{4}-\d\d-\d\dT[\d:.]+Z //' \
+        | grep -vE '^[[:space:]]*$' | tail -80 | cut -c1-240 || true
+      printf '```\n'
+    fi
   fi
 }
 pr_comment() { # $1 body (stdin when -) -> posts on the pull request as the workflow

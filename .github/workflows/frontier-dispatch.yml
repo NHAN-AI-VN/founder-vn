@@ -7,9 +7,9 @@ name: Harness frontier dispatch
 # Runs on its own when an operator moves the frontier by hand (a ticket closed, a harness label
 # removed; a change made with GITHUB_TOKEN raises no event) and on a manual run. The same
 # decision runs inline elsewhere: at the end of every Gate run of a pull request, after every
-# machine merge, and in every after-gate.yml sweep (its `*/15` cron is the stall and silence
-# timer, FV-D5). Automatic runs apply; a manual run is a dry run unless `apply` is set. Only the
-# tools preinstalled on the runner (bash, jq, gh) are used.
+# machine merge, and in every after-gate.yml sweep (its quarter-hourly cron, `7,22,37,52`, is the
+# stall and silence timer, FV-D5/FV-D16). Automatic runs apply; a manual run is a dry run unless
+# `apply` is set. Only the tools preinstalled on the runner (bash, jq, gh) are used.
 
 on:
   issues:

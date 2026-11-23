@@ -7,7 +7,8 @@ name: Harness after Gate
 # and the manual run. No model runs here. Ported from NHAN-AI-VN/nhan (after-gate.yml at
 # 8adef66b) without the rerun-stalled-gate job (no Docker tier to stall) and with the only
 # cron of the harness (FV-D5: GitHub's schedule is the stall and silence timer; nhan measured it
-# firing every 2–4.6 hours on a Free organisation, so a dead session may wait that long).
+# firing every 2–4.6 hours on a Free organisation, and this repository measured 3 fires in 19.5
+# hours on `*/15` (FV-M-8), so a dead session may wait that long).
 #
 # Order inside the job: the orchestrator first (scripts/harness/review-web.sh, one step per open
 # lane pull request: post `/kiro` turns, note PASS/PASS, park), then the merger
@@ -27,7 +28,11 @@ on:
   pull_request:
     types: [reopened, ready_for_review, edited, labeled]
   schedule:
-    - cron: '*/15 * * * *'
+    # FV-D16: minutes off the quarter-hour marks. GitHub drops or delays schedule events under
+    # load, worst at the start of every hour; `*/15` fired 3 times in the first 19.5 hours of this
+    # loop (16:29Z, 21:56Z, 02:04Z against 78 nominal slots, FV-M-8). Same period, odd minutes;
+    # the fire rate is measured again before any further change (an external heartbeat, FV-D5).
+    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
     inputs:
       pr:

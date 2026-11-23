@@ -30,6 +30,7 @@ openpr="$here/open-lane-pr.sh"
 prbody="$here/lane-pr-body.sh"
 lanecode="$here/lane-code.sh"
 web_filter="$here/review-web.jq"
+cijobs_filter="$here/ci-jobs.jq"
 turn="$here/review-web-turn.sh"
 prompts="$root/.kiro/prompts"
 merge_filter="$here/merge.jq"
@@ -372,6 +373,16 @@ expect_web() {
   ok "review-web: $fixture -> $got${want_axes:+ $want_axes}"
 }
 
+# expect_cijobs <fixture> <self> <expected line>: the job lines of the CI summary a turn message
+# carries, rendered from the jobs API response; <self> is the outcome the Gate workflow passed in
+# when the orchestrator runs as the tail of that very job (D31), "" otherwise (FV-M-8).
+expect_cijobs() {
+  skip CIJOBS_FILTER && return 0
+  local fixture=$1 self=$2 want=$3 got
+  got=$(jq -r --arg self "$self" -f "${CIJOBS_FILTER:-$cijobs_filter}" "$fixtures/$fixture" 2>/dev/null)
+  if [ "$got" = "$want" ]; then ok "ci-jobs: $fixture (self=${self:-none}) -> $want"; else fail "ci-jobs: $fixture (self=${self:-none}; want \"$want\", got \"${got:-<error>}\")"; fi
+}
+
 # expect_turn <axis>: the rendered `/kiro` message of one turn opens with /kiro, carries the CI
 # text, the ticket body for every axis but standards, the prompt verbatim, the marker last; and
 # names nothing of the source project's toolchain (npm, Docker, master).
@@ -599,6 +610,13 @@ run_cases() {
   expect_web "review-web-address-stalled.json" stalled
   expect_web "review-web-blocked.json" blocked '["spec"]'
   expect_web "review-web-exhausted.json" exhausted
+  # The CI summary of a turn message (FV-M-8): the Gate job of the run this script is the tail of
+  # reads as the outcome the workflow passed in, not as the API's in_progress; its red steps are
+  # named either way; a completed run reads as the API says.
+  expect_cijobs "ci-jobs-self-running.json" success "- Gate: success"
+  expect_cijobs "ci-jobs-self-failed.json"  failure "- Gate: failure — bước đỏ: pytest"
+  expect_cijobs "ci-jobs-completed.json"    ""      "- Gate: failure — bước đỏ: ruff check"
+  expect_cijobs "ci-jobs-completed.json"    success "- Gate: failure — bước đỏ: ruff check"
   expect_web "review-web-turn-cap.json" exhausted
   expect_web "review-web-gate-red.json" address '["address"]'
   expect_web "review-web-gate-red-reviews-pending.json" wait '["standards","spec"]'
@@ -702,6 +720,8 @@ if [ "$mode" = "--witness-red" ]; then
       out=$(LANECODE="$tmp" WITNESS_ONLY=LANECODE run_cases 2>/dev/null)
     elif [ "$target" = "$web_filter" ]; then
       out=$(WEB_FILTER="$tmp" WITNESS_ONLY=WEB_FILTER run_cases 2>/dev/null)
+    elif [ "$target" = "$cijobs_filter" ]; then
+      out=$(CIJOBS_FILTER="$tmp" WITNESS_ONLY=CIJOBS_FILTER run_cases 2>/dev/null)
     elif [ "$target" = "$turn" ]; then
       out=$(TURN="$tmp" WITNESS_ONLY=TURN run_cases 2>/dev/null)
     elif [ "$target" = "$merge_filter" ]; then
@@ -813,6 +833,9 @@ if [ "$mode" = "--witness-red" ]; then
   mutate "park a finished lane at the turn cap" "$web_filter" 's#and \(done_at_head\(\$in\) \| not\)#and true#'
   mutate "count a re-posted round toward the turn cap" "$web_filter" 's#\| axis_round \] \| unique \| length#] | length#'
   mutate "post a review round while the fix session may still be pushing" "$web_filter" 's#^def after_address\(\$in\): .*#def after_address($in): false;#'
+  # ---- the CI summary of a turn (FV-M-8) ----
+  mutate "report the self-run job as the API shows it" "$cijobs_filter" 's#if \$self != "" and \.status != "completed" then \$self#if false then $self#'
+  mutate "name no red step"                            "$cijobs_filter" 's#select\(\.conclusion == "failure"\)#select(false)#'
   # ---- the /kiro message of a turn ----
   mutate "post a turn without the marker"    "$turn" 's#^printf .\\n<!-- harness:turn .*#true#'
   mutate "post a turn without the prompt"    "$turn" 's#^cat "\$prompt_file"#true#'
