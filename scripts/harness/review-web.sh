@@ -275,7 +275,7 @@ case "$action" in
     fi
     ;;
   blocked)
-    park "BLOCKED" "Câu hỏi \`- [ ]\` nằm trong báo cáo ở \`$dir/\` tại HEAD. Operator trả lời **bằng một commit trên nhánh lane** (file trả lời trong \`$dir/\`, hoặc sửa thẳng) rồi gỡ nhãn \`harness:blocked\` trên ticket; commit ấy dời commit mã nên harness ra lệnh vòng review mới." ;;
+    park "BLOCKED" "Câu hỏi \`- [ ]\` nằm trong báo cáo ở \`$dir/\` tại HEAD. Operator trả lời **bằng một commit trên nhánh lane** (file trả lời trong \`$dir/\`, hoặc sửa thẳng) rồi gỡ nhãn \`harness:blocked\` trên ticket; commit ấy dời commit mã nên harness ra lệnh vòng review mới. Nếu câu trả lời đóng một mã finding (\`S1\`, \`SPEC-1\`, …) và không còn finding nào cần lượt sửa, **cùng commit ấy ghi \`$dir/ledger.md\`** (dòng đầu \`# Review closure ledger — #$ticket …\`, rồi một dòng \`<mã> FIXED|NOT-A-DEFECT — <vì sao>\` cho mỗi mã của mọi vòng): merger đòi ledger cho mọi mã từng được nêu, kể cả trong phiên bản báo cáo trước, và vòng chạy lại PASS/PASS không có lượt sửa nào viết nó (FV-D18)." ;;
   exhausted)
     park "hết vòng sửa" "Còn finding chặn sau $max_rounds vòng sửa (điểm dừng theo thiết kế). Operator sửa hoặc bác bỏ bằng commit trên nhánh lane rồi gỡ nhãn \`harness:blocked\`; commit ấy dời commit mã nên harness ra lệnh vòng review mới." ;;
   stalled)
