@@ -1,0 +1,99 @@
+"""founder-competitors: the survey form and the skill text (design §3, issue #13)."""
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+from founder_vn import install
+
+ROOT = Path(__file__).parent.parent
+SKILL_DIR = ROOT / "skills" / "founder-competitors"
+SKILL = SKILL_DIR / "SKILL.md"
+FORM = SKILL_DIR / "survey-form.md"
+DOLLAR = re.compile(r"\$\s?\d|\d\s?\$")
+
+FORM_FIELDS = (
+    "Tên đối thủ",
+    "Địa chỉ",
+    "Giá",
+    "Lượng khách giờ cao điểm",
+    "Ảnh menu",
+    "Phàn nàn",
+    "Khoảng cách",
+)
+
+
+def _skill() -> str:
+    return SKILL.read_text(encoding="utf-8")
+
+
+def _form() -> str:
+    return FORM.read_text(encoding="utf-8")
+
+
+def test_form_has_the_six_required_fields_in_vietnamese() -> None:
+    text = _form()
+    for field in FORM_FIELDS:
+        assert field in text, field
+    assert "anh/chị" in text
+    assert not DOLLAR.search(text)
+
+
+def test_skill_requires_the_filled_form_before_analysing() -> None:
+    text = _skill()
+    assert "survey-form.md" in text
+    assert "Do not analyse" in text
+    assert "no filled form" in text
+
+
+def test_web_results_are_supplementary_and_linked() -> None:
+    text = _skill()
+    assert "supplementary" in text
+    assert "Bổ trợ từ web" in text
+    assert "link" in text
+
+
+def test_no_fabrication_rule() -> None:
+    text = _skill().lower()
+    assert "never invent" in text
+    assert "competitor" in text and "number" in text
+
+
+def test_output_shape() -> None:
+    text = _skill()
+    for needle in (
+        "5 to 10 competitors",
+        "Google Maps",
+        "Facebook",
+        "ShopeeFood",
+        "GrabFood",
+        "positioning map",
+        "the gap",
+        "competitors.md",
+    ):
+        assert needle in text, needle
+
+
+def test_thin_data_warning_below_three_reviews() -> None:
+    text = _skill()
+    assert "fewer than three reviews" in text
+    assert "Dữ liệu mỏng" in text
+
+
+def test_skill_lint_passes_on_the_repo() -> None:
+    done = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "skill_lint.py")],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+    )
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "founder-competitors" in done.stdout or "skill" in done.stdout
+
+
+def test_installer_ships_the_skill_with_its_form(project_root: Path) -> None:
+    install.run(project_root, "kiro", print_only=False, skills_dir=ROOT / "skills")
+    base = project_root / ".kiro/skills/founder-competitors"
+    assert (base / "SKILL.md").is_file()
+    assert (base / "survey-form.md").is_file()
