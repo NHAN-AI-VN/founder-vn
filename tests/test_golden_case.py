@@ -1,0 +1,49 @@
+"""Content checks for the golden case under examples/barbershop/ (issue #5)."""
+
+import re
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+EXAMPLE = ROOT / "examples" / "barbershop"
+IDEA = EXAMPLE / "founder" / "idea.md"
+
+DOLLAR = re.compile(r"\$\s?\d|\d\s?\$")
+VND = re.compile(r"\b\d{1,3}(?:\.\d{3})+ đ\b")
+PHONE = re.compile(r"\b0\d{9}\b|\+84")
+STREET_ADDRESS = re.compile(r"\b[Ss]ố \d+[A-Za-z/]*,? (?:đường|Đường|phố|Phố) ")
+
+UPSTREAM_BULLETS = (
+    "- Là gì:",
+    "- Cho ai:",
+    "- Bán gì, giá bao nhiêu:",
+    "- Ở đâu và bằng cách nào:",
+    "- Ngân sách và ràng buộc:",
+)
+
+
+def test_idea_file_sits_in_the_example_project_root() -> None:
+    assert IDEA.is_file(), IDEA
+
+
+def test_idea_file_has_the_upstream_shape_in_vietnamese() -> None:
+    text = IDEA.read_text(encoding="utf-8")
+    assert text.startswith("# "), text[:40]
+    for bullet in UPSTREAM_BULLETS:
+        assert bullet in text, bullet
+
+
+def test_idea_file_prices_are_vnd_in_vietnamese_format() -> None:
+    text = IDEA.read_text(encoding="utf-8")
+    assert not DOLLAR.search(text)
+    assert VND.search(text), "no price shaped like 199.000 đ"
+
+
+def test_example_is_anonymised() -> None:
+    paths = sorted(EXAMPLE.rglob("*.md"))
+    assert paths, EXAMPLE
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        assert not DOLLAR.search(text), path
+        assert not PHONE.search(text), path
+        assert "@" not in text, path
+        assert not STREET_ADDRESS.search(text), path
