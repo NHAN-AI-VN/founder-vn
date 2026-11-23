@@ -21,6 +21,9 @@ from founder_vn import files, llm
 
 PANEL_DIR = "panel"
 JOBS_DIR = "jobs"
+ATTEMPTS = 3
+MAX_INVALID = 2
+BACKOFF = 2.0
 JOB_ID = re.compile(r"J-[0-9a-f]{8}")
 DEFAULT_N = 20
 INCOME_STEP = 100_000
@@ -584,26 +587,53 @@ def job_status(project: Path, job_id: str) -> str:
     )
 
 
-def execute(project: Path, job_id: str) -> None:
+def _ask(
+    project: Path,
+    config: llm.Config,
+    card: dict[str, Any],
+    pitch: str,
+    timeout: float,
+    backoff: float,
+) -> tuple[str, str | None]:
+    """Ask one buyer; return ``done``, ``failed`` or ``excluded`` and the last error.
+
+    A call that fails (timeout, 5xx, connection) is retried with doubling backoff up to
+    ``ATTEMPTS`` times: the buyer is ``failed``. A reply that is not a valid answer is asked once
+    more; invalid twice, the buyer is ``excluded``. Only the buyer's own valid answer is written.
+    """
+    pid = card["id"]
+    prompt = brief(card, pitch)
+    problem = None
+    for _ in range(MAX_INVALID):
+        reply = ""
+        for attempt in range(ATTEMPTS):
+            try:
+                reply = llm.complete(config, prompt, timeout)
+                break
+            except llm.CallFailed as e:
+                if attempt == ATTEMPTS - 1:
+                    return "failed", f"{pid}: {e}"
+                time.sleep(backoff * 2**attempt)
+        answer, problem = extract_answer(reply, pid)
+        if answer is not None:
+            files.write_text(project, _path("answers", f"{pid}.json"), _dump(answer))
+            return "done", None
+    return "excluded", f"{pid}: {problem}"
+
+
+def execute(
+    project: Path, job_id: str, *, timeout: float = llm.TIMEOUT, backoff: float = BACKOFF
+) -> None:
     """Ask each buyer of the job and file the answers one by one (the worker's entry point)."""
     job = _read_job(project, job_id)
     config = llm.load_config()
     meta = _read_json(project, _path("panel.json"))
     cards = {c["id"]: c for c in _load_cards(project)}
     for pid in job["targets"]:
-        try:
-            reply = llm.complete(config, brief(cards[pid], meta["pitch"]))
-        except llm.CallFailed as e:
-            job["failed"].append(pid)
-            job["last_error"] = f"{pid}: {e}"
-        else:
-            answer, problem = extract_answer(reply, pid)
-            if answer is None:
-                job["failed"].append(pid)
-                job["last_error"] = f"{pid}: {problem}"
-            else:
-                files.write_text(project, _path("answers", f"{pid}.json"), _dump(answer))
-                job["done"].append(pid)
+        outcome, error = _ask(project, config, cards[pid], meta["pitch"], timeout, backoff)
+        job[outcome].append(pid)
+        if error:
+            job["last_error"] = error
         files.write_text(project, _job_path(job_id), _dump(job))
     job["state"] = "done"
     files.write_text(project, _job_path(job_id), _dump(job))
