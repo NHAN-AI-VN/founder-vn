@@ -5,7 +5,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from founder_vn import cfo, files, info, install
+from founder_vn import cfo, files, info, install, pricing
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -19,6 +19,12 @@ def build_parser() -> argparse.ArgumentParser:
     cfo_parser.add_argument("--volume", type=float, default=1.0, help="what-if volume multiplier")
     cfo_parser.add_argument("--json", action="store_true", help="print the numbers as JSON")
     cfo_parser.add_argument("--out", help="write the report under founder/ (e.g. cfo.md)")
+    pricing_parser = sub.add_parser(
+        "pricing", help="Van Westendorp price sensitivity from the panel's price answers"
+    )
+    pricing_parser.add_argument("source", help="JSON file under founder/ with answers and prices")
+    pricing_parser.add_argument("--json", action="store_true", help="print the numbers as JSON")
+    pricing_parser.add_argument("--out", help="write the report under founder/ (e.g. pricing.md)")
     install_parser = sub.add_parser(
         "install", help="copy skills into a host and print its MCP setup"
     )
@@ -42,6 +48,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 cfo.run(Path.cwd(), args.numbers, args.price, args.volume, args.json, args.out)
             )
         except (cfo.NumbersError, files.PathRefused, ValueError) as e:
+            print(f"lỗi: {e}", file=sys.stderr)
+            return 2
+        return 0
+    if args.command == "pricing":
+        try:
+            sys.stdout.write(pricing.run(Path.cwd(), args.source, args.json, args.out))
+        except (pricing.PricingInputError, files.PathRefused) as e:
             print(f"lỗi: {e}", file=sys.stderr)
             return 2
         return 0

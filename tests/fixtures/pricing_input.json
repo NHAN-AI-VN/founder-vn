@@ -1,0 +1,19 @@
+{
+  "business": "Quán cà phê Mẫu (ví dụ tổng hợp, không phải số liệu thật)",
+  "answers": [
+    {"too_cheap": "15k", "bargain": "25k", "getting_expensive": "40k", "too_expensive": "55k"},
+    {"too_cheap": "20.000", "bargain": "30.000", "getting_expensive": "45.000", "too_expensive": "60.000"},
+    {"too_cheap": "10 nghìn", "bargain": "20 nghìn", "getting_expensive": "35 nghìn", "too_expensive": "50 nghìn"},
+    {"too_cheap": 18000, "bargain": 28000, "getting_expensive": 42000, "too_expensive": 58000},
+    {"too_cheap": "12k", "bargain": "22k", "getting_expensive": "38k", "too_expensive": "48k"},
+    {"too_cheap": "25k", "bargain": "35k", "getting_expensive": "50k", "too_expensive": "70k"},
+    {"too_cheap": "15.000 đ", "bargain": "27.000 đ", "getting_expensive": "43.000 đ", "too_expensive": "57.000 đ"},
+    {"too_cheap": "8k", "bargain": "18k", "getting_expensive": "32k", "too_expensive": "45k"},
+    {"too_cheap": "20k", "bargain": "30k", "getting_expensive": "46k", "too_expensive": "65k"},
+    {"too_cheap": "14k", "bargain": "24k", "getting_expensive": "41k", "too_expensive": "52k"},
+    {"too_cheap": "-5k", "bargain": "25k", "getting_expensive": "40k", "too_expensive": "55k"},
+    {"too_cheap": "rẻ quá", "bargain": "25k", "getting_expensive": "40k", "too_expensive": "55k"},
+    {"too_cheap": 0, "bargain": "25k", "getting_expensive": "40k", "too_expensive": "55k"}
+  ],
+  "competitor_prices": ["35k", "39.000", "45k", "42 nghìn", "0", "không rõ"]
+}
