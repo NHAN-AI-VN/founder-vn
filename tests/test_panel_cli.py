@@ -1,5 +1,6 @@
 """Tests of `founder-vn panel` through the CLI."""
 
+import io
 import json
 import shutil
 from collections.abc import Callable
@@ -159,3 +160,75 @@ def test_customer_outside_founder_is_refused(
     assert main(["panel", "init", "--customer", "../customer.json", "--seed", "7"]) == 2
     assert "path refused" in capsys.readouterr().err
     assert not (founder / "panel").exists()
+
+
+GOOD = {"id": "P001", "buys": True, "reason_code": "habit", "reason": "Quen quán gần nhà."}
+
+
+def _answer(founder: Path, pid: str, body: str) -> None:
+    target = founder / "panel" / "answers" / f"{pid}.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(body, encoding="utf-8")
+
+
+def test_check_lists_missing_and_broken_answers_exit_1_seed_7(
+    founder: Path, run_cli: RunCli
+) -> None:
+    run_cli("panel", "init", "--n", "5", "--seed", "7")
+    _answer(founder, "P001", json.dumps(GOOD))
+    _answer(founder, "P002", "{not json")
+    _answer(founder, "P003", json.dumps({**GOOD, "id": "P003", "buys": "yes"}))
+    _answer(founder, "P004", json.dumps({"id": "P004", "buys": False}))
+    run = run_cli("panel", "check")
+    assert run.exit_code == 1
+    assert run.stdout.splitlines() == [
+        "P002: không phải JSON hợp lệ",
+        "P003: 'buys' phải là true hoặc false",
+        "P004: thiếu reason, reason_code",
+        "P005: chưa có câu trả lời",
+    ]
+
+
+def test_check_all_good_exit_0(founder: Path, run_cli: RunCli) -> None:
+    run_cli("panel", "init", "--n", "1", "--seed", "7")
+    _answer(founder, "P001", json.dumps(GOOD))
+    run = run_cli("panel", "check")
+    assert (run.exit_code, run.stdout) == (0, "Mọi câu trả lời đều có và hợp lệ\n")
+
+
+def test_save_extracts_first_json_object_and_files_it(
+    founder: Path, run_cli: RunCli, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run_cli("panel", "init", "--n", "2", "--seed", "7")
+    reply = "Tôi trả lời thế này:\n" + json.dumps(GOOD) + '\nvà {"id": "khác"}'
+    monkeypatch.setattr("sys.stdin", io.StringIO(reply))
+    run = run_cli("panel", "save", "P001")
+    assert (run.exit_code, run.stdout) == (0, "Đã lưu founder/panel/answers/P001.json\n")
+    assert json.loads(run.files["panel/answers/P001.json"]) == GOOD
+
+
+@pytest.mark.parametrize(
+    ("pid", "reply", "message"),
+    [
+        pytest.param("P001", "không có gì", "không có đối tượng JSON", id="no-json"),
+        pytest.param("P001", '{"id": "P001", "buys": tru', "không đọc được", id="broken-json"),
+        pytest.param("P001", '{"id": "P002", "buys": true}', "không hợp lệ", id="wrong-id"),
+        pytest.param("P009", json.dumps(GOOD), "P009", id="unknown-buyer"),
+    ],
+)
+def test_save_refuses_invalid_answers_and_leaves_no_file(
+    pid: str,
+    reply: str,
+    message: str,
+    founder: Path,
+    run_cli: RunCli,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    run_cli("panel", "init", "--n", "2", "--seed", "7")
+    monkeypatch.setattr("sys.stdin", io.StringIO(reply))
+    from founder_vn.cli import main
+
+    assert main(["panel", "save", pid]) == 2
+    assert message in capsys.readouterr().err
+    assert not (founder / "panel" / "answers").exists()

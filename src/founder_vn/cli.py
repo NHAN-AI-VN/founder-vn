@@ -32,6 +32,9 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("--pitch", default="pitch.md", help="under founder/")
     init_parser.add_argument("--n", type=int, default=100, help="number of buyers")
     init_parser.add_argument("--seed", type=int, help="same seed, same cards")
+    panel_sub.add_parser("check", help="list buyers whose answer is missing or broken")
+    save_parser = panel_sub.add_parser("save", help="file a buyer's printed reply (stdin)")
+    save_parser.add_argument("id", help="buyer id, e.g. P003")
     install_parser = sub.add_parser(
         "install", help="copy skills into a host and print its MCP setup"
     )
@@ -67,7 +70,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     if args.command == "panel":
         try:
-            sys.stdout.write(panel.init(Path.cwd(), args.customer, args.pitch, args.n, args.seed))
+            if args.panel_command == "init":
+                sys.stdout.write(
+                    panel.init(Path.cwd(), args.customer, args.pitch, args.n, args.seed)
+                )
+            elif args.panel_command == "check":
+                text, code = panel.check(Path.cwd())
+                sys.stdout.write(text)
+                return code
+            else:
+                sys.stdout.write(panel.save(Path.cwd(), args.id, sys.stdin.read()))
         except (panel.PanelError, files.PathRefused) as e:
             print(f"lỗi: {e}", file=sys.stderr)
             return 2

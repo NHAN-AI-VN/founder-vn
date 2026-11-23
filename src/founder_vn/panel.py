@@ -16,6 +16,8 @@ from founder_vn import files
 
 PANEL_DIR = "panel"
 INCOME_STEP = 100_000
+REASONS = ("price", "habit", "need", "trust", "quality", "convenience", "timing", "values", "other")
+ANSWER_FIELDS = ("id", "buys", "reason_code", "reason")
 
 GIVEN_NAMES = [
     "Minh Anh",
@@ -201,3 +203,70 @@ def init(project: Path, customer: str, pitch: str, n: int, seed: int | None) -> 
     )
     files.write_text(project, _path("personas.json"), _dump(cards))
     return f"Đã chia {len(cards)} người mua (seed {seed}) vào founder/{PANEL_DIR}/\n"
+
+
+def _load_cards(project: Path) -> list[dict[str, Any]]:
+    try:
+        return json.loads(files.read_text(project, _path("personas.json")))  # type: ignore[no-any-return]
+    except FileNotFoundError:
+        raise PanelError("chưa có panel: chạy 'founder-vn panel init' trước") from None
+
+
+def answer_problem(answer: Any, pid: str) -> str | None:
+    """None when ``answer`` is a valid answer of buyer ``pid``, else a short problem."""
+    if not isinstance(answer, dict):
+        return "không phải một đối tượng JSON"
+    missing = sorted(set(ANSWER_FIELDS) - set(answer))
+    if missing:
+        return "thiếu " + ", ".join(missing)
+    if answer["id"] != pid:
+        return f"id là {answer['id']!r}, cần {pid}"
+    if not isinstance(answer["buys"], bool):
+        return "'buys' phải là true hoặc false"
+    if answer["reason_code"] not in REASONS:
+        return f"reason_code {answer['reason_code']!r} không thuộc: {', '.join(REASONS)}"
+    return None
+
+
+def _answer_file_problem(project: Path, pid: str) -> str | None:
+    try:
+        text = files.read_text(project, _path("answers", f"{pid}.json"))
+    except FileNotFoundError:
+        return "chưa có câu trả lời"
+    try:
+        return answer_problem(json.loads(text), pid)
+    except json.JSONDecodeError:
+        return "không phải JSON hợp lệ"
+
+
+def check(project: Path) -> tuple[str, int]:
+    """List buyers whose answer is missing or broken; return the text and the exit code."""
+    lines = []
+    for card in _load_cards(project):
+        problem = _answer_file_problem(project, card["id"])
+        if problem:
+            lines.append(f"{card['id']}: {problem}")
+    if not lines:
+        return "Mọi câu trả lời đều có và hợp lệ\n", 0
+    return "\n".join(lines) + "\n", 1
+
+
+def save(project: Path, pid: str, reply: str) -> str:
+    """File a buyer's own printed reply: its first JSON object, written only when valid."""
+    if pid not in {c["id"] for c in _load_cards(project)}:
+        raise PanelError(f"panel này không có người mua {pid}")
+    start = reply.find("{")
+    if start < 0:
+        raise PanelError("không có đối tượng JSON trong câu trả lời")
+    try:
+        answer, _ = json.JSONDecoder().raw_decode(reply[start:])
+    except json.JSONDecodeError as e:
+        raise PanelError(f"JSON trong câu trả lời không đọc được: {e}") from None
+    problem = answer_problem(answer, pid)
+    if problem:
+        raise PanelError(
+            f"câu trả lời của {pid} không hợp lệ ({problem}); chạy lại brief của người mua đó"
+        )
+    target = _path("answers", f"{pid}.json")
+    files.write_text(project, target, _dump(answer))
+    return f"Đã lưu founder/{target}\n"
