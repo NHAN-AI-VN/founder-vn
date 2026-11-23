@@ -1,10 +1,10 @@
-Commit mã đã chấm: 0ec387988ab9
+Commit mã đã chấm: 68a9c1deb50d
 
 # Review trục Spec, issue #7, vòng 1
 
 **Phán quyết**: PASS
 
-Phạm vi: `git log --oneline main..HEAD` (7 commit, từ `eee6595` đến `0ec3879`) và `git diff --stat main...HEAD` (22 file). Đã đọc `AGENTS.md`, `docs/founder-vn-design.md` (§1 sự thật về host, §5 cài đặt, Q34), `src/founder_vn/install.py`, `cli.py`, `pyproject.toml`, 5 file golden, 6 trang `docs/hosts/*.md`, test và `docs/evidence/issue-7-installer.md`. Chạy lại ở checkout này: `uv run pytest -q` cho `132 passed`, `uv run ruff check .` cho `All checks passed!`.
+Phạm vi: `git log --oneline main..HEAD` (10 commit, từ `eee6595` đến `68a9c1d`) và `git diff --stat main...HEAD` (26 file). So với lượt trước (`0ec3879`), ba commit mới (`8fa0f69`, `17a2a7f`, `68a9c1d`) chỉ chạm `docs/agents/standards.md` và `reviews/issue-7/*`; `src/`, `tests/`, `pyproject.toml`, `docs/hosts/` không đổi. Đã đọc `AGENTS.md`, `docs/founder-vn-design.md` (§1 sự thật về host, §5 cài đặt, Q34), `src/founder_vn/install.py`, `cli.py`, `pyproject.toml`, 5 file golden, 6 trang `docs/hosts/*.md`, test và `docs/evidence/issue-7-installer.md`. Chạy lại ở checkout `68a9c1d`: `uv run pytest -q` cho `132 passed`, `uv run ruff check .` cho `All checks passed!`.
 
 ## Đối chiếu từng criterion
 
@@ -23,6 +23,12 @@ Phạm vi: `git log --oneline main..HEAD` (7 commit, từ `eee6595` đến `0ec3
 3. **Trang Gemini CLI / Antigravity khai báo biến API key trong khối `env` của server và gắn nhãn "pending confirmation".** Đáp ứng. `docs/hosts/gemini.md` có dòng `Status: pending confirmation`, khối JSON `"env": {"FOUNDER_LLM_API_KEY": ...}`, giải thích cơ chế xóa biến `KEY`/`SECRET` (khớp design §1). `tests/test_hosts.py::test_gemini_page_is_pending_confirmation_and_declares_the_key_by_name` chạy trong `pytest`. `gemini` cố ý không phải giá trị `--host` (ticket liệt kê đúng 5 host; có test).
 4. **Golden test đầu ra installer cho từng host ở chế độ print-only.** Đáp ứng. Có 5 file `tests/golden/install_{kiro,claude,codex,grok,kirocrew}.json`, chạy qua `assert_golden` trong `pytest` của cổng `unit`. Nguồn skill là fixture tổng hợp `tests/fixtures/skills_src`, golden không chứa đường dẫn tuyệt đối.
 5. **Trang host điền từ stub của T02.** Đáp ứng. 5 trang cũ không còn `Status: stub` (`test_filled_pages_have_no_stub_status_and_match_the_installer`), `README.md` trong `docs/hosts/` cập nhật bảng trạng thái, các khối toml/json trong trang được parse trong test.
+
+## Thay đổi từ lượt trước
+
+- `68a9c1d` ghi ngoại lệ của installer vào `docs/agents/standards.md` theo câu trả lời operator cho S1 (`reviews/issue-7/operator-answer.md`). Ngoại lệ khớp mã: chỉ ghi vào `install.SKILL_FOLDERS`, từ chối đích thoát project bằng `InstallRefused` và exit 2 trước khi ghi, không xoá, `--print-only` không ghi, CLI-only. Đây là chuẩn, không phải hành vi mới của ticket, nên không tạo finding Spec.
+- Kết quả CI `Gate` run 45102747034: `success`, job `Gate` còn `in_progress` lúc ra lệnh; kết quả cục bộ ở trên là bằng chứng thay thế.
+- S2 (đỏ rồi xanh) thuộc trục Standards, không xét ở đây.
 
 ## Giới hạn và phạm vi ticket
 
