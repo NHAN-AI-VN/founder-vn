@@ -203,7 +203,7 @@ bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; track star
 Kiro Power / Claude Code plugin; máy tính web tĩnh dùng chung công thức; mô hình tài chính bền vững
 cho dự án OSS (chưa bàn, không cần cho v1).
 
-## Phụ lục: nhật ký quyết định (Q1–Q51)
+## Phụ lục: nhật ký quyết định (Q1–Q52)
 
 Vòng 1
 
@@ -288,3 +288,13 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   (3) ticket T13 nói "ảnh menu", với barbershop đọc là ảnh bảng giá; (4) tên gọi của case là tên tạm
   mô tả, không phải thương hiệu thật nào, kể cả thương hiệu tham chiếu của nghiên cứu; vị trí ghi tới
   cấp quận cũ. Spec #1 (user story 48) và ticket #5 sửa cùng ngày; ví dụ ở `examples/barbershop/`.
+- Q52 (2026-11-23, lane #12 T11, quyết định của operator) Giữ mô hình thuế gộp của Q37: một
+  `tax_rate_on_revenue` (GTGT cộng TNCN, giá trị 7 cho "cắt tóc, làm đầu, gội đầu") áp lên toàn bộ
+  doanh thu năm khi doanh thu năm vượt `tax_free_threshold` (1.000.000.000 đ mỗi năm; nguồn trong
+  `permits/sources.md`). Luật tính GTGT 5% trên toàn bộ doanh thu nhưng TNCN 2% chỉ trên phần vượt
+  ngưỡng, nên mô hình tính thừa tối đa 20 triệu đồng mỗi năm, theo hướng an toàn. Giới hạn thứ hai:
+  trên 3 tỷ đồng doanh thu năm TNCN tính trên thu nhập với thuế suất 17%, chưa có cờ máy. Hệ quả:
+  (1) `cfo.md` của skill `founder-cfo` nêu cả hai giới hạn bằng chữ, kèm một dòng "có ưu đãi tạm
+  thời, chưa tính" không có con số, vì `src/founder_vn/cfo.py` (T05) không đổi trong T11 nên phần
+  này do skill nối vào cuối `cfo.md`; (2) tách `tax_rate_on_revenue` thành hai tỷ lệ với hai căn cứ
+  tính, thêm cờ mốc 3 tỷ đồng và đưa phần giới hạn vào báo cáo của công cụ là một ticket mới sau T11.
