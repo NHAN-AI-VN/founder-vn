@@ -1,0 +1,32 @@
+{
+  "business": "Tiệm cắt tóc nam kiểu barbershop (tên gọi tạm)",
+  "unit": "lượt",
+  "price": "280.000",
+  "variable": [
+    {"label": "Hoa hồng thợ (bình quân 25%)", "cost": "70.000"},
+    {"label": "Vật tư, khăn, giặt, đồ uống tặng khách (7%)", "cost": "19.600"},
+    {"label": "Marketing (4%)", "cost": "11.200"},
+    {"label": "Phí thanh toán (1%)", "cost": "2.800"}
+  ],
+  "fixed_monthly": [
+    {"label": "Thuê mặt bằng", "cost": "35 triệu"},
+    {"label": "Lương cứng 5 thợ", "cost": "30 triệu"},
+    {"label": "Lương 2 phụ tá toàn thời gian", "cost": "15 triệu"},
+    {"label": "Lương phụ tá và lễ tân bán thời gian", "cost": "8 triệu"},
+    {"label": "Lương quản lý kiêm lễ tân", "cost": "15 triệu"},
+    {"label": "Thưởng Tết (một tháng lương cứng chia 12)", "cost": "5.667.000"},
+    {"label": "Điện nước, phần mềm đặt lịch, bảo hiểm, phòng cháy, bảo trì", "cost": "12,5 triệu"}
+  ],
+  "startup": [
+    {"label": "Nội thất", "cost": "600 triệu"},
+    {"label": "Thiết bị", "cost": "300 triệu"},
+    {"label": "Đặt cọc mặt bằng 3 tháng", "cost": "115 triệu"},
+    {"label": "Khai trương và vốn lưu động", "cost": "235 triệu"}
+  ],
+  "days_per_month": 25,
+  "capacity_per_day": 66,
+  "plan_per_day": 40,
+  "ramp_per_day": [14, 18, 22, 26, 30, 33, 36, 38, 40, 40, 40, 40],
+  "tax_rate_on_revenue": 7,
+  "tax_free_threshold": 1000000000
+}

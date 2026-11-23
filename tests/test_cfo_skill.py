@@ -98,3 +98,32 @@ def test_skill_lint_passes_on_the_repo() -> None:
 def test_installer_ships_the_skill(project_root: Path) -> None:
     install.run(project_root, "kiro", print_only=False, skills_dir=ROOT / "skills")
     assert (project_root / ".kiro/skills/founder-cfo/SKILL.md").is_file()
+
+
+EXAMPLE = ROOT / "examples" / "barbershop"
+LIMITS_HEADING = "## Giới hạn của phần thuế"
+
+
+def test_golden_numbers_json_holds_the_ledger_values_for_the_sector() -> None:
+    import json
+
+    spec = json.loads((EXAMPLE / "founder" / "numbers.json").read_text(encoding="utf-8"))
+    assert spec["tax_rate_on_revenue"] == 7
+    assert spec["tax_free_threshold"] == 1_000_000_000
+    assert len(spec["ramp_per_day"]) == 12
+    assert spec["variable"] and spec["fixed_monthly"] and spec["startup"]
+
+
+def test_golden_cfo_md_is_the_tool_output_plus_the_limits_section() -> None:
+    from founder_vn import cfo
+
+    out = (EXAMPLE / "founder" / "cfo.md").read_text(encoding="utf-8")
+    tool_text = cfo.run(EXAMPLE, "founder/numbers.json")
+    assert out.startswith(tool_text)
+    limits = out[len(tool_text) :]
+    assert limits.lstrip().startswith(LIMITS_HEADING)
+    assert "20 triệu đồng mỗi năm" in limits
+    assert "3 tỷ đồng" in limits and "17%" in limits
+    assert limits.count("có ưu đãi tạm thời, chưa tính") == 1
+    assert "không phải tư vấn tài chính hay thuế" in limits
+    assert not DOLLAR.search(out)
