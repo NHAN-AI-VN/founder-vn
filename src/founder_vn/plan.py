@@ -4,10 +4,12 @@ The verdict (``Profitable`` / ``Not yet`` / ``Incomplete``) is computed from CFO
 Nothing from the simulated panel is an input of :func:`verdict`.
 """
 
+import json
+import math
 from pathlib import Path
 from typing import Any
 
-from founder_vn import cfo, files
+from founder_vn import cfo, files, panel
 from founder_vn.vnd import format_vnd
 
 PLAN_FILE = "business-plan.md"
@@ -16,6 +18,27 @@ NUMBERS_FILE = "numbers.json"
 PROFITABLE = "Profitable"
 NOT_YET = "Not yet"
 INCOMPLETE = "Incomplete"
+PANEL_RESULTS = "panel/results.json"
+DISCLAIMER = (
+    "Kế hoạch này là bản tổng hợp từ các file anh/chị đã tạo và các con số anh/chị nhập, "
+    "không phải tư vấn tài chính, tư vấn thuế hay tư vấn pháp lý. Thuế suất, ngưỡng miễn thuế "
+    "và thủ tục pháp lý cần đối chiếu với quy định hiện hành (hoặc hỏi cơ quan thuế, kế toán, "
+    "UBND cấp xã) trước khi quyết định bỏ vốn. Tín hiệu từ panel là mô phỏng, không phải "
+    "khách hàng thật."
+)
+# Pipeline order (design §2): (skill, file under founder/ or None, section title).
+SECTIONS = (
+    ("board", "board.md", "Hội đồng cố vấn"),
+    ("competitors", "competitors.md", "Đối thủ"),
+    ("consumer", "panel/results.md", "Khách hàng (panel mô phỏng)"),
+    ("pricing", "pricing.md", "Giá"),
+    ("offer", "offer.md", "Đề xuất giá trị"),
+    ("cfo", "cfo.md", "Kinh tế đơn vị"),
+    ("marketing", "marketing.md", "Tiếp thị"),
+    ("brand", "brand.md", "Thương hiệu"),
+    ("ops", "ops.md", "Vận hành"),
+    ("launch", "launch.md", "Khai trương"),
+)
 VERDICT_LABELS = {
     PROFITABLE: "Profitable (có lãi)",
     NOT_YET: "Not yet (chưa lãi)",
@@ -46,12 +69,61 @@ def _analysis(project: Path) -> dict[str, Any] | None:
     return cfo.analyse(cfo._load(project, NUMBERS_FILE))
 
 
+def panel_line(project: Path) -> str:
+    """The demand-signal line from ``panel/results.json``; never an input of :func:`verdict`."""
+    head = "Tín hiệu cầu (mô phỏng, cận trên)"
+    target = files.resolve(project, PANEL_RESULTS)
+    if not target.exists():
+        return f"{head}: chưa chạy panel."
+    try:
+        res = json.loads(files.read_text(project, PANEL_RESULTS))
+    except json.JSONDecodeError as e:
+        raise panel.PanelError(f"{PANEL_RESULTS} không phải JSON hợp lệ: {e}") from None
+    for field in ("buys", "passes"):
+        if not isinstance(res, dict) or not isinstance(res.get(field), int):
+            raise panel.PanelError(f"{PANEL_RESULTS}: thiếu số '{field}'")
+    return (
+        f"{head}: {res['buys']} mua, {res['passes']} không mua; "
+        f"chế độ {res.get('mode', 'manual')}; mô hình {res.get('model') or 'không có'}."
+    )
+
+
+def _key_numbers(a: dict[str, Any]) -> list[str]:
+    u = a["unit"]
+    be = a["breakeven_per_day"]
+    breakeven = "không bao giờ" if be == float("inf") else f"{math.ceil(be):,}".replace(",", ".")
+    payback = f"tháng {a['payback_month']}" if a["payback_month"] else "chưa trong năm 1"
+    rows = [
+        ("Giá bán (khách trả)", format_vnd(a["price"])),
+        (f"Chi phí biến đổi mỗi {u}", format_vnd(a["variable_per_unit"])),
+        (f"Đóng góp mỗi {u}", format_vnd(a["contribution"])),
+        ("Chi phí cố định mỗi tháng", format_vnd(a["fixed_monthly"])),
+        ("Vốn khởi đầu", format_vnd(a["startup"])),
+        (f"Hòa vốn ({u} mỗi ngày)", breakeven),
+        (f"Công suất tối đa ({u} mỗi ngày)", f"{a['capacity_per_day']:,.0f}".replace(",", ".")),
+        ("Doanh thu năm 1", format_vnd(a["year1_revenue"])),
+        ("Thuế doanh thu năm 1", format_vnd(a["year1_tax"])),
+        ("Lợi nhuận hoạt động năm 1 sau thuế", format_vnd(a["year1_profit_after_tax"])),
+        ("Thu hồi vốn khởi đầu", payback),
+        ("Vốn cần có trước khi tự nuôi được mình", format_vnd(a["cash_needed"])),
+    ]
+    return ["| Khoản | Số |", "| --- | ---: |"] + [f"| {k} | {v} |" for k, v in rows]
+
+
+def _demote(text: str) -> list[str]:
+    """Push a file's headings two levels down so they sit under the section's ``##``."""
+    return [f"##{line}" if line.startswith("#") else line for line in text.strip().splitlines()]
+
+
 def compile_plan(project: Path) -> tuple[str, str]:
     """Return the verdict and the text of ``business-plan.md``."""
     analysis = _analysis(project)
     result, checks = verdict(analysis)
+    title = "# Kế hoạch kinh doanh"
+    if analysis is not None and analysis["business"]:
+        title += f": {analysis['business']}"
     lines = [
-        "# Kế hoạch kinh doanh",
+        title,
         "",
         "## Kết luận",
         "",
@@ -64,7 +136,22 @@ def compile_plan(project: Path) -> tuple[str, str]:
         lines += ["| Kiểm tra | Kết quả |", "| --- | --- |"]
         lines += [f"| {name} | {'Đạt' if ok else 'Không đạt'} |" for name, ok in checks]
         lines.append("")
-    return result, "\n".join(lines)
+    lines += [panel_line(project), ""]
+    if analysis is not None:
+        lines += ["## Số chính", "", *_key_numbers(analysis), ""]
+    todo = []
+    for skill, name, heading in SECTIONS:
+        path = files.resolve(project, name)
+        if skill == "cfo" and analysis is not None and not path.exists():
+            continue
+        if not path.exists():
+            todo.append(f"- {heading}: chạy skill `founder-{skill}` (tạo founder/{name}).")
+            continue
+        lines += [f"## {heading}", "", *_demote(files.read_text(project, name)), ""]
+    if todo:
+        lines += ["## Chưa làm", "", *todo, ""]
+    lines += ["## Lưu ý", "", DISCLAIMER]
+    return result, "\n".join(lines) + "\n"
 
 
 def run(project: Path) -> str:
