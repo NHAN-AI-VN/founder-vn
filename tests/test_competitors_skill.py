@@ -130,3 +130,29 @@ def test_desk_survey_states_small_sample_in_map_and_gap() -> None:
     assert "small sample" in text
     assert "the positioning map and the gap must also say" in text
     assert "desk survey from public sources" in text
+
+
+EXAMPLE_DIR = ROOT / "examples" / "barbershop" / "founder"
+
+
+def test_golden_competitors_follows_the_skill_on_the_desk_survey_form() -> None:
+    out = (EXAMPLE_DIR / "competitors.md").read_text(encoding="utf-8")
+    form = (EXAMPLE_DIR / "survey-form.md").read_text(encoding="utf-8")
+    declaration = next(ln for ln in form.splitlines() if ln.startswith("**Cách khảo sát**"))
+    assert declaration in out
+    assert out.index(declaration) < out.index("## 1. Bảng đối thủ")
+    table = out.split("## 1. Bảng đối thủ")[1].split("## 2.")[0]
+    rows = re.findall(r"^\| \d+ \| .*\| khảo sát .*$", table, flags=re.M)
+    assert 5 <= len(rows) <= 10
+    for row in rows:
+        source = row.rsplit("|", 2)[-2]
+        assert "khảo sát bàn giấy từ nguồn công khai, ngày 23/11/2026" in source
+        assert "khảo sát thực địa" not in source
+        assert "http" in source
+    for section in ("Chủ đề đánh giá", "Dữ liệu mỏng", "Bổ trợ từ web"):
+        assert section in out
+    assert "Bản đồ định vị" in out and "Khoảng trống" in out
+    assert "không phải tư vấn tài chính, thuế hay pháp lý" in out
+    assert "chưa có số liệu" in out
+    assert "Dữ liệu mỏng: chỉ có" not in out
+    assert not DOLLAR.search(out)
