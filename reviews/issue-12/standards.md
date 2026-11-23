@@ -1,55 +1,35 @@
-Commit mã đã chấm: e15e2e730dea
+Commit mã đã chấm: 8105f044344d
 
-# Review trục Standards, issue #12, vòng 1
+# Review trục Standards, #12 vòng 1 (lượt lặp sau commit 4ee3194)
 
 **Phán quyết: PASS.** Không có finding chặn.
 
 ## Phạm vi đã xét
 
-So với `main`: `git diff --stat main...HEAD` (8 file, +491/-1) và `git log --oneline main..HEAD` (6 commit: `14c297b` seam, `81429bb`, `0fa8ea1`, `a62d8fb` slice, `1bda173` Q52, `e15e2e7` evidence).
+`git diff --stat origin/main...HEAD` và `git log --oneline origin/main..HEAD` (9 commit). Trọng tâm là hai commit mới từ lượt PASS trước (5db6f2a): `4ee3194` (slice SPEC-1) và `8105f04` (docs). Các file: `skills/founder-cfo/SKILL.md`, `examples/barbershop/founder/cfo.md`, `tests/test_cfo_skill.py`, `docs/evidence/issue-12-founder-cfo.md`, `reviews/issue-12/{ledger,operator-answer}.md`; phần còn lại của nhánh (`permits/sources.md`, `numbers.json`, `tests/test_sources_ledger.py`, mục Q52 trong `docs/founder-vn-design.md`) đã xét ở lượt trước và không đổi.
 
-Chuẩn đối chiếu: `AGENTS.md`, `docs/agents/standards.md`, `docs/agents/evidence-gates.md`, `docs/review-checklist.md`, `docs/skill-conventions.md`, `docs/founder-vn-design.md` (Q37, Q39, Q52, mục skill/permits). Các file đã đọc: `skills/founder-cfo/SKILL.md`, `permits/sources.md`, `examples/barbershop/founder/{cfo.md,numbers.json}`, `tests/test_cfo_skill.py`, `tests/test_sources_ledger.py`, `docs/evidence/issue-12-founder-cfo.md`.
+Chuẩn: `AGENTS.md`, `docs/agents/standards.md`, `docs/agents/evidence-gates.md`, skill `code-review` (một trục).
 
-Đã chạy ở `e15e2e730dea`: `uv run --frozen python scripts/skill_lint.py` (2 skills, 4 example file, 0 finding); `uv run --frozen pytest -q tests/test_cfo_skill.py tests/test_sources_ledger.py tests/test_golden_case.py` (25 passed). Gate CI của run 45152801864: success (theo tin nhắn giao việc).
+## Kết quả theo mục
 
-## Kết quả theo mục chặn
+- Không ghi file ngoài lớp khoá đường dẫn, không đổi `src/`; không phép tính nào lệch giữa CLI và MCP. Diff không chạm mã `src/`, nên không cần parity mới (`tests/test_cfo_parity.py` của T05 giữ nguyên).
+- Test không gọi mạng; `test_golden_cfo_md_limits_section_cites_every_ledger_link_and_the_verification_line` sinh lại phần công cụ bằng `cfo.run` và đối chiếu từng link Công báo và dòng "kiểm chứng ngày" với `permits/sources.md`. Nó sẽ đỏ nếu `cfo.md` hay Step 6 bỏ nguồn (bằng chứng đỏ ghi ở evidence: `tests/test_cfo_skill.py:89` và `:166`).
+- Tỷ lệ thuế và ngưỡng không hardcode trong mã; trong skill chúng đi qua ô `<...>` chép từ sổ nguồn. Đoạn cố định "20 triệu đồng", "3 tỷ đồng", "17%" là nội dung quyết định Q52 của thiết kế và có nguồn trong cùng file.
+- Không giá trị `FOUNDER_LLM_*` trong `skills/`, `examples/`, evidence hay `reviews/issue-12/`.
+- Checklist skill: `skill_lint` 0 finding (2 skill, 4 file ví dụ); không `$` cạnh chữ số; xưng "anh/chị"; mọi khẳng định pháp lý trong `cfo.md` có link Công báo và dòng "kiểm chứng ngày 23/11/2026"; có miễn trừ ở "Lưu ý" của công cụ và dòng cuối phần nối, và Rules của SKILL.md giữ câu kết bắt buộc; cảnh báo panel không áp dụng (không có kết quả panel); `metadata.version` 0.1.0 khớp phiên bản package (skill_lint xác nhận).
+- Hình dạng vòng lặp: (a) `14c297b seam:` có `## Seam`, đứng trước mọi `slice(`; (b) không commit nào chạm `src/`, evidence ghi rõ và có bốn dòng trong `## Lát`, gồm dòng SPEC-1; (c) test ở seam đã khai (văn bản SKILL.md, golden file, sổ nguồn), không ở internals; (d) khối `## Cổng ba đoạn` ghi `verify: GREEN on 4ee3194f6446...`, là commit mã cuối (`git diff --stat 4ee3194 HEAD` chỉ gồm `docs/evidence/`, `reviews/issue-12/`), nên cổng không stale.
+- Golden đổi (`examples/barbershop/founder/cfo.md`): commit message của `4ee3194` nêu lý do (SPEC-1, regenerate bằng lượt chạy Kiro CLI) và test golden thứ hai đổi cùng commit.
+- Tên và mã khớp: phần nối của `cfo.md` tự gọi mình là phần "Giới hạn của phần thuế" và đính chính "Lưu ý" của công cụ; Giới hạn ghi trung thực rằng bản chép nguồn do script của lượt chạy làm, không chứng minh model tự chép.
 
-- Ghi file ngoài lớp khoá đường dẫn: diff không thêm mã ghi file; `src/` không đổi.
-- CLI/MCP parity: không có phép tính mới; `cfo_analyse` và `founder-vn cfo` đã có parity test của T05 (`tests/test_cfo_parity.py`), skill gọi cả hai.
-- Mạng thật trong test: không; test chỉ đọc file, gọi `cfo.run` và `skill_lint.py`.
-- Số mặc định thay cho lỗi nêu tên trường: SKILL.md Step 2 và Step 4 bắt hỏi lại chủ hộ trường thiếu, không đoán.
-- Tỷ lệ thuế, ngưỡng hardcode: `7` và `1000000000` chỉ nằm trong `numbers.json` (đầu vào) và `permits/sources.md` (sổ nguồn có link Công báo, điều khoản, trích đoạn, ngày kiểm chứng). Skill bắt tra sổ, không lấy từ chính nó.
-- Giá trị biến `FOUNDER_LLM_*`: không xuất hiện trong diff.
-- Đỏ rồi xanh: bảng `## Lát` ghi lỗi đỏ cụ thể cho cả ba lát (ledger, skill, golden) và lần chạy xanh.
-- Golden file đổi: `examples/barbershop/founder/cfo.md` và `numbers.json` là file mới; commit `a62d8fb` nói rõ "new golden files". `test_golden_cfo_md_is_the_tool_output_plus_the_limits_section` sinh lại phần công cụ bằng `cfo.run` nên phần đó không trôi tay được.
-- Lệch thiết kế: Q52 ghi vào nhật ký (`docs/founder-vn-design.md`, heading Q1–Q52) trong cùng thay đổi, nhất quán với Q37 và Q39 (sổ nguồn, không đoán số). Q52 là quyết định của operator, không phải thiết kế mới do lane tự đặt.
+## Đã chạy lại ở HEAD 8105f04
 
-## Checklist rà soát skill (`skills/`, `examples/`)
-
-- Không `$` cạnh chữ số: `skill_lint` 0 finding; có test riêng cho SKILL.md, sổ nguồn và `cfo.md`.
-- Không lọt tiếng Anh trong đầu ra cho chủ hộ, xưng "anh/chị": `cfo.md` toàn tiếng Việt, câu kết bắt buộc của skill bằng tiếng Việt. Hướng dẫn trong SKILL.md bằng tiếng Anh theo chuẩn.
-- Link chính thức và ngày kiểm chứng: cả hai mục sổ nguồn có link `congbao.chinhphu.vn`, số Công báo, điều khoản, trích đoạn và dòng "kiểm chứng ngày 23/11/2026" (kiểm bằng `test_every_entry_has_link_issue_article_excerpt_and_verification`).
-- Miễn trừ trách nhiệm: có trong SKILL.md (Rules) và trong `cfo.md` (mục Lưu ý và Giới hạn).
-- Cảnh báo panel là mô phỏng, cận trên: không áp dụng, skill và ví dụ này không có kết quả panel.
-- `metadata.version` "0.1.0" khớp `pyproject.toml`; `skill_lint` xác nhận khối protocol chung khớp `docs/skill-conventions.md`.
-
-## Hình dạng vòng lặp
-
-- (a) `14c297b seam: #12 founder-cfo` mang `## Seam` và đứng trước mọi commit `slice(`: đạt.
-- (b) Không commit nào chạm `src/` (bằng chứng ghi rõ `cfo.py` thuộc T05); mỗi commit `slice(` chạm file test của lát và có dòng trong `## Lát`: đạt.
-- (c) Test ở seam đã khai (file giao hàng: sổ nguồn, SKILL.md, golden), không ở internals: đạt.
-- (d) Khối `## Cổng ba đoạn` ghi `verify` GREEN ở `1bda1736b371`; commit mã cuối là `a62d8fb`, là tổ tiên của `1bda173` (kiểm bằng `git merge-base --is-ancestor`), và từ `a62d8fb` tới HEAD không có thay đổi nào ở `src/`, `tests/`, `examples/`, `skills/`, `permits/`: cổng không stale.
-
-## Ghi nhận không chặn
-
-- `AGENTS.md` dòng 3 vẫn ghi "Q1–Q50" trong khi nhật ký đã tới Q52 (và Q51 có từ trước diff này). Không thuộc diff, `AGENTS.md` là file một-chủ; để operator cập nhật khi tiện.
-- Phần "Lưu ý" do công cụ in trong `cfo.md` nói thuế suất và ngưỡng "là số anh/chị nhập", lệch với việc hai số lấy từ sổ nguồn. Evidence đã khai ở mục Giới hạn và Q52 đã chốt tách ticket mới; không đổi `cfo.py` trong lane này là đúng phạm vi.
-- Ví dụ `cfo.md` và Step 6 của SKILL.md nêu số pháp lý (20 triệu đồng, 3 tỷ đồng, 17%) và trỏ về `permits/sources.md` thay vì chép link và ngày tại chỗ. Link, điều khoản và ngày kiểm chứng của các số này có trong sổ nguồn, nên tôi coi đủ chuẩn.
+`uv sync --frozen`; `uv run ruff check .` (All checks passed); `uv run ruff format --check .` (147 files already formatted); `uv run python scripts/skill_lint.py` (0 finding); `uv run pytest -q` (259 passed). CI `Gate` run 45157206885: success.
 
 ## Chưa xác minh
 
-- Nội dung pháp lý (tỷ lệ 5% và 2%, ngưỡng 1 tỷ đồng, mốc 3 tỷ đồng và 17%, hiệu lực các văn bản) và tính tồn tại của các link Công báo: không kiểm độc lập ở lượt này; evidence ghi là operator kiểm chứng ngày 23/11/2026 trên PDF Công báo. Đây là việc của trục Spec và của operator.
-- Các số `257 passed` và `GREEN` trong evidence đọc từ `.harness/gate-*.log` của lane, không có ở checkout này; tôi chỉ chạy lại các test của diff (25 passed). Cổng CI chạy lại trọn ở commit cuối.
-- Hành vi thật của skill trên Kiro CLI (tiêu chí 4 của ticket) chưa chạy; evidence đã khai là giới hạn và để operator.
+- Evidence ghi "195 files already formatted" ở khối cổng, còn lần chạy ở đây đếm 147; chênh có thể do thư mục sinh ra (`.harness/`, `dist/`) trong checkout của lane. Không ảnh hưởng kết quả (cả hai xanh), không đủ để gắn mã.
+- Nội dung pháp lý (7%, 1 tỷ đồng, các số Công báo) không kiểm chứng độc lập; lane và evidence đã khai điều này. Đây thuộc trục Spec và việc operator đã xác nhận ngày 23/11/2026.
+- Chỉ chạy `skill_lint` và đọc văn bản skill; hành vi model ở Step 6 không kiểm được từ checkout.
+- Lỗi chính tả "03 tỷ đồng" trong `cfo.md` được chép nguyên văn từ sổ nguồn (đúng quy tắc "nguyên văn" của Step 6); không phải finding.
 
 <promise>PASS</promise>
