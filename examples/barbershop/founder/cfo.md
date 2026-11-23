@@ -65,7 +65,17 @@ Báo cáo này là mô hình tính toán từ các con số anh/chị nhập, kh
 
 ## Giới hạn của phần thuế
 
+- Đính chính mục "Lưu ý" ở trên: thuế suất 7% và ngưỡng miễn thuế 1.000.000.000 đ mỗi năm không phải số anh/chị nhập; skill lấy hai số này từ sổ nguồn `permits/sources.md`, căn cứ và link ghi ở cuối mục này.
 - Mô hình áp một tỷ lệ gộp (GTGT cộng TNCN) lên toàn bộ doanh thu năm khi doanh thu năm vượt ngưỡng. Luật chỉ tính TNCN trên phần doanh thu vượt ngưỡng, nên mô hình có thể tính thừa tối đa 20 triệu đồng mỗi năm. Sai lệch này theo hướng an toàn: thuế cao hơn, lợi nhuận thấp hơn thực tế.
 - Trên 3 tỷ đồng doanh thu năm, cách tính thuế theo tỷ lệ phần trăm trên doanh thu không còn áp dụng: TNCN tính trên thu nhập (doanh thu trừ chi phí) với thuế suất 17%. Công cụ chưa có cờ cho mốc này, nên nếu kế hoạch của anh/chị gần hoặc vượt 3 tỷ đồng một năm thì phần thuế ở trên chỉ là ước lượng thô.
 - Ưu đãi thuế: có ưu đãi tạm thời, chưa tính.
-- Thuế suất và ngưỡng lấy từ `permits/sources.md`, kèm link Công báo và ngày kiểm chứng. Kết quả này không phải tư vấn tài chính hay thuế.
+- Căn cứ của thuế suất, chép từ mục `tax_rate_on_revenue` của sổ nguồn:
+  - GTGT 5%: Luật 48/2024/QH15, Điều 12 khoản 2 điểm b2. Link: https://congbao.chinhphu.vn/van-ban/luat-so-48-2024-qh15-43576.htm (Công báo 1527+1528, 29/12/2024).
+  - TNCN 2%: Luật 109/2025/QH15, Điều 7 khoản 3 điểm c. Link: https://congbao.chinhphu.vn/van-ban/luat-so-109-2025-qh15-468671.htm (Công báo 37, 22/01/2026).
+  - Ngành: Nghị định 253/2026/NĐ-CP, Điều 45 khoản 2 và Phụ lục mục 2. Link: https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-253-2026-nd-cp-469959.htm (Công báo 402, 16/07/2026).
+  - Sai lệch của cách gộp (quyết định Q52, `docs/founder-vn-design.md`): luật tính GTGT 5% trên toàn bộ doanh thu năm khi vượt ngưỡng (Nghị định 68/2026 Điều 3 khoản 2), còn TNCN 2% chỉ trên phần vượt ngưỡng (Luật 109/2025 Điều 7 khoản 3 điểm a). Mô hình áp tỷ lệ gộp lên toàn bộ doanh thu năm nên tính thừa tối đa 2% nhân 1 tỷ đồng, tức 20 triệu đồng mỗi năm, theo hướng an toàn. Trên 03 tỷ đồng doanh thu năm, TNCN tính trên thu nhập với thuế suất 17% (Luật 109/2025 Điều 7 khoản 2), mô hình chưa có cờ cho mốc này.
+- Căn cứ của ngưỡng, chép từ mục `tax_free_threshold` của sổ nguồn:
+  - Căn cứ: Nghị định 68/2026/NĐ-CP, Điều 3 và Điều 4, sau khi Nghị định 141/2026/NĐ-CP, Điều 1 khoản 1, đổi "500 triệu đồng" thành "01 tỷ đồng" (hiệu lực 01/01/2026). Luật 09/2026/QH16 Điều 1 và Điều 2 giao mức này cho Chính phủ quy định.
+  - Link: https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-68-2026-nd-cp-469047.htm (Công báo 152, 19/03/2026); https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-141-2026-nd-cp-469455.htm (Công báo 272, 14/05/2026); https://congbao.chinhphu.vn/van-ban/luat-so-09-2026-qh16-469536.htm (Công báo 286, 27/05/2026).
+- Kiểm chứng: cả hai mục ghi "kiểm chứng ngày 23/11/2026 bởi operator trên bản PDF Công báo".
+- Kết quả này không phải tư vấn tài chính hay thuế.

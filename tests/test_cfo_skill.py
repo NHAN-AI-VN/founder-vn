@@ -81,6 +81,17 @@ def test_ends_with_the_disclaimer() -> None:
     assert "không phải tư vấn tài chính hay thuế" in _skill()
 
 
+def test_step_6_copies_the_ledger_sources_and_verification_into_the_report() -> None:
+    """SPEC-1 (reviews/issue-12/spec.md): the Owner reads cfo.md, not the ledger, so the appended
+    section carries the documents, links and verification date copied from the ledger entries."""
+    step6 = _skill().split("## Step 6", 1)[1].split("## Rules", 1)[0]
+    assert "permits/sources.md" in step6
+    assert "never from memory" in step6
+    assert "Link" in step6 and "Xác nhận" in step6
+    assert 'Đính chính mục "Lưu ý"' in step6
+    assert "không phải số anh/chị nhập" in step6
+
+
 def test_no_dollar_sign_next_to_a_number() -> None:
     assert not DOLLAR.search(_skill())
 
@@ -127,3 +138,34 @@ def test_golden_cfo_md_is_the_tool_output_plus_the_limits_section() -> None:
     assert limits.count("có ưu đãi tạm thời, chưa tính") == 1
     assert "không phải tư vấn tài chính hay thuế" in limits
     assert not DOLLAR.search(out)
+
+
+LEDGER = ROOT / "permits" / "sources.md"
+CONG_BAO_LINK = re.compile(r"https://congbao\.chinhphu\.vn/\S+?\.htm")
+VERIFICATION = re.compile(r"kiểm chứng ngày \d{2}/\d{2}/\d{4}[^\n]*")
+
+
+def _ledger_entry(key: str) -> str:
+    text = LEDGER.read_text(encoding="utf-8")
+    body = text.split(f"\n## {key}", 1)[1]
+    return body.split("\n## ", 1)[0]
+
+
+def test_golden_cfo_md_limits_section_cites_every_ledger_link_and_the_verification_line() -> None:
+    """SPEC-1: each legal figure in the Owner's report carries its official link and verification
+    date, copied from the ledger entry, and the tool's "Lưu ý" wording is corrected."""
+    from founder_vn import cfo
+
+    out = (EXAMPLE / "founder" / "cfo.md").read_text(encoding="utf-8")
+    limits = out[len(cfo.run(EXAMPLE, "founder/numbers.json")) :]
+    for key in ("tax_rate_on_revenue", "tax_free_threshold"):
+        entry = _ledger_entry(key)
+        links = CONG_BAO_LINK.findall(entry)
+        assert len(links) >= 3, key
+        for link in links:
+            assert link in limits, link
+        verification = VERIFICATION.search(entry)
+        assert verification is not None, key
+        assert verification.group(0) in limits
+    assert "không phải số anh/chị nhập" in limits
+    assert "permits/sources.md" in limits

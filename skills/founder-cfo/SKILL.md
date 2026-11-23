@@ -65,17 +65,27 @@ Then write `founder/numbers.json` with the Owner's inputs and these two values. 
 
 Read `founder/cfo.md` and explain it to the Owner in plain Vietnamese, in a few short paragraphs: the contribution of one unit, the break-even per day against the plan and the capacity, year-1 profit after tax, the payback month and the cash needed. Quote every figure exactly as the tool printed it. Then go through the flags (the "Cảnh báo" section, `flags` in JSON) one by one, say what each means for the decision in everyday words and what the Owner can change (price, volume, a cost line). If there are no flags, say so and still remind the Owner to check each cost against a real quote. Do not give a verdict; the verdict comes from the tool output only.
 
-## Step 6: append the limits of the tax model
+## Step 6: append the limits of the tax model, with their sources
 
-After the tool has written `founder/cfo.md`, append this section to the end of the file, unchanged (the tool does not write it; it records Q52 of the design):
+After the tool has written `founder/cfo.md`, append the section below to the end of the file. The tool does not write it: it records Q52 of the design, and it corrects the tool's "Lưu ý" paragraph, which calls the rate and the threshold the Owner's own input. The Owner reads `cfo.md` and does not open `permits/sources.md`, so every legal figure in this section must carry its document, its link and its verification date inside `cfo.md`.
+
+Keep the fixed lines unchanged. Fill each `<...>` slot by copying from the two ledger entries you opened in Step 3, never from memory: the value line, the "Căn cứ" and "Link" lines with their Công báo number and date exactly as the entry writes them, the "Sai lệch của cách gộp" line of the rate entry (it names the documents behind the two limits), and the "Xác nhận" line of each entry. If an entry has no link or no "Xác nhận" line, the figure is not usable (Step 3, point 3): do not append a source you cannot copy.
 
 ```markdown
 ## Giới hạn của phần thuế
 
+- Đính chính mục "Lưu ý" ở trên: thuế suất <giá trị của mục tax_rate_on_revenue>% và ngưỡng miễn thuế <giá trị của mục tax_free_threshold> không phải số anh/chị nhập; skill lấy hai số này từ sổ nguồn `permits/sources.md`, căn cứ và link ghi ở cuối mục này.
 - Mô hình áp một tỷ lệ gộp (GTGT cộng TNCN) lên toàn bộ doanh thu năm khi doanh thu năm vượt ngưỡng. Luật chỉ tính TNCN trên phần doanh thu vượt ngưỡng, nên mô hình có thể tính thừa tối đa 20 triệu đồng mỗi năm. Sai lệch này theo hướng an toàn: thuế cao hơn, lợi nhuận thấp hơn thực tế.
 - Trên 3 tỷ đồng doanh thu năm, cách tính thuế theo tỷ lệ phần trăm trên doanh thu không còn áp dụng: TNCN tính trên thu nhập (doanh thu trừ chi phí) với thuế suất 17%. Công cụ chưa có cờ cho mốc này, nên nếu kế hoạch của anh/chị gần hoặc vượt 3 tỷ đồng một năm thì phần thuế ở trên chỉ là ước lượng thô.
 - Ưu đãi thuế: có ưu đãi tạm thời, chưa tính.
-- Thuế suất và ngưỡng lấy từ `permits/sources.md`, kèm link Công báo và ngày kiểm chứng. Kết quả này không phải tư vấn tài chính hay thuế.
+- Căn cứ của thuế suất, chép từ mục `tax_rate_on_revenue` của sổ nguồn:
+  - <từng dòng căn cứ và link của mục ấy, nguyên văn, mỗi dòng một gạch đầu dòng>
+  - <dòng "Sai lệch của cách gộp" của mục ấy, nguyên văn>
+- Căn cứ của ngưỡng, chép từ mục `tax_free_threshold` của sổ nguồn:
+  - <dòng "Căn cứ" của mục ấy, nguyên văn>
+  - <dòng "Link" của mục ấy, nguyên văn>
+- Kiểm chứng: <dòng "Xác nhận" của hai mục, nguyên văn>.
+- Kết quả này không phải tư vấn tài chính hay thuế.
 ```
 
 When you read the result back, state these limits in plain words too. Add no figure to the "có ưu đãi tạm thời, chưa tính" line.
