@@ -1,44 +1,35 @@
-Commit mã đã chấm: e15e2e730dea
+Commit mã đã chấm: 8105f044344d
 
 # Review trục Spec, issue #12 (founder-cfo), vòng 1
 
-**Phán quyết**: BLOCKED. Tiêu chí 4 của ticket chưa đáp ứng và lane không tự đóng được; thêm một finding chặn mà lane sửa được (SPEC-1).
+**Phán quyết**: PASS. Cả bốn criterion của ticket được đáp ứng bằng bằng chứng đọc được trong repo. Không có finding chặn. Đã đối chiếu độc lập ở `8105f044344d`, không dựa vào báo cáo cũ (`7c6f852`, BLOCKED với SPEC-1 và SPEC-2).
 
-Phạm vi: `git diff --stat origin/main...HEAD` (8 file: SKILL.md, `permits/sources.md`, golden `numbers.json` và `cfo.md`, hai file test, evidence, Q52 trong design) và 6 commit từ `origin/main`. CI `Gate` ở `e15e2e730dea`: success. Đã chạy lại tại chỗ: `uv run python scripts/skill_lint.py` (0 finding) và `uv run pytest tests/test_cfo_skill.py tests/test_sources_ledger.py` (19 passed, gồm test golden vì chúng nằm trong hai file này).
+Phạm vi: `git diff --stat origin/main...HEAD` (12 file: `skills/founder-cfo/SKILL.md`, `permits/sources.md`, golden `examples/barbershop/founder/{numbers.json,cfo.md}`, `tests/test_cfo_skill.py`, `tests/test_sources_ledger.py`, evidence, Q52 trong design, các file `reviews/issue-12/`) và 10 commit từ `origin/main`. `src/` không đổi (đúng, `cfo.py` thuộc T05). CI `Gate` ở `8105f044344d`: success (theo tin nhắn mở đầu). Đã chạy lại tại chỗ: `uv run python scripts/skill_lint.py` (2 skills, 4 example file, 0 finding) và `uv run pytest tests/test_cfo_skill.py tests/test_sources_ledger.py tests/test_golden_case.py -q` (27 passed). Các test này nằm trong cổng `unit`.
 
 ## Đối chiếu từng criterion
 
 | # | Criterion | Kết quả | Bằng chứng |
 |---|---|---|---|
-| 1 | SKILL.md viết lại: chỉ dẫn tiếng Anh, mục protocol chung, đầu ra tiếng Việt, hỏi chi phí theo lời Owner (nguyên liệu, bao bì, phí app giao hàng, thuê mặt bằng, lương, điện nước) | Đạt | Đọc `skills/founder-cfo/SKILL.md`: mục Protocol, Step 2 nêu đủ sáu nhóm từ ngữ, "anh/chị", `35.000 đ`, cấm `$`. `skill_lint` xanh; `tests/test_cfo_skill.py` chạy trong cổng `unit`. |
-| 2 | Tra `tax_rate_on_revenue` theo ngành và `tax_free_threshold` kèm link chính thức và ngày kiểm chứng; ghi làm hai mục đầu của sổ nguồn theo CONTRIBUTING | Đạt phần sổ nguồn, chưa đạt phần báo cáo (xem SPEC-1) | `permits/sources.md` mới, đúng hai mục đó đứng đầu, mỗi mục có link Công báo, số Công báo, điều khoản, trích đoạn, "kiểm chứng ngày 23/11/2026". `tests/test_sources_ledger.py` kiểm hình dạng. SKILL.md Step 3 buộc tra sổ, không gõ từ trí nhớ, và có nhánh "chưa kiểm chứng". |
-| 3 | Gọi `cfo_analyse` (MCP) hoặc `founder-vn cfo` (CLI); đọc cờ lại bằng tiếng Việt thường; câu miễn trừ "không phải tư vấn tài chính hay thuế" | Đạt | SKILL.md Step 4 và 5, mục Rules (câu miễn trừ cuối câu trả lời), `cfo.md` có mục "Cảnh báo" và "Lưu ý". Skill không tự tính số. |
-| 4 | Chạy golden case trên Kiro CLI: `numbers.json` và `cfo.md` trong thư mục ví dụ; review checklist đã qua | **Chưa đạt** | Hai file có trong `examples/barbershop/founder/`, nhưng do lane viết `numbers.json` và chạy `founder-vn cfo --out`, không phải một phiên Kiro CLI chạy `/founder-cfo`. `docs/evidence/issue-12-founder-cfo.md` mục "Giới hạn" tự nhận tiêu chí này chưa đóng và review checklist mới kiểm phần máy. Xem SPEC-2. |
+| 1 | SKILL.md viết lại: chỉ dẫn tiếng Anh, mục protocol chung, đầu ra tiếng Việt, hỏi chi phí theo lời Owner (nguyên liệu, bao bì, phí app giao hàng, thuê mặt bằng, lương, điện nước) | Đạt | Đọc `skills/founder-cfo/SKILL.md`: mục Protocol (5 điều), Step 2 nêu đủ sáu nhóm từ ngữ, cấm hỏi "variable/fixed cost", "anh/chị", `35.000 đ`, cấm `$`. `skill_lint` xanh; test văn bản skill chạy trong `unit`. |
+| 2 | Tra `tax_rate_on_revenue` theo ngành và `tax_free_threshold` kèm link chính thức và ngày kiểm chứng; ghi làm hai mục đầu của sổ nguồn theo CONTRIBUTING | Đạt | `permits/sources.md` (file mới): đúng hai mục `tax_rate_on_revenue` (7, GTGT 5% + TNCN 2%) và `tax_free_threshold` (1.000.000.000 đ), mỗi mục có link Công báo, số và ngày Công báo, điều khoản, trích đoạn, dòng "Xác nhận: kiểm chứng ngày 23/11/2026". `tests/test_sources_ledger.py` kiểm hình dạng. SKILL.md Step 3 buộc tra sổ, cấm gõ từ trí nhớ, có nhánh "chưa kiểm chứng". `numbers.json` giữ đúng hai giá trị (test golden). Phần giữa file và hai mục là bảng văn bản áp dụng làm mục lục nguồn, không phải mục khác. |
+| 3 | Gọi `cfo_analyse` (MCP) hoặc `founder-vn cfo` (CLI); đọc cờ lại bằng tiếng Việt thường; câu miễn trừ | Đạt | SKILL.md Step 4 (cả hai đường gọi, what-if qua `price`/`volume`), Step 5 (đọc từng cờ, không phán quyết), Rules (câu miễn trừ cuối câu trả lời). Skill không tự tính (Protocol 3 và Rules). `cfo.md` có mục "Cảnh báo", "Lưu ý" và dòng miễn trừ cuối. |
+| 4 | Chạy golden case trên Kiro CLI: `numbers.json` và `cfo.md` trong thư mục ví dụ; review checklist qua | Đạt (bằng chứng do operator ghi, xem "Chưa xác minh") | Hai file có trong `examples/barbershop/founder/`. `sha256sum` khớp bằng chứng: `cfo.md` `d426f5fb…2cd2` (81 dòng), `numbers.json` `bd39660d…029f`. `docs/evidence/issue-12-founder-cfo.md`, mục "Lượt chạy golden case trên Kiro CLI", ghi từng bước SKILL.md đã chạy, lệnh, giờ, model, hash SKILL.md. Đã tự kiểm checklist trên `cfo.md`: không `$` cạnh chữ số (regex không khớp), không tiếng Anh lọt vào phần Owner đọc (chỉ còn định danh file và số hiệu văn bản), xưng "anh/chị", mọi số pháp lý (7%, 1.000.000.000 đ, 20 triệu đồng, mốc 3 tỷ đồng, 17%) có sáu link Công báo và ngày kiểm chứng ngay trong file, miễn trừ có hai chỗ, cảnh báo panel không áp dụng (không có kết quả panel). Test golden đọc `cfo.md`: phần đầu phải bằng đúng đầu ra `cfo.run`, phần nối phải chứa mọi link của hai mục sổ nguồn. |
 
-Giới hạn và điều ngoài phạm vi: `src/founder_vn/cfo.py` không đổi (đúng, thuộc T05). Quyết định giữ mô hình thuế gộp được ghi là Q52 do operator quyết, nên không tính là quyết định tự đặt của lane. Không có `$`, không có tên người hay địa điểm dưới cấp quận trong `examples/`.
+Giới hạn và điều ngoài phạm vi: `src/founder_vn/cfo.py` không đổi. Việc phần giới hạn thuế do skill nối vào `cfo.md` (Step 6) là hệ quả của Q52 (`docs/founder-vn-design.md`, mục Q52 do operator quyết), nên không tính là quyết định tự đặt của lane; ticket tách tỷ lệ thuế và thêm cờ mốc 3 tỷ đồng được ghi là ticket mới. Không có tên người hay địa điểm dưới cấp quận trong `examples/barbershop/`; tên case ghi rõ là tên gọi tạm. Không file một-chủ nào bị chạm (`pyproject.toml`, `uv.lock`, `README.md`, `src/founder_vn/__init__.py` không đổi).
+
+Hai finding cũ đã được đóng, đã kiểm lại ở mã:
+- Cũ SPEC-1 (`cfo.md` nêu số pháp lý không kèm link và ngày): Step 6 của SKILL.md giờ buộc chép tên văn bản, link, ngày và dòng "Xác nhận" từ sổ nguồn và mở bằng dòng đính chính mục "Lưu ý". `cfo.md` hiện có đủ sáu link và ngày. Hai test mới (`tests/test_cfo_skill.py`) giữ điều này và có bước đỏ ghi trong evidence.
+- Cũ SPEC-2 (chưa chạy trên Kiro CLI): đã có lượt chạy ghi trong evidence, và câu hỏi cũ cho operator đã được trả lời trong `reviews/issue-12/operator-answer.md` (không hoãn, đóng ngay). Cả hai có dòng trong `reviews/issue-12/ledger.md`.
 
 ## Finding chặn
 
-### SPEC-1: `cfo.md` nêu khẳng định pháp lý và con số luật mà không có link và ngày kiểm chứng ngay trong báo cáo
-
-Criterion 2 và đầu ra "mọi số đều lần được về input Owner kiểm được". Trong `examples/barbershop/founder/cfo.md`:
-- Mục "Lưu ý" (do công cụ in) vẫn nói thuế suất và ngưỡng "là số anh/chị nhập" và Owner phải tự đối chiếu. Với skill này hai số đến từ sổ nguồn, nên câu đó sai về nguồn gốc. Evidence ghi nhận điểm này nhưng để nguyên.
-- Mục "Giới hạn của phần thuế" (phần skill nối) đưa ra các khẳng định pháp lý (20 triệu đồng, mốc 3 tỷ đồng, thuế suất 17%) và chỉ trỏ chung tới `permits/sources.md`. Không có link Công báo nào và không có ngày kiểm chứng trong file mà Owner đọc. Dòng "Doanh thu năm 1 ... Ngưỡng miễn thuế: 1.000.000.000 đ; thuế suất trên doanh thu: 7%" cũng không kèm văn bản căn cứ.
-
-Vì sao chặn: ticket nói "a sourced sector tax rate and threshold ... every number traced to an input the Owner can check". Owner nhận `cfo.md` chứ không đọc `permits/sources.md`; số pháp lý không có link và ngày trong artefact là chưa lần được. Lane sửa được bằng cách đổi Step 6 của SKILL.md (và golden `cfo.md`, test tương ứng) để phần nối có tên văn bản, link và ngày kiểm chứng lấy từ mục sổ nguồn (không gõ từ trí nhớ), và nối thêm một dòng đính chính "Lưu ý" ghi hai số này lấy từ sổ nguồn. Không cần sửa `cfo.py`.
-
-### SPEC-2: Tiêu chí 4, golden case chưa chạy trên Kiro CLI và checklist chưa qua
-
-Criterion 4 đòi `/founder-cfo` chạy trên Kiro CLI sinh ra hai file, và review checklist đạt. Bằng chứng hiện có là test đọc văn bản chỉ dẫn (evidence tự ghi: "không kiểm hành vi của mô hình") cộng file do lane viết tay và công cụ sinh. Một criterion được đáp ứng bằng lời hứa làm sau thì chưa được đáp ứng. Lane không chạm được: nó cần một phiên Kiro CLI của operator và commit evidence riêng. Do đó trục Spec không thể PASS chừng nào chưa có phiên đó.
-
-## Câu hỏi cho operator
-
-- [ ] Tiêu chí 4 (chạy trên Kiro CLI, checklist qua) có được hoãn khỏi PR này sang một commit evidence sau (như evidence đề xuất, "trước T18"), hay PR này chỉ merge sau khi operator chạy `/founder-cfo` trên Kiro CLI và ghi kết quả vào `docs/evidence/issue-12-founder-cfo.md`? Design chưa quyết việc hoãn một acceptance criterion; lane không tự quyết.
+Không có.
 
 ## Chưa xác minh
 
-- Nội dung pháp lý của hai mục sổ nguồn (số điều, trích đoạn, giá trị 7% và 1 tỷ đồng): không có quyền fetch Công báo ở lượt này; tin theo ghi "kiểm chứng ngày 23/11/2026 bởi operator". Không rà thông tư của Bộ Tài chính (sổ nguồn tự ghi).
-- Lệnh `founder-vn cfo ... --out` chạy lại bằng tay trong sandbox trả mã 2 do tôi dùng đường dẫn `--out` tuyệt đối ngoài thư mục; không dùng làm bằng chứng. Việc golden `cfo.md` bắt đầu bằng đúng đầu ra công cụ dựa vào test golden đã chạy (xanh).
-- Phần kiểm hành vi của mô hình (có hỏi chi phí đúng từ ngữ, có đọc cờ đúng không) chưa có bằng chứng nào ngoài văn bản skill.
+- Lượt chạy Kiro CLI là tự ghi của operator: phiên không có transcript trong repo. Tôi kiểm được hash của hai file ra và sự nhất quán giữa các bước, không kiểm được rằng một phiên Kiro CLI thật đã sinh ra chúng. Evidence tự nêu các giới hạn: đọc skill bằng đường dẫn thay vì slash command sau `install`; một model, một host; Step 2 không có hỏi đáp thật (Owner trả lời "giữ nguyên"); đường MCP không chạy; phần chép nguồn ở Step 6 do một đoạn script làm, nên chưa chứng minh model tự chép đúng.
+- Nội dung pháp lý của hai mục sổ nguồn (số điều, trích đoạn, 7% và 1 tỷ đồng, các văn bản 2026): không fetch Công báo ở lượt này; tin theo ghi "kiểm chứng ngày 23/11/2026 bởi operator". Sổ nguồn tự ghi không rà thông tư của Bộ Tài chính và hai ưu đãi tạm thời chưa kiểm chứng, nên không đưa vào mô hình.
+- Hành vi của model (hỏi chi phí đúng từ ngữ, đọc cờ đúng) chỉ có bằng chứng ở dạng văn bản skill và test đọc văn bản, không có phép đo hành vi.
+- Mục "Lưu ý" do công cụ in vẫn nói thuế suất và ngưỡng là "số anh/chị nhập"; phần nối đính chính ngay sau. Không phải finding vì sửa công cụ thuộc T05 và Q52 đã ghi nhận.
 
-<promise>BLOCKED</promise>
+<promise>PASS</promise>
