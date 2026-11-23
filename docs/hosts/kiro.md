@@ -23,3 +23,11 @@ environment of the host. Set them in the host's own environment; do not write th
 
 `uvx founder-vn-mcp` resolves the package from PyPI, so it works once the `v0.1.0` release is
 published (see `.github/workflows/release.yml`).
+
+## Installing the skills
+
+```bash
+founder-vn install --host kiro
+```
+
+Copies the skills into `.kiro/skills/` of the current project (idempotent; `--print-only` shows the plan and the snippet without writing) and prints the `mcp.json` registration above.

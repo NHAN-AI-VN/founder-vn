@@ -29,3 +29,45 @@ def test_kiro_doc_carries_no_secret_values() -> None:
     text = (ROOT / "docs" / "hosts" / "kiro.md").read_text(encoding="utf-8")
     assert "FOUNDER_LLM_API_KEY" in text
     assert not re.search(r"(sk-|Bearer )\w", text)
+
+
+def _page(name: str) -> str:
+    return (ROOT / "docs" / "hosts" / f"{name}.md").read_text(encoding="utf-8")
+
+
+def test_gemini_page_is_pending_confirmation_and_declares_the_key_by_name() -> None:
+    text = _page("gemini")
+    assert "pending confirmation" in text
+    assert "FOUNDER_LLM_API_KEY" in text and '"env"' in text
+    assert not re.search(r"(sk-|Bearer )\w", text)
+
+
+def test_filled_pages_have_no_stub_status_and_match_the_installer() -> None:
+    from founder_vn import install
+
+    for host in install.HOSTS:
+        text = _page(host)
+        assert "Status: stub" not in text, host
+        assert f"founder-vn install --host {host}" in text
+        assert "not yet released" not in text.split("npx skills")[0], host
+        assert install.SKILL_FOLDERS[host] in text
+
+
+def test_codex_page_carries_the_timeout_note_and_kirocrew_the_trust_note() -> None:
+    assert "60 seconds" in _page("codex") and "tool_timeout_sec" in _page("codex")
+    assert "dashboard" in _page("kirocrew") and "trust" in _page("kirocrew").lower()
+
+
+def test_toml_and_json_snippets_in_pages_parse() -> None:
+    for host in ("claude", "codex", "grok"):
+        for block in re.findall(r"```toml\n(.*?)\n```", _page(host), re.DOTALL):
+            assert "founder-vn" in tomllib.loads(block)["mcp_servers"]
+    for block in re.findall(r"```json\n(.*?)\n```", _page("claude") + _page("gemini"), re.DOTALL):
+        json.loads(block)
+
+
+def test_hosts_readme_lists_every_page_without_stub_state() -> None:
+    text = _page("README")
+    for name in ("kiro", "claude", "codex", "gemini", "grok", "kirocrew"):
+        assert f"({name}.md)" in text
+    assert "| stub" not in text

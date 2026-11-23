@@ -1,0 +1,4 @@
+{
+  "stdout": "founder-vn install: host kirocrew\ncreate     .kiro/skills/founder-demo/SKILL.md\ncreate     .kiro/skills/founder-demo/refs/a.md\n\nMCP registration (dashboard, no file to edit):\n  1. Open the KiroCrew dashboard, MCP Servers page, and add a server.\n  2. Name: founder-vn. Command: uvx. Arguments: founder-vn-mcp.\n  3. Trust the project in KiroCrew; it loads skills and servers only for a trusted project.\nKiroCrew does not read the workspace .kiro/settings/mcp.json.\n\nModel calls read FOUNDER_LLM_BASE_URL, FOUNDER_LLM_API_KEY and FOUNDER_LLM_MODEL from the\nhost environment. Set them there; never write their values into a config file or the repository.\n",
+  "files": {}
+}

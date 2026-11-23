@@ -1,8 +1,32 @@
 # Claude Code
 
-Status: stub. Registration and a golden-case run on this host are still to be done.
+Status: written from the installer's output; registration and a golden-case run on this host are not yet witnessed.
 
-- Skills: `founder-vn install --host claude` (not yet released) or `npx skills add NHAN-AI-VN/founder-vn`.
-- MCP server: `uvx founder-vn-mcp`, registered in the Claude Code MCP configuration.
-- Environment: set `FOUNDER_LLM_BASE_URL`, `FOUNDER_LLM_API_KEY` and `FOUNDER_LLM_MODEL` in the
-  host environment; never write their values into a file in this repository.
+## Install
+
+```bash
+founder-vn install --host claude
+```
+
+Copies the skills into `.claude/skills/` of the current project (idempotent; `--print-only` shows the plan and the snippet without writing). Alternative: `npx skills add NHAN-AI-VN/founder-vn`.
+
+## MCP registration
+
+Project scope, in `.mcp.json` at the project root:
+
+```json
+{
+  "mcpServers": {
+    "founder-vn": {
+      "command": "uvx",
+      "args": ["founder-vn-mcp"]
+    }
+  }
+}
+```
+
+Or: `claude mcp add --scope project founder-vn -- uvx founder-vn-mcp`.
+
+## Environment
+
+Model calls read `FOUNDER_LLM_BASE_URL`, `FOUNDER_LLM_API_KEY` and `FOUNDER_LLM_MODEL` from the host environment. Set them there; never write their values into a config file or this repository.

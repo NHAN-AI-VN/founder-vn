@@ -5,7 +5,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from founder_vn import cfo, files, info
+from founder_vn import cfo, files, info, install
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -19,6 +19,13 @@ def build_parser() -> argparse.ArgumentParser:
     cfo_parser.add_argument("--volume", type=float, default=1.0, help="what-if volume multiplier")
     cfo_parser.add_argument("--json", action="store_true", help="print the numbers as JSON")
     cfo_parser.add_argument("--out", help="write the report under founder/ (e.g. cfo.md)")
+    install_parser = sub.add_parser(
+        "install", help="copy skills into a host and print its MCP setup"
+    )
+    install_parser.add_argument("--host", required=True, choices=install.HOSTS)
+    install_parser.add_argument(
+        "--print-only", action="store_true", help="show the plan and snippet without writing"
+    )
     return parser
 
 
@@ -37,6 +44,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         except (cfo.NumbersError, files.PathRefused, ValueError) as e:
             print(f"lỗi: {e}", file=sys.stderr)
             return 2
+        return 0
+    if args.command == "install":
+        try:
+            text = install.run(Path.cwd(), args.host, args.print_only)
+        except install.InstallRefused as e:
+            print(f"lỗi: {e}", file=sys.stderr)
+            return 2
+        sys.stdout.write(text)
         return 0
     parser.print_help()
     return 2

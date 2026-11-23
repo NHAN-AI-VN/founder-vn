@@ -1,0 +1,4 @@
+{
+  "stdout": "founder-vn install: host codex\ncreate     .agents/skills/founder-demo/SKILL.md\ncreate     .agents/skills/founder-demo/refs/a.md\n\nMCP registration: add to ~/.codex/config.toml:\n\n[mcp_servers.founder-vn]\ncommand = \"uvx\"\nargs = [\"founder-vn-mcp\"]\ntool_timeout_sec = 300\n\nCodex stops a tool call after 60 seconds by default; tool_timeout_sec raises that limit\nfor long panel jobs.\n\nModel calls read FOUNDER_LLM_BASE_URL, FOUNDER_LLM_API_KEY and FOUNDER_LLM_MODEL from the\nhost environment. Set them there; never write their values into a config file or the repository.\n",
+  "files": {}
+}

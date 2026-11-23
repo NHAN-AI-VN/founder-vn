@@ -1,0 +1,4 @@
+{
+  "stdout": "founder-vn install: host kiro\ncreate     .kiro/skills/founder-demo/SKILL.md\ncreate     .kiro/skills/founder-demo/refs/a.md\n\nMCP registration: add to .kiro/settings/mcp.json (workspace) or ~/.kiro/settings/mcp.json:\n\n{\n  \"mcpServers\": {\n    \"founder-vn\": {\n      \"command\": \"uvx\",\n      \"args\": [\"founder-vn-mcp\"]\n    }\n  }\n}\n\nModel calls read FOUNDER_LLM_BASE_URL, FOUNDER_LLM_API_KEY and FOUNDER_LLM_MODEL from the\nhost environment. Set them there; never write their values into a config file or the repository.\n",
+  "files": {}
+}
