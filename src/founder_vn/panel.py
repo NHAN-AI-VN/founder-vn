@@ -10,12 +10,18 @@ import hashlib
 import json
 import math
 import random
+import re
+import time
+import uuid
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from founder_vn import files
+from founder_vn import files, llm
 
 PANEL_DIR = "panel"
+JOBS_DIR = "jobs"
+JOB_ID = re.compile(r"J-[0-9a-f]{8}")
 DEFAULT_N = 20
 INCOME_STEP = 100_000
 REASONS = ("price", "habit", "need", "trust", "quality", "convenience", "timing", "values", "other")
@@ -507,3 +513,97 @@ def run_tally(project: Path) -> str:
         f"{res['buys']} mua, {res['passes']} không mua ({_pct(res['buy_rate'])}). "
         f"Đã ghi founder/{_path('results.md')} và founder/{_path('results.json')}\n"
     )
+
+
+def _job_path(job_id: str) -> str:
+    if not JOB_ID.fullmatch(job_id):
+        raise PanelError(f"job '{job_id}' không hợp lệ: có dạng J-xxxxxxxx")
+    return _path(JOBS_DIR, f"{job_id}.json")
+
+
+def _read_job(project: Path, job_id: str) -> dict[str, Any]:
+    path = _job_path(job_id)
+    for attempt in range(5):  # a worker may be rewriting the file at this moment
+        try:
+            return json.loads(_read(project, path))  # type: ignore[no-any-return]
+        except PanelError:
+            raise PanelError(f"không thấy job {job_id}") from None
+        except json.JSONDecodeError:
+            time.sleep(0.02 * (attempt + 1))
+    raise PanelError(f"job {job_id} đang được ghi, thử lại sau giây lát")
+
+
+def start_job(project: Path, launch: Callable[[Path, str], None]) -> str:
+    """Record the model and prompt hash, create a job for the buyers without a valid answer and
+    hand it to ``launch``; return at once with the job as JSON."""
+    try:
+        config = llm.load_config()
+    except llm.NotConfigured as e:
+        raise PanelError(str(e)) from None
+    cards = _load_cards(project)
+    meta = _read_json(project, _path("panel.json"))
+    targets = [c["id"] for c in cards if _answer_file_problem(project, c["id"])]
+    meta |= {
+        "mode": "model",
+        "model": config.model,
+        "prompt_hash": prompt_hash(cards, meta["pitch"]),
+    }
+    files.write_text(project, _path("panel.json"), _dump(meta))
+    job_id = f"J-{uuid.uuid4().hex[:8]}"
+    state = "running" if targets else "done"
+    job = {
+        "job_id": job_id,
+        "state": state,
+        "targets": targets,
+        "done": [],
+        "failed": [],
+        "excluded": [],
+        "last_error": None,
+    }
+    files.write_text(project, _job_path(job_id), _dump(job))
+    if targets:
+        launch(project, job_id)
+    return _dump({"job_id": job_id, "state": state, "buyers": len(targets)})
+
+
+def job_status(project: Path, job_id: str) -> str:
+    """The counts of a job as JSON: done, pending, failed, excluded and the last error."""
+    job = _read_job(project, job_id)
+    settled = len(job["done"]) + len(job["failed"]) + len(job["excluded"])
+    return _dump(
+        {
+            "job_id": job_id,
+            "state": job["state"],
+            "total": len(job["targets"]),
+            "done": len(job["done"]),
+            "pending": len(job["targets"]) - settled,
+            "failed": len(job["failed"]),
+            "excluded": len(job["excluded"]),
+            "last_error": job["last_error"],
+        }
+    )
+
+
+def execute(project: Path, job_id: str) -> None:
+    """Ask each buyer of the job and file the answers one by one (the worker's entry point)."""
+    job = _read_job(project, job_id)
+    config = llm.load_config()
+    meta = _read_json(project, _path("panel.json"))
+    cards = {c["id"]: c for c in _load_cards(project)}
+    for pid in job["targets"]:
+        try:
+            reply = llm.complete(config, brief(cards[pid], meta["pitch"]))
+        except llm.CallFailed as e:
+            job["failed"].append(pid)
+            job["last_error"] = f"{pid}: {e}"
+        else:
+            answer, problem = extract_answer(reply, pid)
+            if answer is None:
+                job["failed"].append(pid)
+                job["last_error"] = f"{pid}: {problem}"
+            else:
+                files.write_text(project, _path("answers", f"{pid}.json"), _dump(answer))
+                job["done"].append(pid)
+        files.write_text(project, _job_path(job_id), _dump(job))
+    job["state"] = "done"
+    files.write_text(project, _job_path(job_id), _dump(job))
