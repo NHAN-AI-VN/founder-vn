@@ -97,3 +97,36 @@ def test_installer_ships_the_skill_with_its_form(project_root: Path) -> None:
     base = project_root / ".kiro/skills/founder-competitors"
     assert (base / "SKILL.md").is_file()
     assert (base / "survey-form.md").is_file()
+
+
+def test_skill_copies_the_survey_method_and_sets_the_source_by_method() -> None:
+    text = _skill()
+    assert "Cách khảo sát" in text
+    assert "verbatim" in text
+    assert "khảo sát bàn giấy từ nguồn công khai, ngày" in text
+    assert "Never write `khảo sát thực địa` for a desk survey" in text
+    assert "source (set by the survey method" in text
+    assert "source (`khảo sát thực địa`)" not in text
+
+
+def test_disclaimer_varies_by_method() -> None:
+    text = _skill()
+    assert "varies by method" in text
+    assert "Field survey:" in text and "Desk survey:" in text
+    desk = text.split("Desk survey:")[-1]
+    assert "bàn giấy" in desk.split("\n")[0]
+    assert "thực địa" not in desk.split("\n")[0]
+
+
+def test_empty_review_count_is_not_thin_data() -> None:
+    text = _skill()
+    assert "An empty review-count cell is not a number" in text
+    assert "never the thin-data warning" in text
+    assert "including a 0 written explicitly" in text
+
+
+def test_desk_survey_states_small_sample_in_map_and_gap() -> None:
+    text = _skill()
+    assert "small sample" in text
+    assert "the positioning map and the gap must also say" in text
+    assert "desk survey from public sources" in text
