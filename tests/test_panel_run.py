@@ -287,3 +287,18 @@ def test_rerun_asks_only_buyers_with_a_missing_or_invalid_answer(
     fake_provider.requests.clear()
     assert json.loads(panel.start_job(dealt, lambda p, j: None))["buyers"] == 0
     assert fake_provider.requests == []
+
+
+def test_buyers_are_asked_in_waves_of_ten_concurrent_calls(
+    project_root: Path, monkeypatch: pytest.MonkeyPatch, fake_provider: FakeProvider
+) -> None:
+    root = project_root / "founder"
+    root.mkdir()
+    shutil.copy(FIXTURES / "panel_customer.json", root / "customer.json")
+    shutil.copy(FIXTURES / "panel_pitch.md", root / "pitch.md")
+    panel.init(project_root, "customer.json", "pitch.md", 25, 7)
+    _setenv(monkeypatch, fake_provider)
+    fake_provider.script = lambda body, n: (200, _answer(_buyer(body)), 0.15)
+    status = _run(project_root)
+    assert (status["total"], status["done"]) == (25, 25)
+    assert fake_provider.max_active == panel.WAVE == 10

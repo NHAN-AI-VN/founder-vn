@@ -14,6 +14,7 @@ import re
 import time
 import uuid
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,7 @@ from founder_vn import files, llm
 
 PANEL_DIR = "panel"
 JOBS_DIR = "jobs"
+WAVE = 10
 ATTEMPTS = 3
 MAX_INVALID = 2
 BACKOFF = 2.0
@@ -629,11 +631,19 @@ def execute(
     config = llm.load_config()
     meta = _read_json(project, _path("panel.json"))
     cards = {c["id"]: c for c in _load_cards(project)}
-    for pid in job["targets"]:
-        outcome, error = _ask(project, config, cards[pid], meta["pitch"], timeout, backoff)
-        job[outcome].append(pid)
-        if error:
-            job["last_error"] = error
-        files.write_text(project, _job_path(job_id), _dump(job))
+    targets = job["targets"]
+    for start in range(0, len(targets), WAVE):
+        wave = targets[start : start + WAVE]
+        with ThreadPoolExecutor(max_workers=WAVE) as pool:
+            futures = {
+                pool.submit(_ask, project, config, cards[pid], meta["pitch"], timeout, backoff): pid
+                for pid in wave
+            }
+            for future in as_completed(futures):
+                outcome, error = future.result()
+                job[outcome].append(futures[future])
+                if error:
+                    job["last_error"] = error
+                files.write_text(project, _job_path(job_id), _dump(job))
     job["state"] = "done"
     files.write_text(project, _job_path(job_id), _dump(job))
