@@ -32,7 +32,7 @@ Every test runs against the fake provider on 127.0.0.1; no network, no real mode
 - Counts: `failed` is a buyer whose call kept failing (timeout, 5xx, connection) after 3 attempts with backoff 2 s then 4 s; `excluded` is a buyer whose reply was invalid twice (the reply is asked for twice, each with the same retry rules). Neither writes an answer file; a rerun asks both again because their answer is missing.
 - Prompt hash: SHA-256 of the brief template, the dealt personas JSON and the pitch, recorded once per panel in `panel.json` (with `mode: model` and `model`) at job start; `tally` already propagates these to `results.json`.
 - Per-call timeout 90 s (`llm.TIMEOUT`). The wave is a barrier: the next 10 start when all of the previous 10 have settled.
-- The CLI and MCP tool names `panel_run` and `job_status` follow the ticket; the design text says `panel_status`, the ticket wins and the design line is left for the operator.
+- The CLI and MCP tool names `panel_run` and `job_status` follow the ticket; the design text said `panel_status`. Review Standards round 1 raised this as S1 (a design decision, not the lane's); the operator kept `job_status` and fixed design §2 in the same change (Q50, `reviews/issue-11/operator-answer.md`). Code unchanged.
 
 ## Cổng ba đoạn
 
