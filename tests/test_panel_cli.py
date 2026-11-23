@@ -131,3 +131,31 @@ def test_empty_or_missing_pitch_and_bad_n_are_errors(
     assert "pitch.md" in capsys.readouterr().err
     assert main(["panel", "init", "--n", "0", "--seed", "7"]) == 2
     assert "'--n'" in capsys.readouterr().err
+
+
+def test_init_writes_only_panel_json_and_personas_under_founder_panel(
+    founder: Path, run_cli: RunCli
+) -> None:
+    run = run_cli("panel", "init", "--n", "7", "--seed", "7")
+    assert sorted(run.files) == [
+        "customer.json",
+        "panel/panel.json",
+        "panel/personas.json",
+        "pitch.md",
+    ]
+    panel = json.loads(run.files["panel/panel.json"])
+    assert (panel["n"], panel["seed"]) == (7, 7)
+    assert panel["pitch"] == (FIXTURES / "panel_pitch.md").read_text(encoding="utf-8").strip()
+    assert panel["customer"] == json.loads(run.files["customer.json"])
+    assert run.stdout == "Đã chia 7 người mua (seed 7) vào founder/panel/\n"
+
+
+def test_customer_outside_founder_is_refused(
+    founder: Path, project_root: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from founder_vn.cli import main
+
+    shutil.copy(FIXTURES / "panel_customer.json", project_root / "customer.json")
+    assert main(["panel", "init", "--customer", "../customer.json", "--seed", "7"]) == 2
+    assert "path refused" in capsys.readouterr().err
+    assert not (founder / "panel").exists()
