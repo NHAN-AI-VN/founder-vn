@@ -6,6 +6,7 @@ the answer files the buyers wrote. State lives under ``founder/panel/`` and goes
 ``founder_vn.files`` only.
 """
 
+import hashlib
 import json
 import math
 import random
@@ -40,6 +41,26 @@ PRICE_KEYS = {
 }
 PRICING_INPUT = "pricing_input.json"
 ANSWER_FIELDS = ("id", "buys", "reason_code", "reason")
+BRIEF_TEMPLATE = """Bạn là {name}, {age} tuổi, thuộc nhóm "{segment}", thu nhập khoảng {income} đồng một tháng.
+Cách bạn thường mua hàng: {behaviour}. {behaviour_how}
+Điều bạn hay e ngại khi mua: {objection}
+Thói quen của bạn: {habit}
+
+Một người bán đang giới thiệu với bạn như sau:
+
+{pitch}
+
+Hãy trả lời như chính bạn sẽ làm ngoài đời, theo thu nhập và thói quen ở trên. Không cố làm hài lòng người bán; nếu thấy không đáng thì nói không mua.
+Chỉ trả lời bằng một đối tượng JSON, không viết thêm gì, với các trường:
+- "id": "{id}"
+- "buys": true nếu bạn sẽ mua, false nếu không
+- "reason_code": một trong {reasons}
+- "reason": một hai câu tiếng Việt nói lý do, bằng giọng của bạn
+- "would_change_my_mind": nếu không mua, điều gì khiến bạn đổi ý (chuỗi, có thể để trống)
+- "purchases_first_month": nếu mua, số lần bạn sẽ mua trong tháng đầu (số)
+- "price_too_cheap", "price_cheap", "price_expensive", "price_too_expensive": bốn mức giá theo đồng, \
+rẻ đến mức bạn nghi ngờ chất lượng, rẻ và đáng mua, bắt đầu thấy đắt, đắt đến mức không mua
+"""
 
 GIVEN_NAMES = [
     "Minh Anh",
@@ -248,6 +269,35 @@ def answer_problem(answer: Any, pid: str) -> str | None:
     if answer["reason_code"] not in REASONS:
         return f"reason_code {answer['reason_code']!r} không thuộc: {', '.join(REASONS)}"
     return None
+
+
+def brief(card: dict[str, Any], pitch: str) -> str:
+    """The Vietnamese brief one simulated buyer answers, filled from the persona and the pitch."""
+    text = BRIEF_TEMPLATE
+    fields = {**card, "income": f"{card['income']:,}".replace(",", "."), "pitch": pitch}
+    fields["reasons"] = ", ".join(f'"{r}"' for r in REASONS)
+    for key, value in fields.items():
+        text = text.replace("{" + key + "}", str(value))
+    return text
+
+
+def prompt_hash(cards: list[dict[str, Any]], pitch: str) -> str:
+    """SHA-256 of the brief template, the dealt personas and the pitch."""
+    payload = "\n".join([BRIEF_TEMPLATE, _dump(cards), pitch])
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def extract_answer(reply: str, pid: str) -> tuple[dict[str, Any] | None, str | None]:
+    """The first JSON object in ``reply`` and ``None``, or ``None`` and what is wrong with it."""
+    start = reply.find("{")
+    if start < 0:
+        return None, "không có đối tượng JSON"
+    try:
+        answer, _ = json.JSONDecoder().raw_decode(reply[start:])
+    except json.JSONDecodeError as e:
+        return None, f"JSON không đọc được: {e}"
+    problem = answer_problem(answer, pid)
+    return (None, problem) if problem else (answer, None)
 
 
 def _answer_file_problem(project: Path, pid: str) -> str | None:
