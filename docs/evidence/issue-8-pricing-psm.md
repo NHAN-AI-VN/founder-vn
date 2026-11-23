@@ -13,7 +13,36 @@ Derived from the acceptance criteria (the ticket has no `## Seam` section); ever
 
 | Slice | Test | Assertion while red | Green rerun |
 |---|---|---|---|
+| parse and drop | `tests/test_pricing_cli.py::test_parses_vietnamese_formats_and_reports_dropped` | `argparse.ArgumentError: argument command: invalid choice: 'pricing'` | `uv run pytest tests/test_pricing_cli.py -q` (1 passed) |
+| Van Westendorp points | `test_van_westendorp_points_on_a_hand_checked_spread` (expected 20.000, 29.500, 39.000 worked by hand in the test comment) | `KeyError: 'points'` | same command (2 passed) |
+| thin data, report, goldens | `test_thin_data_warning_below_eight_valid_answers`, `test_report_golden`, `test_json_golden` | `assert 'Dữ liệu mỏng: chỉ có 7 câu trả lời hợp lệ' in '{...'` (JSON printed instead of a report); `FileNotFoundError: tests/golden/pricing_json.json` | same command (5 passed) |
+| `--out`, refusal, missing field | `test_out_writes_pricing_md_under_founder`, `test_out_outside_root_is_refused`, `test_missing_answers_exits_2_naming_the_field` | These passed on first run because `run` already carried `--out` from slice 1. Red witnessed by mutation: replacing `files.write_text` with a direct write made `test_out_writes_pricing_md_under_founder` fail with `assert 'Đã ghi founder/x.md\n' == 'Đã ghi founder/pricing.md\n'`; reverted, `git diff src` empty | same command (8 passed) |
+| `pricing_psm` | `tests/test_pricing_parity.py` (report, JSON, `--out`) | `Tool 'pricing_psm' failed: 'Unknown tool: pricing_psm'` (3 failed) | `uv run pytest tests/test_pricing_parity.py -q` (3 passed) |
+
+The goldens `tests/golden/pricing_report.json` and `pricing_json.json` were generated once from `pricing.run` on `tests/fixtures/pricing_input.json` (the fixture's 13 answers include 3 unreadable or non-positive ones, and 2 of 6 competitor prices are dropped) and read through before commit.
+
+## Cách tính
+
+Curves follow the usual four-question method: too cheap and bargain count answers at or above a price, getting expensive and too expensive count answers at or below it, "not cheap" is the share of bargain answers below the price, "not expensive" the share of getting-expensive answers above it. Lower bound = too cheap meets "not cheap"; upper bound = too expensive meets "not expensive"; indifference point = bargain meets getting expensive. Meeting price: first answer price where the curves are equal, else linear interpolation across the first sign change, rounded to whole đồng; absent when they never meet. A respondent row is dropped as a whole when any of its four answers is unreadable or not above zero.
+
+## Cổng ba đoạn
+
+Last code commit: `7a48901`. Each segment ran once at that HEAD; counts read from `.harness/gate-*.log`.
+
+```
+static: ruff check "All checks passed!", ruff format --check "97 files already formatted", skill-lint exit 0
+unit:   143 passed
+build:  Successfully built dist/founder_vn-0.1.0-py3-none-any.whl
+gate-segment verify: GREEN on 7a489011100c9da6a0a2099614522dfef21ce3e3
+```
 
 ## Giới hạn
 
-To be completed.
+- The design does not define the input file of the pricing slice. The lane fixed it (`answers` plus optional `competitor_prices`, see Seam); the panel job (a later ticket) must write, or a converter must produce, that shape.
+- `pricing.md` is written whole by `--out`; the lane does not merge into a file the pricing skill may also write prose to ("data section" is read as the data report the package owns).
+- The Van Westendorp points are checked against one hand-worked spread and one golden; no comparison with an external implementation.
+- Tests use no model; the real panel is not run.
+
+## Giải quyết review nội bộ
+
+Lane không tự chạy `/code-review` (steering lane-implement). Hai lượt review độc lập do harness dispatch sau khi PR mở; kết quả nằm ở `reviews/issue-8/`.
