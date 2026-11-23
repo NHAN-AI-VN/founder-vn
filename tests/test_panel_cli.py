@@ -232,3 +232,75 @@ def test_save_refuses_invalid_answers_and_leaves_no_file(
     assert main(["panel", "save", pid]) == 2
     assert message in capsys.readouterr().err
     assert not (founder / "panel" / "answers").exists()
+
+
+def _write_answers(founder: Path) -> None:
+    answers = json.loads((FIXTURES / "panel_answers.json").read_text(encoding="utf-8"))
+    for pid, answer in answers.items():
+        _answer(founder, pid, json.dumps(answer, ensure_ascii=False))
+
+
+@pytest.fixture
+def tallied(founder: Path, run_cli: RunCli) -> CliRun:
+    """Seed 7, n=7: P001-P005 answered validly, P006 broken, P007 missing."""
+    run_cli("panel", "init", "--n", "7", "--seed", "7")
+    _write_answers(founder)
+    return run_cli("panel", "tally")
+
+
+def test_tally_counts_and_results_json_keys_seed_7(tallied: CliRun) -> None:
+    assert tallied.exit_code == 0
+    assert tallied.stdout == (
+        "3 mua, 2 không mua (60%). Đã ghi founder/panel/results.md và founder/panel/results.json\n"
+    )
+    result = json.loads(tallied.files["panel/results.json"])
+    assert {
+        k: result[k] for k in ("mode", "model", "prompt_hash", "n", "answered", "excluded")
+    } == {
+        "mode": "manual",
+        "model": None,
+        "prompt_hash": None,
+        "n": 7,
+        "answered": 5,
+        "excluded": 2,
+    }
+    assert result["buys"] == 3
+    assert result["passes"] == 2
+    assert result["buy_rate"] == 0.6
+    assert result["excluded_buyers"] == [
+        {"id": "P006", "problem": "'buys' phải là true hoặc false"},
+        {"id": "P007", "problem": "chưa có câu trả lời"},
+    ]
+    assert result["flip"] == [
+        "Có thẻ tích điểm hoặc giảm giá ly đầu.",
+        "Quán mới ngon hơn rõ rệt.",
+    ]
+    assert sum(r["n"] for r in result["by_segment"]) == 5
+    assert sum(r["n"] for r in result["by_behaviour"]) == 5
+    assert sum(r["buys"] for r in result["by_behaviour"]) == 3
+    assert result["price_answers"] == 3
+
+
+def test_tally_reads_mode_model_prompt_hash_from_panel_json(founder: Path, run_cli: RunCli) -> None:
+    run_cli("panel", "init", "--n", "7", "--seed", "7")
+    panel_json = founder / "panel" / "panel.json"
+    meta = json.loads(panel_json.read_text(encoding="utf-8"))
+    meta |= {"mode": "model", "model": "mô-hình-thử", "prompt_hash": "ab12"}
+    panel_json.write_text(json.dumps(meta), encoding="utf-8")
+    _write_answers(founder)
+    result = json.loads(run_cli("panel", "tally").files["panel/results.json"])
+    assert (result["mode"], result["model"], result["prompt_hash"]) == (
+        "model",
+        "mô-hình-thử",
+        "ab12",
+    )
+
+
+def test_tally_without_valid_answers_is_an_error(
+    founder: Path, run_cli: RunCli, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from founder_vn.cli import main
+
+    run_cli("panel", "init", "--n", "3", "--seed", "7")
+    assert main(["panel", "tally"]) == 2
+    assert "chưa có câu trả lời hợp lệ" in capsys.readouterr().err

@@ -17,6 +17,27 @@ from founder_vn import files
 PANEL_DIR = "panel"
 INCOME_STEP = 100_000
 REASONS = ("price", "habit", "need", "trust", "quality", "convenience", "timing", "values", "other")
+REASON_LABELS = {
+    "price": "giá",
+    "habit": "thói quen",
+    "need": "nhu cầu",
+    "trust": "độ tin cậy",
+    "quality": "chất lượng",
+    "convenience": "tiện lợi",
+    "timing": "thời điểm",
+    "values": "giá trị cá nhân",
+    "other": "lý do khác",
+}
+THIN_GROUP = 8
+# Canonical price answers: the names the buyer brief asks for; the short names pricing reads are
+# accepted too and win when both are present.
+PRICE_KEYS = {
+    "too_cheap": "price_too_cheap",
+    "bargain": "price_cheap",
+    "getting_expensive": "price_expensive",
+    "too_expensive": "price_too_expensive",
+}
+PRICING_INPUT = "pricing_input.json"
 ANSWER_FIELDS = ("id", "buys", "reason_code", "reason")
 
 GIVEN_NAMES = [
@@ -270,3 +291,168 @@ def save(project: Path, pid: str, reply: str) -> str:
     target = _path("answers", f"{pid}.json")
     files.write_text(project, target, _dump(answer))
     return f"Đã lưu founder/{target}\n"
+
+
+def _group(rows: list[dict[str, Any]], key: str) -> list[dict[str, Any]]:
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        groups.setdefault(row[key], []).append(row)
+    out = [
+        {
+            "name": name,
+            "n": len(members),
+            "buys": sum(1 for m in members if m["buys"]),
+            "buy_rate": sum(1 for m in members if m["buys"]) / len(members),
+        }
+        for name, members in groups.items()
+    ]
+    return sorted(out, key=lambda g: (-g["buy_rate"], g["name"]))
+
+
+def _reasons(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        groups.setdefault(row["reason_code"], []).append(row)
+    out = [
+        {
+            "reason_code": code,
+            "n": len(members),
+            "quotes": [{"id": m["id"], "text": m["reason"]} for m in members[:2]],
+        }
+        for code, members in groups.items()
+    ]
+    return sorted(out, key=lambda r: (-r["n"], r["reason_code"]))
+
+
+def _price_row(row: dict[str, Any]) -> dict[str, Any] | None:
+    picked = {q: row.get(q, row.get(long)) for q, long in PRICE_KEYS.items()}
+    return picked if all(v is not None for v in picked.values()) else None
+
+
+def _number(value: Any) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return float(value)
+
+
+def tally(project: Path) -> dict[str, Any]:
+    """Count the valid answers; ``excluded`` buyers have a missing or broken answer."""
+    meta = _read_json(project, _path("panel.json"))
+    rows: list[dict[str, Any]] = []
+    excluded: list[dict[str, str]] = []
+    for card in _load_cards(project):
+        problem = _answer_file_problem(project, card["id"])
+        if problem:
+            excluded.append({"id": card["id"], "problem": problem})
+            continue
+        answer = _read_json(project, _path("answers", f"{card['id']}.json"))
+        rows.append({**card, **answer})
+    if not rows:
+        raise PanelError("chưa có câu trả lời hợp lệ nào: cho từng người mua trả lời trước")
+    buyers = [r for r in rows if r["buys"]]
+    passers = [r for r in rows if not r["buys"]]
+    monthly = [v for r in buyers if (v := _number(r.get("purchases_first_month"))) is not None]
+    prices = [p for r in rows if (p := _price_row(r)) is not None]
+    return {
+        "mode": meta.get("mode", "manual"),
+        "model": meta.get("model"),
+        "prompt_hash": meta.get("prompt_hash"),
+        "business": meta["customer"]["business"],
+        "seed": meta["seed"],
+        "n": len(rows) + len(excluded),
+        "answered": len(rows),
+        "excluded": len(excluded),
+        "excluded_buyers": excluded,
+        "buys": len(buyers),
+        "passes": len(passers),
+        "buy_rate": len(buyers) / len(rows),
+        "by_segment": _group(rows, "segment"),
+        "by_behaviour": _group(rows, "behaviour"),
+        "why_not": _reasons(passers),
+        "why_yes": _reasons(buyers),
+        "flip": [
+            r["would_change_my_mind"].strip()
+            for r in passers
+            if isinstance(r.get("would_change_my_mind"), str) and r["would_change_my_mind"].strip()
+        ],
+        "purchases_first_month_per_buyer": sum(monthly) / len(monthly) if monthly else None,
+        "price_answers": len(prices),
+        "price_rows": prices,
+    }
+
+
+def _pct(value: float) -> str:
+    return f"{value * 100:.0f}%"
+
+
+def _quotes(reasons: list[dict[str, Any]]) -> list[str]:
+    return [
+        f"| {REASON_LABELS[r['reason_code']]} | {r['n']} | "
+        + " · ".join(f'"{q["text"].replace("|", "/")}" ({q["id"]})' for q in r["quotes"])
+        + " |"
+        for r in reasons
+    ]
+
+
+def results_md(res: dict[str, Any]) -> str:
+    """The Vietnamese results report, counted from the answers only."""
+    lines = [
+        f"# Panel người mua: {res['business']}",
+        "",
+        f"**{res['buys']} mua, {res['passes']} không mua** ({_pct(res['buy_rate'])} mua) trên "
+        f"{res['answered']} người mua mô phỏng. Seed {res['seed']}, chia lại sẽ ra đúng các thẻ này.",
+        "",
+        f"Tín hiệu cầu (mô phỏng, cận trên): {_pct(res['buy_rate'])} người mua mô phỏng nói sẽ mua.",
+        "",
+        f"Chế độ chạy: {res['mode']}; mô hình: {res['model'] or 'không có'}.",
+    ]
+    if res["excluded"]:
+        left = ", ".join(f"{e['id']} ({e['problem']})" for e in res["excluded_buyers"][:10])
+        lines += [
+            "",
+            f"{res['excluded']} trên {res['n']} người mua không có câu trả lời hợp lệ nên bị loại: "
+            f"{left}.",
+        ]
+    lines += [
+        "",
+        "Panel là mô phỏng, không phải khách hàng thật. Dùng nó để tìm ra các phản đối và điểm "
+        "yếu, rồi xác nhận điều quan trọng với khách thật (bán trước, danh sách chờ, trang giới "
+        "thiệu có ghi giá) trước khi anh/chị chi tiền. Kết quả này không quyết định việc lãi hay lỗ.",
+    ]
+    for title, key in (("Theo nhóm khách", "by_segment"), ("Theo cách mua", "by_behaviour")):
+        lines += ["", f"## {title}", "", "| nhóm | số người | tỷ lệ mua |", "| --- | ---: | ---: |"]
+        for g in res[key]:
+            thin = "  (mỏng)" if g["n"] < THIN_GROUP else ""
+            lines.append(f"| {g['name']} | {g['n']} | {_pct(g['buy_rate'])}{thin} |")
+    header = ["", "| lý do | số người | nguyên văn |", "| --- | ---: | --- |"]
+    lines += ["", "## Vì sao không mua", *header, *_quotes(res["why_not"])]
+    lines += ["", "## Vì sao mua", *header, *_quotes(res["why_yes"])]
+    if res["flip"]:
+        lines += ["", "## Điều gì có thể đổi một lời từ chối", ""]
+        lines += [f"- {text}" for text in res["flip"][:12]]
+    per_buyer = res["purchases_first_month_per_buyer"]
+    if per_buyer is not None:
+        times = f"{per_buyer:.1f}".replace(".", ",")
+        lines += ["", f"Người mua nói sẽ mua trung bình **{times} lần** trong tháng đầu."]
+    if res["price_answers"]:
+        lines += [
+            "",
+            f"{res['price_answers']} người trả lời đủ bốn câu hỏi về giá, đã gom vào "
+            f"founder/{_path(PRICING_INPUT)}. Chạy `founder-vn pricing {_path(PRICING_INPUT)}`.",
+        ]
+    return "\n".join(lines) + "\n"
+
+
+def run_tally(project: Path) -> str:
+    """Write ``results.md``, ``results.json`` and ``pricing_input.json``; return the stdout text."""
+    res = tally(project)
+    files.write_text(project, _path("results.md"), results_md(res))
+    price_rows = res.pop("price_rows")
+    files.write_text(project, _path("results.json"), _dump(res))
+    files.write_text(
+        project, _path(PRICING_INPUT), _dump({"business": res["business"], "answers": price_rows})
+    )
+    return (
+        f"{res['buys']} mua, {res['passes']} không mua ({_pct(res['buy_rate'])}). "
+        f"Đã ghi founder/{_path('results.md')} và founder/{_path('results.json')}\n"
+    )

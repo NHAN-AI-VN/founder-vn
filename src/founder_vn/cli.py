@@ -35,6 +35,7 @@ def build_parser() -> argparse.ArgumentParser:
     panel_sub.add_parser("check", help="list buyers whose answer is missing or broken")
     save_parser = panel_sub.add_parser("save", help="file a buyer's printed reply (stdin)")
     save_parser.add_argument("id", help="buyer id, e.g. P003")
+    panel_sub.add_parser("tally", help="count the answers into results.md and results.json")
     install_parser = sub.add_parser(
         "install", help="copy skills into a host and print its MCP setup"
     )
@@ -78,6 +79,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                 text, code = panel.check(Path.cwd())
                 sys.stdout.write(text)
                 return code
+            elif args.panel_command == "tally":
+                sys.stdout.write(panel.run_tally(Path.cwd()))
             else:
                 sys.stdout.write(panel.save(Path.cwd(), args.id, sys.stdin.read()))
         except (panel.PanelError, files.PathRefused) as e:
