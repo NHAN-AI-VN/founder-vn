@@ -1,0 +1,25 @@
+{
+  "business": "Quán cà phê Mẫu (ví dụ tổng hợp, không phải số liệu thật)",
+  "target": "Nhân viên văn phòng 24 đến 38 tuổi, uống cà phê 4 lần một tuần trở lên",
+  "where": "Quận 1, thành phố Hồ Chí Minh",
+  "age": [24, 38],
+  "segments": [
+    {"name": "Nhân viên mới đi làm", "share": 0.5, "income": [8000000, 15000000]},
+    {"name": "Nhân viên lâu năm", "share": 0.3, "income": [15000000, 30000000]},
+    {"name": "Thu nhập cao", "share": 0.2, "income": [30000000, 60000000]}
+  ],
+  "behaviours": [
+    {"name": "Quen quán", "share": 0.5, "how": "Mua cùng một món ở cùng một quán gần như mỗi sáng."},
+    {"name": "Mua theo hội nhóm", "share": 0.3, "how": "Đi cùng đồng nghiệp, gọi theo nhóm."},
+    {"name": "Săn voucher app", "share": 0.2, "how": "Chờ mã giảm giá trên app rồi mới đặt."}
+  ],
+  "objections": [
+    "Giá hơi cao so với quán quen",
+    "Quán quen của tôi gần hơn",
+    "Không biết có ngon không"
+  ],
+  "habits": [
+    "đi bộ qua đường Nguyễn Huệ trước giờ làm",
+    "làm việc ở nhà ba ngày một tuần"
+  ]
+}
