@@ -26,7 +26,6 @@ def build_parser() -> argparse.ArgumentParser:
     install_parser.add_argument(
         "--print-only", action="store_true", help="show the plan and snippet without writing"
     )
-    install_parser.add_argument("--skills-dir", help="skills source folder (default: packaged)")
     return parser
 
 
@@ -47,9 +46,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 2
         return 0
     if args.command == "install":
-        skills_dir = Path(args.skills_dir) if args.skills_dir else None
         try:
-            text = install.run(Path.cwd(), args.host, args.print_only, skills_dir)
+            text = install.run(Path.cwd(), args.host, args.print_only)
         except install.InstallRefused as e:
             print(f"lỗi: {e}", file=sys.stderr)
             return 2

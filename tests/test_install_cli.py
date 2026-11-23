@@ -10,6 +10,14 @@ from founder_vn import install
 
 SRC = Path(__file__).parent / "fixtures" / "skills_src"
 RunCli = Callable[..., CliRun]
+
+
+@pytest.fixture(autouse=True)
+def synthetic_package_skills(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The CLI has no source flag; point the packaged-skills lookup at the synthetic fixture."""
+    monkeypatch.setattr(install, "packaged_skills_dir", lambda: SRC)
+
+
 Golden = Callable[[str, CliRun], None]
 
 
@@ -17,7 +25,7 @@ Golden = Callable[[str, CliRun], None]
 def test_print_only_golden(
     host: str, project_root: Path, run_cli: RunCli, assert_golden: Golden
 ) -> None:
-    run = run_cli("install", "--host", host, "--print-only", "--skills-dir", str(SRC))
+    run = run_cli("install", "--host", host, "--print-only")
     assert run.exit_code == 0
     assert "$" not in run.stdout
     assert str(SRC) not in run.stdout
@@ -26,12 +34,12 @@ def test_print_only_golden(
 
 
 def test_codex_snippet_carries_the_timeout_note(run_cli: RunCli) -> None:
-    run = run_cli("install", "--host", "codex", "--print-only", "--skills-dir", str(SRC))
+    run = run_cli("install", "--host", "codex", "--print-only")
     assert "60 seconds" in run.stdout and "tool_timeout_sec" in run.stdout
 
 
 def test_kirocrew_snippet_names_dashboard_and_trust(run_cli: RunCli) -> None:
-    run = run_cli("install", "--host", "kirocrew", "--print-only", "--skills-dir", str(SRC))
+    run = run_cli("install", "--host", "kirocrew", "--print-only")
     assert "dashboard" in run.stdout and "Trust the project" in run.stdout
 
 
@@ -55,4 +63,4 @@ def test_cli_refusal_exits_2(
     (project_root / ".kiro" / "skills").symlink_to(
         tmp_path_factory.mktemp("out"), target_is_directory=True
     )
-    assert run_cli("install", "--host", "kiro", "--skills-dir", str(SRC)).exit_code == 2
+    assert run_cli("install", "--host", "kiro").exit_code == 2
