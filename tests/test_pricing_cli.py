@@ -90,6 +90,8 @@ def test_report_golden(prices: Path, run_cli: RunCli, assert_golden: Golden) -> 
     assert "$" not in run.stdout
     assert "anh/chị" in run.stdout
     assert "panel mô phỏng" in run.stdout
+    assert "mô phỏng, cận trên" in run.stdout
+    assert "không phải tư vấn tài chính hay định giá" in run.stdout
     assert_golden("pricing_report", run)
 
 

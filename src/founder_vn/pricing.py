@@ -193,6 +193,11 @@ def report(a: dict[str, Any]) -> str:
         "",
         "Các câu trả lời đến từ panel mô phỏng hoặc khảo sát nhỏ, không thay cho khách thật. "
         "Đây là khoảng giá để anh/chị thử ngoài thực tế, không phải giá chắc chắn bán được.",
+        "",
+        "Kết quả mô phỏng, cận trên: người mua mô phỏng thường nói giá cao hơn mức khách thật "
+        "chịu trả.",
+        "",
+        "Báo cáo này không phải tư vấn tài chính hay định giá; quyết định giá bán là của anh/chị.",
     ]
     return "\n".join(lines) + "\n"
 
