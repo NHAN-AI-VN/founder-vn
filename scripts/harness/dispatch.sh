@@ -93,8 +93,10 @@ for n in $(jq -r '.[] | select(any(.labels[]; . == "kiro")) | .number' <<< "$iss
   alloc_last=$(jq -r '[.[] | select(.body | contains("<!-- harness:allocation -->")) | .created_at] | last // ""' <<< "$comments")
   ack=$(jq -r --arg a "$alloc_last" '[.[] | select(.login == "kiro-agent[bot]" and .created_at > $a) | .created_at] | first // ""' <<< "$comments")
   # D38: Kiro's first reply can be an error ("Something went wrong while processing your request.
-  # Please try again.") that opens no session; the dispatcher re-posts at once.
-  ack_error=$(jq -r --arg a "$alloc_last" '[.[] | select(.login == "kiro-agent[bot]" and .created_at > $a) | .body] | first // "" | test("Something went wrong")' <<< "$comments")
+  # Please try again.") that opens no session; the dispatcher re-posts at once. FV-D17 adds the
+  # session limit ("You've reached your session limit. Please wait for an existing session to
+  # finish, then mention /kiro again.", lane #9, 2026-11-23): same pattern as review-turns.jq.
+  ack_error=$(jq -r --arg a "$alloc_last" '[.[] | select(.login == "kiro-agent[bot]" and .created_at > $a) | .body] | first // "" | test("Something went wrong|session limit"; "i")' <<< "$comments")
   labeled=$(gh api "repos/$repo/issues/$n/timeline?per_page=100" --paginate \
     --jq '[.[] | select(.event == "labeled" and .label.name == "kiro") | .created_at] | last // ""' | grep -v '^$' | tail -1 || true)
   # gh prints the 404 body on stdout, so the assignment is guarded by the exit code, not the output.

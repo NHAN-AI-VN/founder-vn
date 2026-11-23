@@ -73,7 +73,8 @@ jobs:
     # leaves the body without `Closes #` is not a lane pull request yet.
     if: "(github.event_name != 'pull_request' || github.event.action != 'labeled' || github.event.label.name == 'harness:auto-merge') && (github.event_name != 'pull_request' || github.event.action == 'labeled' || contains(github.event.pull_request.body, 'Closes #'))"
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Up to twelve minutes of waiting on a refused turn (FV-D17), then the merger and dispatcher.
+    timeout-minutes: 20
     env:
       GH_TOKEN: ${{ github.token }}
       HARNESS_DISPATCH_TOKEN: ${{ secrets.HARNESS_DISPATCH_TOKEN }}
@@ -128,6 +129,7 @@ jobs:
             extra=yes
           fi
           for n in ${{ steps.prs.outputs.list }}; do
+            export HARNESS_DECISION_FILE="$RUNNER_TEMP/review-decision-$n.json"
             if [ -n "$extra" ]; then
               t=$(gh pr view "$n" --repo "$GITHUB_REPOSITORY" --json body --jq '.body' | grep -o -i -E 'closes[[:space:]]+#[0-9]+' | head -1 | grep -o -E '[0-9]+' || true)
               [ -z "$t" ] || gh api --method DELETE "repos/$GITHUB_REPOSITORY/issues/$t/labels/harness:blocked" >/dev/null 2>&1 || true
@@ -136,6 +138,22 @@ jobs:
             else
               bash scripts/harness/review-web.sh --pr "$n" --repo "$GITHUB_REPOSITORY" $apply
             fi
+            # FV-D17, as in the Gate tail (gate.yml): after a post, read Kiro's reply a minute later;
+            # a refused turn (session limit, error reply) is posted again from here once
+            # refused_minutes have passed, up to twelve minutes, instead of waiting for the next
+            # sweep. A dry run posts nothing, so it has nothing to wait for.
+            [ -n "$apply" ] || continue
+            for i in $(seq 1 12); do
+              if jq -e '.action == "post" or .action == "address" or .action == "sync"' "$HARNESS_DECISION_FILE" >/dev/null 2>&1; then
+                echo "turn posted on #$n: reading Kiro's reply in 60 s (minute $i of 12)"
+              elif jq -e '.action == "wait" and (.reasons | any(test("refused")))' "$HARNESS_DECISION_FILE" >/dev/null 2>&1; then
+                echo "turn refused on #$n (minute $i of 12): deciding again in 60 s"
+              else
+                break
+              fi
+              sleep 60
+              bash scripts/harness/review-web.sh --pr "$n" --repo "$GITHUB_REPOSITORY" $apply
+            done
           done
       - name: Decide and merge (C5)
         run: |

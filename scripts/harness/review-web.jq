@@ -17,9 +17,13 @@
 #                                                 as GitHub reports it (D25; absent: unknown)
 #     gate: { required, status, conclusion },  -- latest executed Gate run at HEAD (status null: none)
 #     reports: { standards: { current, signal }, spec: { current, signal } },
-#     turns: [ { axis, code, round, at } ],    -- /kiro comments already posted, oldest first
+#     turns: [ { axis, code, round, at, refused } ],
+#                                              -- /kiro comments already posted, oldest first;
+#                                                 refused = Kiro answered that comment with its
+#                                                 session limit or its error reply, so no session
+#                                                 exists (review-turns.jq, FV-D17)
 #     now: "RFC 3339 UTC",
-#     limits: { rounds, attempts, turns, stale_minutes, quiet_minutes } }
+#     limits: { rounds, attempts, turns, stale_minutes, quiet_minutes, refused_minutes, refusals } }
 #
 # Output
 #   { action: "off" | "wait" | "post" | "done" | "address" | "sync" | "blocked" | "exhausted" | "stalled",
@@ -35,7 +39,9 @@
 #             or the last turn was an address/sync turn and HEAD moved less than quiet_minutes ago
 #             (D41: the fix session pushes several commits minutes apart; a docs-only push ends
 #             its Gate in under a minute, and a round posted on an intermediate commit is posted
-#             again on the next one, lane #247 round 4 on 2026-09-12)
+#             again on the next one, lane #247 round 4 on 2026-09-12), or Kiro refused the last
+#             post of a turn less than refused_minutes ago (FV-D17: the reason says "refused", and
+#             the Gate tail keeps deciding until the turn is posted again)
 #   blocked   an axis answered BLOCKED: the ticket goes to harness:blocked
 #   exhausted the address rounds or the turn cap are spent with findings still open; a round is
 #             one distinct code commit an address turn was posted for (a turn re-posted for the
@@ -43,7 +49,8 @@
 #             less than quiet_minutes ago waits instead (the session may still be pushing)
 #   off       the switch is off, or the ticket is parked with harness:blocked: an operator commit
 #             and the label removed resume the review (D30)
-#   stalled   a turn was posted `attempts` times for this code and nothing came back
+#   stalled   a turn was posted `attempts` times for this code and nothing came back, or Kiro
+#             refused it `refusals` times (FV-D17)
 #
 # Signals are read fail-closed: PASS approves, BLOCKED parks, anything else asks for changes.
 
@@ -57,13 +64,16 @@ def verdict($r):
 
 def minutes_since($in; $t): (($in.now | fromdate) - ($t | fromdate)) / 60;
 
-def address_rounds($in): [ $in.turns[] | select(.axis == "address") | .code ] | unique | length;
+# A refused post (FV-D17) opened no session and did no work: it counts toward neither the
+# address rounds nor the turn cap, so the post that replaces it carries the same round number.
+def served_turns($in): [ $in.turns[] | select((.refused // false) | not) ];
+def address_rounds($in): [ served_turns($in)[] | select(.axis == "address") | .code ] | unique | length;
 
 # D33: the turn cap counts distinct (axis, round) pairs: a turn re-posted for the same round (a
 # stale re-post, D30; the pair posted for two commits thirty seconds apart, M-46, lane #334) is
 # the same work; and a lane that already reads PASS/PASS at HEAD has nothing left to cap.
 def axis_round: "\(.axis)/\(.round // 0)";
-def turn_rounds($in): [ $in.turns[] | axis_round ] | unique | length;
+def turn_rounds($in): [ served_turns($in)[] | axis_round ] | unique | length;
 def done_at_head($in):
   ($in.reports.standards.current // false) and ($in.reports.spec.current // false)
   and verdict($in.reports.standards) == "pass" and verdict($in.reports.spec) == "pass";
@@ -84,13 +94,37 @@ def spent($in; $why):
     { action: "exhausted", axes: [], round: address_rounds($in), reasons: [$why] }
   end;
 
-# One axis (or the address turn) that has no fresh result yet is in one of three states.
+# One axis (or the address turn) that has no fresh result yet is in one of four states.
+# FV-D17: a turn Kiro refused (its session limit or its error reply, review-turns.jq) opened no
+# session, so it is never pending: it reads "refused" until refused_minutes have passed since the
+# post, then "post" again. Refused posts do not count toward `attempts` (that cap is for a session
+# that started and went silent), and `refusals` caps how many posts Kiro may refuse for one code
+# before the turn reads as stalled and the lane is parked.
+def turns_of($in; $axis): [ $in.turns[] | select(.axis == $axis and .code == $in.lane.code) ];
+def refused_minutes($in): ($in.limits.refused_minutes // 5);
 def attempt_state($in; $axis):
-  [ $in.turns[] | select(.axis == $axis and .code == $in.lane.code) ] as $t
+  turns_of($in; $axis) as $t
+  | [ $t[] | select(.refused // false) ] as $refused
+  | [ $t[] | select((.refused // false) | not) ] as $served
   | if ($t | length) == 0 then "post"
+    elif ($t[-1].refused // false) then
+      if minutes_since($in; $t[-1].at) < refused_minutes($in) then "refused"
+      elif ($refused | length) >= ($in.limits.refusals // 6) then "stalled"
+      else "post" end
     elif minutes_since($in; $t[-1].at) < $in.limits.stale_minutes then "pending"
-    elif ($t | length) >= $in.limits.attempts then "stalled"
+    elif ($served | length) >= $in.limits.attempts then "stalled"
     else "post" end;
+
+# The reasons the states above are reported with. "refused" is load-bearing: the Gate tail keeps
+# deciding while a reason carries it (gate.yml, FV-D17), as it does for "settling" (FV-D15).
+def waiting($in; $axis; $state):
+  if $state == "refused" then
+    "\($axis) turn refused by Kiro at \($in.lane.code[0:12]) (session limit or error reply, \((refused_minutes($in) - (minutes_since($in; (turns_of($in; $axis) | last).at) | floor)) | tostring) min before it is posted again)"
+  else "\($axis) turn pending at \($in.lane.code[0:12])" end;
+def stalled_reason($in; $axis):
+  (turns_of($in; $axis) | last) as $t
+  | if ($t.refused // false) then "Kiro refused \([ turns_of($in; $axis)[] | select(.refused // false) ] | length) posts of the \($axis) turn at \($in.lane.code[0:12]) (session limit or error reply)"
+    else "no \(if $axis == "address" then "commit" elif $axis == "sync" then "push" else "\($axis) report" end) after \($in.limits.attempts) \($axis) turns at \($in.lane.code[0:12])" end;
 
 def decision:
   . as $in
@@ -106,11 +140,11 @@ def decision:
       # #338 merged, 2026-09-11), so the gate branch below would wait forever: the sync turn goes
       # first, on the address issue, and is retried like any other turn.
       attempt_state($in; "sync") as $s
-      | if $s == "pending" then
-          { action: "wait", axes: ["sync"], round: address_rounds($in), reasons: ["sync turn pending at \($code)"] }
+      | if $s == "pending" or $s == "refused" then
+          { action: "wait", axes: ["sync"], round: address_rounds($in), reasons: [waiting($in; "sync"; $s)] }
         elif $s == "stalled" then
           { action: "stalled", axes: ["sync"], round: address_rounds($in),
-            reasons: ["no push after \($in.limits.attempts) sync turns at \($code)"] }
+            reasons: [stalled_reason($in; "sync")] }
         else
           { action: "sync", axes: ["sync"], round: address_rounds($in),
             reasons: ["pull request conflicts with its target branch: no Gate runs until the lane carries the target"] }
@@ -127,16 +161,16 @@ def decision:
         { action: "wait", axes: [], round: address_rounds($in),
           reasons: ["Gate at HEAD concluded \($in.gate.conclusion): a rerun or the next push continues"] }
       else
-        [ axes[] | . as $a | select(((($in.reports[$a].current // false) | not) and attempt_state($in; $a) == "pending")) ] as $pending
+        [ axes[] | . as $a | select(((($in.reports[$a].current // false) | not) and (attempt_state($in; $a) | . == "pending" or . == "refused"))) ] as $pending
         | attempt_state($in; "address") as $s
-        | if $s == "pending" then
-            { action: "wait", axes: ["address"], round: address_rounds($in), reasons: ["address turn pending at \($code)"] }
+        | if $s == "pending" or $s == "refused" then
+            { action: "wait", axes: ["address"], round: address_rounds($in), reasons: [waiting($in; "address"; $s)] }
           elif $s == "stalled" then
             { action: "stalled", axes: ["address"], round: address_rounds($in),
-              reasons: ["no commit after \($in.limits.attempts) address turns at \($code)"] }
+              reasons: [stalled_reason($in; "address")] }
           elif ($pending | length) > 0 then
             { action: "wait", axes: $pending, round: address_rounds($in),
-              reasons: [ $pending[] | "Gate at HEAD is red; \(.) turn pending at \($code) joins the address turn" ] }
+              reasons: [ $pending[] | . as $a | "Gate at HEAD is red; \(waiting($in; $a; attempt_state($in; $a))) joins the address turn" ] }
           elif address_rounds($in) >= $in.limits.rounds then
             spent($in; "Gate at HEAD is red after \($in.limits.rounds) address rounds")
           else
@@ -150,10 +184,10 @@ def decision:
           [ $missing[] | . as $a | { axis: $a, state: attempt_state($in; $a) } ] as $states
           | [ $states[] | select(.state == "post") | .axis ] as $to_post
           | [ $states[] | select(.state == "stalled") | .axis ] as $stalled
-          | [ $states[] | select(.state == "pending") | .axis ] as $pending
+          | [ $states[] | select(.state == "pending" or .state == "refused") | .axis ] as $pending
           | if ($stalled | length) > 0 then
               { action: "stalled", axes: $stalled, round: (address_rounds($in) + 1),
-                reasons: [ $stalled[] | "no \(.) report after \($in.limits.attempts) turns at \($code)" ] }
+                reasons: [ $stalled[] | stalled_reason($in; .) ] }
             elif ($to_post | length) > 0 and after_address($in) and settling($in) then
               { action: "wait", axes: $to_post, round: (address_rounds($in) + 1),
                 reasons: ["HEAD moved \(minutes_since($in; $in.lane.headAt) | floor) min ago after an address turn: settling before round \(address_rounds($in) + 1)"] }
@@ -162,7 +196,7 @@ def decision:
                 reasons: [ $to_post[] | "\(.) report missing or older than \($code)" ] }
             else
               { action: "wait", axes: $pending, round: (address_rounds($in) + 1),
-                reasons: [ $pending[] | "\(.) turn pending at \($code)" ] }
+                reasons: [ $states[] | select(.state == "pending" or .state == "refused") | waiting($in; .axis; .state) ] }
             end
         else
           [ axes[] | . as $a | verdict($in.reports[$a]) ] as $v
@@ -174,11 +208,11 @@ def decision:
               { action: "blocked", axes: $blocked, round: address_rounds($in), reasons: [ $blocked[] | "\(.) answered BLOCKED" ] }
             else
               attempt_state($in; "address") as $s
-              | if $s == "pending" then
-                  { action: "wait", axes: ["address"], round: address_rounds($in), reasons: ["address turn pending at \($code)"] }
+              | if $s == "pending" or $s == "refused" then
+                  { action: "wait", axes: ["address"], round: address_rounds($in), reasons: [waiting($in; "address"; $s)] }
                 elif $s == "stalled" then
                   { action: "stalled", axes: ["address"], round: address_rounds($in),
-                    reasons: ["no commit after \($in.limits.attempts) address turns at \($code)"] }
+                    reasons: [stalled_reason($in; "address")] }
                 elif address_rounds($in) >= $in.limits.rounds then
                   spent($in; "\($in.limits.rounds) address rounds spent, findings still open")
                 else

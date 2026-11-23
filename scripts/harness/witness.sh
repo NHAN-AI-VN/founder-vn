@@ -30,6 +30,7 @@ openpr="$here/open-lane-pr.sh"
 prbody="$here/lane-pr-body.sh"
 lanecode="$here/lane-code.sh"
 web_filter="$here/review-web.jq"
+turns_filter="$here/review-turns.jq"
 cijobs_filter="$here/ci-jobs.jq"
 turn="$here/review-web-turn.sh"
 prompts="$root/.kiro/prompts"
@@ -360,17 +361,32 @@ expect_lanecode() {
 }
 
 # ---- review orchestrator (C4) helpers --------------------------------------------------------
-# expect_web <fixture> <expected-action> [<expected-axes-json>]: the review orchestrator's step
+# expect_web <fixture> <expected-action> [<expected-axes-json>] [<reason-substring>]: the review
+# orchestrator's step; the fourth argument requires one reason to contain the text (the Gate tail
+# keys its wait loop on the words "settling" and "refused", FV-D15/FV-D17).
 expect_web() {
   skip WEB_FILTER && return 0
-  local fixture=$1 want=$2 want_axes=${3:-} got got_axes
+  local fixture=$1 want=$2 want_axes=${3:-} want_reason=${4:-} got got_axes
   got=$(jq -r -f "${WEB_FILTER:-$web_filter}" "$fixtures/$fixture" 2>/dev/null | jq -r '.action' 2>/dev/null || printf 'jq failed')
   if [ "$got" != "$want" ]; then fail "review-web: $fixture (want $want, got $got)"; return; fi
   if [ -n "$want_axes" ]; then
     got_axes=$(jq -c -f "${WEB_FILTER:-$web_filter}" "$fixtures/$fixture" 2>/dev/null | jq -c '.axes')
     if [ "$got_axes" != "$want_axes" ]; then fail "review-web: $fixture (want axes $want_axes, got $got_axes)"; return; fi
   fi
-  ok "review-web: $fixture -> $got${want_axes:+ $want_axes}"
+  if [ -n "$want_reason" ] && ! jq -c -f "${WEB_FILTER:-$web_filter}" "$fixtures/$fixture" 2>/dev/null | jq -e --arg r "$want_reason" '.reasons | any(contains($r))' >/dev/null 2>&1; then
+    fail "review-web: $fixture (no reason contains \"$want_reason\": $(jq -c -f "${WEB_FILTER:-$web_filter}" "$fixtures/$fixture" 2>/dev/null | jq -c '.reasons'))"; return
+  fi
+  ok "review-web: $fixture -> $got${want_axes:+ $want_axes}${want_reason:+ (\"$want_reason\")}"
+}
+
+# expect_turns <fixture> <expected refused flags json>: the turns read from a review issue's
+# comments, oldest first, each flagged refused when Kiro's first reply to it was an error
+# (session limit, "Something went wrong"); a human's reply never counts (FV-D17).
+expect_turns() {
+  skip TURNS_FILTER && return 0
+  local fixture=$1 want=$2 got
+  got=$(jq -c -f "${TURNS_FILTER:-$turns_filter}" "$fixtures/$fixture" 2>/dev/null | jq -c '[ .[] | .refused ]' 2>/dev/null || printf 'jq failed')
+  if [ "$got" = "$want" ]; then ok "review-turns: $fixture -> $want"; else fail "review-turns: $fixture (want $want, got ${got:-<error>})"; fi
 }
 
 # expect_cijobs <fixture> <self> <expected line>: the job lines of the CI summary a turn message
@@ -636,6 +652,16 @@ run_cases() {
   expect_web "review-web-post-after-address-quiet.json" post '["standards","spec"]'
   expect_web "review-web-post-fresh-lane-settling.json" post '["standards","spec"]'
   expect_web "review-web-turn-cap-duplicates.json" post '["standards","spec"]'
+  # Refused turns (FV-D17): Kiro answered the `/kiro` with its session limit or its error reply, so
+  # no session exists. Nothing is pending: the turn is posted again after refused_minutes, a refused
+  # post never counts as one of the `attempts` a stalled turn needs, and `refusals` caps the retries.
+  expect_turns "review-turns-comments.json" '[true,false,false,true]'
+  expect_web "review-web-refused.json" wait '["address"]' refused
+  expect_web "review-web-refused-repost.json" address '["address"]'
+  expect_web "review-web-refused-cap.json" stalled '["address"]'
+  expect_web "review-web-refused-then-stale.json" address '["address"]'
+  expect_web "review-web-refused-cap-turns.json" address '["address"]'
+  expect_web "review-web-refused-review.json" wait '["standards","spec"]' refused
   # ---- the /kiro message of a turn ----
   expect_turn standards
   expect_turn spec
@@ -720,6 +746,8 @@ if [ "$mode" = "--witness-red" ]; then
       out=$(LANECODE="$tmp" WITNESS_ONLY=LANECODE run_cases 2>/dev/null)
     elif [ "$target" = "$web_filter" ]; then
       out=$(WEB_FILTER="$tmp" WITNESS_ONLY=WEB_FILTER run_cases 2>/dev/null)
+    elif [ "$target" = "$turns_filter" ]; then
+      out=$(TURNS_FILTER="$tmp" WITNESS_ONLY=TURNS_FILTER run_cases 2>/dev/null)
     elif [ "$target" = "$cijobs_filter" ]; then
       out=$(CIJOBS_FILTER="$tmp" WITNESS_ONLY=CIJOBS_FILTER run_cases 2>/dev/null)
     elif [ "$target" = "$turn" ]; then
@@ -833,6 +861,13 @@ if [ "$mode" = "--witness-red" ]; then
   mutate "park a finished lane at the turn cap" "$web_filter" 's#and \(done_at_head\(\$in\) \| not\)#and true#'
   mutate "count a re-posted round toward the turn cap" "$web_filter" 's#\| axis_round \] \| unique \| length#] | length#'
   mutate "post a review round while the fix session may still be pushing" "$web_filter" 's#^def after_address\(\$in\): .*#def after_address($in): false;#'
+  # ---- refused turns (FV-D17) ----
+  mutate "treat a refused turn as pending"            "$web_filter" 's#elif \(\$t\[-1\]\.refused // false\) then#elif false then#'
+  mutate "count refused posts as attempts"            "$web_filter" 's#\(\$served \| length\) >= \$in\.limits\.attempts#($t | length) >= $in.limits.attempts#'
+  mutate "post a refused turn again forever"          "$web_filter" 's#>= \(\$in\.limits\.refusals // 6\)#>= 999999#'
+  mutate "count refused posts toward the turn cap"    "$web_filter" 's#^def served_turns\(\$in\): .*#def served_turns($in): $in.turns;#'
+  mutate "read the error reply of Kiro as an acknowledgement" "$turns_filter" 's#^def error_reply: .*#def error_reply: false;#'
+  mutate "read the reply of anyone as the reply of Kiro" "$turns_filter" 's#^def is_kiro: .*#def is_kiro: true;#'
   # ---- the CI summary of a turn (FV-M-8) ----
   mutate "report the self-run job as the API shows it" "$cijobs_filter" 's#if \$self != "" and \.status != "completed" then \$self#if false then $self#'
   mutate "name no red step"                            "$cijobs_filter" 's#select\(\.conclusion == "failure"\)#select(false)#'
