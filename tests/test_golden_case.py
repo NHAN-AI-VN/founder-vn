@@ -12,6 +12,8 @@ VND = re.compile(r"\b\d{1,3}(?:\.\d{3})+ đ\b")
 PHONE = re.compile(r"\b0\d{9}\b|\+84")
 STREET_ADDRESS = re.compile(r"\b[Ss]ố \d+[A-Za-z/]*,? (?:đường|Đường|phố|Phố) ")
 
+SUB_DISTRICT_NAMES = ("Phú Mỹ Hưng",)
+
 UPSTREAM_BULLETS = (
     "- Là gì:",
     "- Cho ai:",
@@ -47,9 +49,12 @@ def test_example_is_anonymised() -> None:
         assert not PHONE.search(text), path
         assert "@" not in text, path
         assert not STREET_ADDRESS.search(text), path
+        for name in SUB_DISTRICT_NAMES:
+            assert name not in text, (path, name)
 
 
 def test_readme_names_the_example_directory_as_the_golden_case() -> None:
     text = (ROOT / "README.md").read_text(encoding="utf-8")
     assert "examples/barbershop/" in text
     assert "golden case" in text.lower()
+

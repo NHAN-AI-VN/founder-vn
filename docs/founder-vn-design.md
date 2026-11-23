@@ -278,7 +278,7 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   theo; `docs/review-round5.md` giữ nguyên vì là biên bản phản biện có ngày, không phải nguồn luật.
 - Q51 (2026-11-23, lane #5 T04, quyết định của chủ dự án) Case mẫu đổi từ F&B sang **tiệm cắt tóc nam
   kiểu barbershop** (sửa Q21 và dòng tuần 1 của §7): tiệm đầu tiên 4 ghế cắt + 2 giường gội, 55–60 m²,
-  tại khu Phú Mỹ Hưng (Quận 7 cũ), TP.HCM, đăng ký hộ kinh doanh, lấy từ nghiên cứu thị trường riêng
+  tại Quận 7 cũ, TP.HCM, đăng ký hộ kinh doanh, lấy từ nghiên cứu thị trường riêng
   của chủ dự án (concept chưa quyết mở: đúng tình huống "có nên mở, cần bao nhiêu vốn" của người dùng
   v1). Lý do: chưa chốt được quán F&B thật nào trong khi T11–T17 đứng chờ ticket này (H-7 trong
   `docs/agents/kiro-harness.md`); chủ case là chính chủ dự án nên đồng thuận công bố ẩn danh không
