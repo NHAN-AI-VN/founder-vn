@@ -8,6 +8,8 @@ from pathlib import Path
 import pytest
 from conftest import CliRun
 
+from founder_vn.cli import main
+
 FIXTURE = Path(__file__).parent / "fixtures" / "pricing_input.json"
 RunCli = Callable[..., CliRun]
 Golden = Callable[[str, CliRun], None]
@@ -95,3 +97,36 @@ def test_json_golden(prices: Path, run_cli: RunCli, assert_golden: Golden) -> No
     run = run_cli("pricing", "pricing_input.json", "--json")
     assert run.exit_code == 0
     assert_golden("pricing_json", run)
+
+
+def test_out_writes_pricing_md_under_founder(prices: Path, run_cli: RunCli) -> None:
+    run = run_cli("pricing", "pricing_input.json", "--out", "pricing.md")
+    assert run.exit_code == 0
+    assert run.stdout == "Đã ghi founder/pricing.md\n"
+    assert run.files["pricing.md"].startswith("# Độ nhạy giá (Van Westendorp)")
+
+
+def test_out_outside_root_is_refused(
+    prices: Path,
+    project_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    monkeypatch.chdir(project_root)
+    assert main(["pricing", "pricing_input.json", "--out", "../pricing.md"]) == 2
+    assert "path refused" in capsys.readouterr().err
+    assert not (project_root / "pricing.md").exists()
+
+
+def test_missing_answers_exits_2_naming_the_field(
+    project_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    (project_root / "founder").mkdir()
+    (project_root / "founder" / "empty.json").write_text("{}", encoding="utf-8")
+    monkeypatch.chdir(project_root)
+    assert main(["pricing", "empty.json"]) == 2
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == "lỗi: thiếu trường 'answers'\n"
