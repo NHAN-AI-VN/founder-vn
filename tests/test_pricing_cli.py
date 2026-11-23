@@ -59,3 +59,39 @@ def test_van_westendorp_points_on_a_hand_checked_spread(
         "getting_expensive": 34500,
         "too_expensive": 44500,
     }
+
+
+def _rows(project_root: Path, n: int) -> None:
+    answers = [
+        {"too_cheap": "10k", "bargain": "20k", "getting_expensive": "30k", "too_expensive": "40k"}
+    ] * n
+    target = project_root / "founder" / "rows.json"
+    target.parent.mkdir(exist_ok=True)
+    target.write_text(json.dumps({"answers": answers}), encoding="utf-8")
+
+
+def test_thin_data_warning_below_eight_valid_answers(project_root: Path, run_cli: RunCli) -> None:
+    _rows(project_root, 7)
+    thin = run_cli("pricing", "rows.json")
+    assert thin.exit_code == 0
+    assert "Dữ liệu mỏng: chỉ có 7 câu trả lời hợp lệ" in thin.stdout
+    assert json.loads(run_cli("pricing", "rows.json", "--json").stdout)["warnings"] == ["thin_data"]
+    _rows(project_root, 8)
+    enough = run_cli("pricing", "rows.json")
+    assert "Dữ liệu mỏng" not in enough.stdout
+    assert json.loads(run_cli("pricing", "rows.json", "--json").stdout)["warnings"] == []
+
+
+def test_report_golden(prices: Path, run_cli: RunCli, assert_golden: Golden) -> None:
+    run = run_cli("pricing", "pricing_input.json")
+    assert run.exit_code == 0
+    assert "$" not in run.stdout
+    assert "anh/chị" in run.stdout
+    assert "panel mô phỏng" in run.stdout
+    assert_golden("pricing_report", run)
+
+
+def test_json_golden(prices: Path, run_cli: RunCli, assert_golden: Golden) -> None:
+    run = run_cli("pricing", "pricing_input.json", "--json")
+    assert run.exit_code == 0
+    assert_golden("pricing_json", run)
