@@ -13,8 +13,9 @@ RunCli = Callable[..., CliRun]
 
 
 @pytest.fixture
-def founder(project_root: Path) -> Path:
-    """founder/ with the synthetic customer.json and pitch.md."""
+def founder(project_root: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """founder/ with the synthetic customer.json and pitch.md; the cwd is the project root."""
+    monkeypatch.chdir(project_root)
     root = project_root / "founder"
     root.mkdir()
     shutil.copy(FIXTURES / "panel_customer.json", root / "customer.json")
@@ -65,3 +66,68 @@ def test_same_seed_same_cards_other_seed_other_cards(
     other = _cards(run_cli("panel", "init", "--n", "20", "--seed", "8"))
     assert first == again
     assert first != other
+
+
+def _fail(founder: Path, capsys: pytest.CaptureFixture[str], change: Callable[[dict], None]) -> str:
+    """Apply ``change`` to customer.json, run `panel init`, expect exit 2; return stderr."""
+    from founder_vn.cli import main
+
+    customer = json.loads((founder / "customer.json").read_text(encoding="utf-8"))
+    change(customer)
+    (founder / "customer.json").write_text(json.dumps(customer), encoding="utf-8")
+    capsys.readouterr()
+    assert main(["panel", "init", "--n", "7", "--seed", "7"]) == 2
+    return capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    ("change", "field"),
+    [
+        pytest.param(lambda c: c.pop("business"), "business", id="business"),
+        pytest.param(lambda c: c.update(objections=[]), "objections", id="objections"),
+        pytest.param(lambda c: c["segments"][1].pop("name"), "segments[1].name", id="seg-name"),
+        pytest.param(
+            lambda c: c["segments"][1].update(income=[30000000]), "segments[1].income", id="income"
+        ),
+        pytest.param(
+            lambda c: c["segments"][0].update(income=["a", "b"]),
+            "segments[0].income",
+            id="income-nan",
+        ),
+        pytest.param(
+            lambda c: c["segments"][2].update(income=[60000000, 30000000]),
+            "segments[2].income",
+            id="income-order",
+        ),
+        pytest.param(lambda c: c["segments"][2].pop("share"), "segments[2].share", id="seg-share"),
+        pytest.param(lambda c: c["behaviours"][0].pop("name"), "behaviours[0].name", id="beh-name"),
+        pytest.param(
+            lambda c: c["behaviours"][1].update(share=-1), "behaviours[1].share", id="beh-share"
+        ),
+        pytest.param(lambda c: c.pop("age"), "age", id="age"),
+    ],
+)
+def test_customer_error_names_the_field(
+    founder: Path,
+    capsys: pytest.CaptureFixture[str],
+    change: Callable[[dict], None],
+    field: str,
+) -> None:
+    err = _fail(founder, capsys, change)
+    assert err.startswith("lỗi: ")
+    assert f"'{field}'" in err
+
+
+def test_empty_or_missing_pitch_and_bad_n_are_errors(
+    founder: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from founder_vn.cli import main
+
+    (founder / "pitch.md").write_text("  \n", encoding="utf-8")
+    assert main(["panel", "init", "--seed", "7"]) == 2
+    assert "pitch.md" in capsys.readouterr().err
+    (founder / "pitch.md").unlink()
+    assert main(["panel", "init", "--seed", "7"]) == 2
+    assert "pitch.md" in capsys.readouterr().err
+    assert main(["panel", "init", "--n", "0", "--seed", "7"]) == 2
+    assert "'--n'" in capsys.readouterr().err

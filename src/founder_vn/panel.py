@@ -16,7 +16,6 @@ from founder_vn import files
 
 PANEL_DIR = "panel"
 INCOME_STEP = 100_000
-DEFAULT_AGE = (25, 45)
 
 GIVEN_NAMES = [
     "Minh Anh",
@@ -81,10 +80,57 @@ def _quota(items: list[dict[str, Any]], n: int) -> list[int]:
     return counts
 
 
+def _is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _pair(value: Any, field: str) -> None:
+    ok = isinstance(value, list) and len(value) == 2 and all(_is_number(v) for v in value)
+    if not ok:
+        raise PanelError(f"'{field}' phải là [thấp, cao], hai số")
+    if value[0] > value[1] or value[0] <= 0:
+        raise PanelError(f"'{field}' phải lớn hơn 0 và thấp không vượt cao")
+
+
+def _weighted(items: Any, group: str) -> None:
+    if not isinstance(items, list) or not items:
+        raise PanelError(f"customer.json thiếu trường '{group}'")
+    for i, item in enumerate(items):
+        where = f"{group}[{i}]"
+        if not isinstance(item, dict) or not str(item.get("name", "")).strip():
+            raise PanelError(f"thiếu trường '{where}.name'")
+        share = item.get("share")
+        if not _is_number(share) or share <= 0:
+            raise PanelError(f"'{where}.share' phải là số lớn hơn 0")
+
+
+def validate_customer(customer: Any) -> None:
+    """Raise ``PanelError`` naming the first offending field of ``customer.json``."""
+    if not isinstance(customer, dict):
+        raise PanelError("customer.json phải là một đối tượng JSON")
+    for key in ("business", "target"):
+        if not str(customer.get(key, "")).strip():
+            raise PanelError(f"customer.json thiếu trường '{key}'")
+    _weighted(customer.get("segments"), "segments")
+    _weighted(customer.get("behaviours"), "behaviours")
+    for i, segment in enumerate(customer["segments"]):
+        field = f"segments[{i}].income"
+        _pair(segment.get("income"), field)
+        low, high = segment["income"]
+        if math.floor(high / INCOME_STEP) < math.ceil(low / INCOME_STEP):
+            raise PanelError(f"'{field}' không chứa mức nào chia hết cho 100.000 đ")
+    _pair(customer.get("age"), "age")
+    objections = customer.get("objections")
+    if not isinstance(objections, list) or not objections:
+        raise PanelError("customer.json thiếu trường 'objections'")
+    if not all(isinstance(o, str) and o.strip() for o in objections):
+        raise PanelError("'objections' chỉ gồm các câu không rỗng")
+
+
 def deal(customer: dict[str, Any], n: int, seed: int) -> list[dict[str, Any]]:
     """Deal ``n`` persona cards. Same customer, ``n`` and ``seed`` give the same cards."""
     rng = random.Random(seed)
-    low_age, high_age = customer.get("age", DEFAULT_AGE)
+    low_age, high_age = customer["age"]
     segments: list[dict[str, Any]] = []
     for segment, k in zip(customer["segments"], _quota(customer["segments"], n), strict=True):
         segments += [segment] * k
@@ -124,10 +170,29 @@ def _dump(obj: Any) -> str:
     return json.dumps(obj, indent=1, ensure_ascii=False) + "\n"
 
 
+def _read(project: Path, path: str) -> str:
+    try:
+        return files.read_text(project, path)
+    except FileNotFoundError:
+        raise PanelError(f"không thấy founder/{path}") from None
+
+
+def _read_json(project: Path, path: str) -> Any:
+    try:
+        return json.loads(_read(project, path))
+    except json.JSONDecodeError as e:
+        raise PanelError(f"{path} không phải JSON hợp lệ: {e}") from None
+
+
 def init(project: Path, customer: str, pitch: str, n: int, seed: int | None) -> str:
     """Deal the cards and write ``panel.json`` and ``personas.json``; return the stdout text."""
-    spec = json.loads(files.read_text(project, customer))
-    text = files.read_text(project, pitch).strip()
+    if n < 1:
+        raise PanelError("'--n' phải từ 1 trở lên")
+    spec = _read_json(project, customer)
+    validate_customer(spec)
+    text = _read(project, pitch).strip()
+    if not text:
+        raise PanelError(f"{pitch} trống: viết lời chào hàng trước (bán gì, giá bao nhiêu, ở đâu)")
     if seed is None:
         seed = random.SystemRandom().randrange(1, 10**6)
     cards = deal(spec, n, seed)
