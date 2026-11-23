@@ -33,18 +33,20 @@ The README slice: `.kiro/hooks/guard.sh` refused the lane's edit of `README.md` 
 
 ## Cổng ba đoạn
 
+First run at `811b7bf` (the README slice): static 0, unit 0 (224 passed in 21.53s), build 0, verify GREEN. The checklist fix of `idea.md` (`9269c4e`, example content only) made that block stale, so the three segments ran again at the last commit that touches the example:
+
 ```
-static 0 811b7bf6fdca439d916094f3d2c6192ab9f2cac0 (ruff check: All checks passed!; ruff format --check: 175 files already formatted; skill-lint: 0 skill checked, 1 example file(s), 0 finding(s))
-unit   0 811b7bf6fdca439d916094f3d2c6192ab9f2cac0 (224 passed in 21.53s)
-build  0 811b7bf6fdca439d916094f3d2c6192ab9f2cac0 (founder_vn-0.1.0 tar.gz and wheel built)
-gate-segment verify: GREEN on 811b7bf6fdca439d916094f3d2c6192ab9f2cac0
+static 0 9269c4e69ee679641e26cdb1ff48c00081ff97a2 (ruff check: All checks passed!; ruff format --check: 175 files already formatted; skill-lint: 0 skill checked, 1 example file(s), 0 finding(s))
+unit   0 9269c4e69ee679641e26cdb1ff48c00081ff97a2 (224 passed in 21.10s)
+build  0 9269c4e69ee679641e26cdb1ff48c00081ff97a2 (founder_vn-0.1.0 tar.gz and wheel built)
+gate-segment verify: GREEN on 9269c4e69ee679641e26cdb1ff48c00081ff97a2
 ```
 
-`check-doc-paths.sh` at the same HEAD: 23 path(s) in 2 file(s) exist. The commit after that HEAD touches only this evidence file.
+`check-doc-paths.sh` at `811b7bf`: 23 path(s) in 2 file(s) exist (no path-bearing document changed after that). The commits after `9269c4e` touch only this evidence file.
 
 ## Giới hạn
 
-- The tests check the shape and the anonymisation patterns of `idea.md` (five Vietnamese bullets, VND format, no `$`, no phone number, e-mail or street address), not the quality of the Vietnamese nor whether the numbers are right; every figure is the owner's planning estimate from a desk study and is labelled so in the file. Nothing was run with a skill yet (T11–T17 will).
+- The tests check the shape and the anonymisation patterns of `idea.md` (five Vietnamese bullets, VND format, no `$`, no phone number, e-mail or street address), not the quality of the Vietnamese nor whether the numbers are right; every figure is the owner's planning estimate from a desk study and is labelled so in the file. Market figures (competitor prices) were taken out of the file because the review checklist wants a source and a date on every numeric claim; they belong to `competitors.md` (T13) with links. Nothing was run with a skill yet (T11–T17 will).
 - Anonymisation is partly a judgement: the location is given at former-district level ("khu Phú Mỹ Hưng (Quận 7 cũ)"), competitor and reference brands are described, not named, and no person is named; a reader who knows the owner could still connect the concept to them, which the owner accepts as the case owner.
 - The study assumes a company (VAT on list prices, social insurance); `idea.md` frames the first shop as a household business with list prices as what the customer pays, and leaves the revenue-tax rate and threshold to the CFO skill (T11, sourced), so the CFO numbers will not reproduce the study's EBITDA table and are not meant to.
 - The off-peak discount window is written as "ngày thường 10:00–16:00" because the study says both "thứ Hai–Thứ Năm" and "nghỉ thứ Hai"; the owner should fix the window when pricing is run.
