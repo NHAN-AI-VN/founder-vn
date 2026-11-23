@@ -302,3 +302,19 @@ def test_buyers_are_asked_in_waves_of_ten_concurrent_calls(
     status = _run(project_root)
     assert (status["total"], status["done"]) == (25, 25)
     assert fake_provider.max_active == panel.WAVE == 10
+
+
+def test_a_worker_crash_is_written_into_the_job(
+    dealt: Path, monkeypatch: pytest.MonkeyPatch, fake_provider: FakeProvider
+) -> None:
+    _setenv(monkeypatch, fake_provider)
+    job_id = _start(dealt)
+
+    def boom(project: Path, job_id: str) -> None:
+        raise RuntimeError("hỏng giữa chừng")
+
+    monkeypatch.setattr(panel, "execute", boom)
+    panel.work(dealt, job_id)
+    status = _status(dealt, job_id)
+    assert status["state"] == "error"
+    assert status["last_error"] == "RuntimeError: hỏng giữa chừng"
