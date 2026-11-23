@@ -387,13 +387,13 @@ fi
 
 # ── 10 ───────────────────────────────────────────────────────────────────────
 stage "${STAGE_NAMES[9]}"
-say "Three workflows carry the loop: gate.yml (always on), after-gate.yml (the */15 cron) and frontier-dispatch.yml."
+say "Three workflows carry the loop: gate.yml (always on), after-gate.yml (the quarter-hourly cron, which GitHub fires rarely: FV-M-8) and frontier-dispatch.yml."
 say "Both dispatching workflows were disabled while the harness was built; the dispatcher also reads HARNESS_DISPATCH."
 local wf
 for wf in after-gate.yml frontier-dispatch.yml; do
   if gh workflow enable "$wf" --repo "$REPO" >/dev/null 2>&1; then say "enabled $wf"; else warn "could not enable $wf (gh workflow enable $wf)"; fi
 done
-if confirm "Start the loop now: set HARNESS_DISPATCH=on? The next sweep (cron */15, or a manual frontier-dispatch run) allocates ticket #2 to Kiro Web."; then
+if confirm "Start the loop now: set HARNESS_DISPATCH=on? The next sweep (the cron, which may take hours, or a manual frontier-dispatch run) allocates ticket #2 to Kiro Web."; then
   set_var HARNESS_DISPATCH on
   say "To allocate without waiting for the cron:"
   note "  gh workflow run frontier-dispatch.yml --repo $REPO -f apply=true"

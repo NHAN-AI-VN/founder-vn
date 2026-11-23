@@ -1,0 +1,19 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 1,
+      "name": "Gate",
+      "status": "in_progress",
+      "conclusion": null,
+      "steps": [
+        { "name": "Set up job", "status": "completed", "conclusion": "success" },
+        { "name": "ruff check", "status": "completed", "conclusion": "success" },
+        { "name": "pytest", "status": "completed", "conclusion": "failure" },
+        { "name": "uv build", "status": "completed", "conclusion": "skipped" },
+        { "name": "Heavy gates passed", "status": "completed", "conclusion": "skipped" },
+        { "name": "Harness after the gate (C4, C5, C1)", "status": "in_progress", "conclusion": null }
+      ]
+    }
+  ]
+}
