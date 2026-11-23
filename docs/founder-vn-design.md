@@ -68,8 +68,9 @@ Sự thật về host (có nguồn trong `docs/review-round5.md`):
   Van Westendorp, panel, compile) trong một package; xuất **cả CLI `founder-vn` và MCP server stdio
   `founder-vn-mcp`** bọc *cùng* hàm, đầu ra giống hệt từng byte. Skill gọi MCP nếu host đã cấu hình,
   không thì chạy CLI qua shell. Hai đường vận chuyển, một kết quả: không có hạ cấp.
-- **Fan-out trong server**: `panel_run` và `board_run` là job bất đồng bộ (`job_id` + `panel_status`,
-  answers ghi dần) để vượt timeout 60 giây của Codex. Server gọi mô hình cấu hình qua env
+- **Fan-out trong server**: `panel_run` và `board_run` là job bất đồng bộ (`job_id` + `job_status`,
+  một tool poll chung cho mọi loại job, Q50; answers ghi dần) để vượt timeout 60 giây của Codex.
+  Server gọi mô hình cấu hình qua env
   `FOUNDER_LLM_BASE_URL` / `FOUNDER_LLM_API_KEY` / `FOUNDER_LLM_MODEL`, một client OpenAI-compatible,
   tự parse JSON (không dựa vào `response_format`/`seed`/`temperature`), ghi `model` và hash prompt
   vào `panel.json`. Chưa cấu hình thì tool báo lỗi kèm hướng dẫn, không âm thầm dùng mặc định.
@@ -202,7 +203,7 @@ bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; track star
 Kiro Power / Claude Code plugin; máy tính web tĩnh dùng chung công thức; mô hình tài chính bền vững
 cho dự án OSS (chưa bàn, không cần cho v1).
 
-## Phụ lục: nhật ký quyết định (Q1–Q49)
+## Phụ lục: nhật ký quyết định (Q1–Q50)
 
 Vòng 1
 
@@ -245,7 +246,7 @@ Vòng 4
 Vòng 5 → phản biện độc lập → Vòng 6 (sửa theo phản biện)
 
 - Q30 Một package xuất cả CLI và MCP; khóa đường dẫn.
-- Q31 Fan-out trong server dạng job bất đồng bộ; ghi model + hash prompt; sub-agent host là v1.1.
+- Q31 Fan-out trong server dạng job bất đồng bộ; ghi model + hash prompt; sub-agent host là v1.1 (tên tool poll sửa ở Q50).
 - Q32 File trong workspace; "Grok bot" = Grok Build CLI; chat bot không file ngoài v1.
 - Q33 Client OpenAI-compatible qua env; tài liệu hóa khác biệt provider; không sampling.
 - Q34 `founder-vn install --host`; PyPI/uvx; KiroCrew qua dashboard; Gemini/Antigravity cần xác nhận.
@@ -267,3 +268,11 @@ Vòng 7
 - Q47 `founder-permits`: F&B đầy đủ, ngành khác đường chung.
 - Q48 Lens Systems (E-Myth) thay Monopoly.
 - Q49 BRIEF người mua mô phỏng bằng tiếng Việt.
+
+Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
+
+- Q50 (2026-11-23, review Standards của lane #11, S1) Tool poll của job là `job_status`, dùng chung cho
+  `panel_run` và `board_run`; không có `panel_status`. Spec #1 (bảng CLI↔MCP: `panel status` /
+  `job_status`; mục job; mục test LLM boundary) và ticket T08, T12, T15 đều đặt tên này vì hai loại
+  job chạy trên cùng một runner (T08) và một tool poll chung đơn giản hơn hai tool theo loại. §2 sửa
+  theo; `docs/review-round5.md` giữ nguyên vì là biên bản phản biện có ngày, không phải nguồn luật.

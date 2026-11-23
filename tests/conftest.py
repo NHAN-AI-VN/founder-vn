@@ -4,6 +4,7 @@ import json
 import socket
 import sys
 import threading
+import time
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -101,12 +102,18 @@ class FakeProvider:
     base_url: str
     requests: list[dict[str, Any]] = field(default_factory=list)
     reply: str = "xin chào"
+    headers: list[Any] = field(default_factory=list)
+    # script(body, request number from 0) -> (HTTP status, reply text, delay in seconds)
+    script: Callable[[dict[str, Any], int], tuple[int, str, float]] | None = None
+    active: int = 0
+    max_active: int = 0
 
 
 @pytest.fixture
 def fake_provider() -> Iterator[FakeProvider]:
     """OpenAI-compatible provider on 127.0.0.1 answering /v1/chat/completions; no network."""
     state = FakeProvider(base_url="")
+    lock = threading.Lock()
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self) -> None:
@@ -114,7 +121,23 @@ def fake_provider() -> Iterator[FakeProvider]:
             if self.path != "/v1/chat/completions":
                 self.send_error(404)
                 return
-            state.requests.append(body)
+            with lock:
+                number = len(state.requests)
+                state.requests.append(body)
+                state.headers.append(self.headers)
+                state.active += 1
+                state.max_active = max(state.max_active, state.active)
+            try:
+                status, reply, delay = (
+                    state.script(body, number) if state.script else (200, state.reply, 0.0)
+                )
+                time.sleep(delay)
+            finally:
+                with lock:
+                    state.active -= 1
+            if status != 200:
+                self.send_error(status)
+                return
             payload = json.dumps(
                 {
                     "id": "fake-1",
@@ -123,7 +146,7 @@ def fake_provider() -> Iterator[FakeProvider]:
                     "choices": [
                         {
                             "index": 0,
-                            "message": {"role": "assistant", "content": state.reply},
+                            "message": {"role": "assistant", "content": reply},
                             "finish_reason": "stop",
                         }
                     ],

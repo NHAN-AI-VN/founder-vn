@@ -6,15 +6,30 @@ the answer files the buyers wrote. State lives under ``founder/panel/`` and goes
 ``founder_vn.files`` only.
 """
 
+import hashlib
 import json
 import math
 import random
+import re
+import subprocess
+import sys
+import threading
+import time
+import uuid
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
-from founder_vn import files
+from founder_vn import files, llm
 
 PANEL_DIR = "panel"
+JOBS_DIR = "jobs"
+WAVE = 10
+ATTEMPTS = 3
+MAX_INVALID = 2
+BACKOFF = 2.0
+JOB_ID = re.compile(r"J-[0-9a-f]{8}")
 DEFAULT_N = 20
 INCOME_STEP = 100_000
 REASONS = ("price", "habit", "need", "trust", "quality", "convenience", "timing", "values", "other")
@@ -40,6 +55,26 @@ PRICE_KEYS = {
 }
 PRICING_INPUT = "pricing_input.json"
 ANSWER_FIELDS = ("id", "buys", "reason_code", "reason")
+BRIEF_TEMPLATE = """Bạn là {name}, {age} tuổi, thuộc nhóm "{segment}", thu nhập khoảng {income} đồng một tháng.
+Cách bạn thường mua hàng: {behaviour}. {behaviour_how}
+Điều bạn hay e ngại khi mua: {objection}
+Thói quen của bạn: {habit}
+
+Một người bán đang giới thiệu với bạn như sau:
+
+{pitch}
+
+Hãy trả lời như chính bạn sẽ làm ngoài đời, theo thu nhập và thói quen ở trên. Không cố làm hài lòng người bán; nếu thấy không đáng thì nói không mua.
+Chỉ trả lời bằng một đối tượng JSON, không viết thêm gì, với các trường:
+- "id": "{id}"
+- "buys": true nếu bạn sẽ mua, false nếu không
+- "reason_code": một trong {reasons}
+- "reason": một hai câu tiếng Việt nói lý do, bằng giọng của bạn
+- "would_change_my_mind": nếu không mua, điều gì khiến bạn đổi ý (chuỗi, có thể để trống)
+- "purchases_first_month": nếu mua, số lần bạn sẽ mua trong tháng đầu (số)
+- "price_too_cheap", "price_cheap", "price_expensive", "price_too_expensive": bốn mức giá theo đồng, \
+rẻ đến mức bạn nghi ngờ chất lượng, rẻ và đáng mua, bắt đầu thấy đắt, đắt đến mức không mua
+"""
 
 GIVEN_NAMES = [
     "Minh Anh",
@@ -250,6 +285,35 @@ def answer_problem(answer: Any, pid: str) -> str | None:
     return None
 
 
+def brief(card: dict[str, Any], pitch: str) -> str:
+    """The Vietnamese brief one simulated buyer answers, filled from the persona and the pitch."""
+    text = BRIEF_TEMPLATE
+    fields = {**card, "income": f"{card['income']:,}".replace(",", "."), "pitch": pitch}
+    fields["reasons"] = ", ".join(f'"{r}"' for r in REASONS)
+    for key, value in fields.items():
+        text = text.replace("{" + key + "}", str(value))
+    return text
+
+
+def prompt_hash(cards: list[dict[str, Any]], pitch: str) -> str:
+    """SHA-256 of the brief template, the dealt personas and the pitch."""
+    payload = "\n".join([BRIEF_TEMPLATE, _dump(cards), pitch])
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def extract_answer(reply: str, pid: str) -> tuple[dict[str, Any] | None, str | None]:
+    """The first JSON object in ``reply`` and ``None``, or ``None`` and what is wrong with it."""
+    start = reply.find("{")
+    if start < 0:
+        return None, "không có đối tượng JSON"
+    try:
+        answer, _ = json.JSONDecoder().raw_decode(reply[start:])
+    except json.JSONDecodeError as e:
+        return None, f"JSON không đọc được: {e}"
+    problem = answer_problem(answer, pid)
+    return (None, problem) if problem else (answer, None)
+
+
 def _answer_file_problem(project: Path, pid: str) -> str | None:
     try:
         text = files.read_text(project, _path("answers", f"{pid}.json"))
@@ -457,3 +521,167 @@ def run_tally(project: Path) -> str:
         f"{res['buys']} mua, {res['passes']} không mua ({_pct(res['buy_rate'])}). "
         f"Đã ghi founder/{_path('results.md')} và founder/{_path('results.json')}\n"
     )
+
+
+def _job_path(job_id: str) -> str:
+    if not JOB_ID.fullmatch(job_id):
+        raise PanelError(f"job '{job_id}' không hợp lệ: có dạng J-xxxxxxxx")
+    return _path(JOBS_DIR, f"{job_id}.json")
+
+
+def _read_job(project: Path, job_id: str) -> dict[str, Any]:
+    path = _job_path(job_id)
+    for attempt in range(5):  # a worker may be rewriting the file at this moment
+        try:
+            return json.loads(_read(project, path))  # type: ignore[no-any-return]
+        except PanelError:
+            raise PanelError(f"không thấy job {job_id}") from None
+        except json.JSONDecodeError:
+            time.sleep(0.02 * (attempt + 1))
+    raise PanelError(f"job {job_id} đang được ghi, thử lại sau giây lát")
+
+
+def start_job(project: Path, launch: Callable[[Path, str], None]) -> str:
+    """Record the model and prompt hash, create a job for the buyers without a valid answer and
+    hand it to ``launch``; return at once with the job as JSON."""
+    try:
+        config = llm.load_config()
+    except llm.NotConfigured as e:
+        raise PanelError(str(e)) from None
+    cards = _load_cards(project)
+    meta = _read_json(project, _path("panel.json"))
+    targets = [c["id"] for c in cards if _answer_file_problem(project, c["id"])]
+    meta |= {
+        "mode": "model",
+        "model": config.model,
+        "prompt_hash": prompt_hash(cards, meta["pitch"]),
+    }
+    files.write_text(project, _path("panel.json"), _dump(meta))
+    job_id = f"J-{uuid.uuid4().hex[:8]}"
+    state = "running" if targets else "done"
+    job = {
+        "job_id": job_id,
+        "state": state,
+        "targets": targets,
+        "done": [],
+        "failed": [],
+        "excluded": [],
+        "last_error": None,
+    }
+    files.write_text(project, _job_path(job_id), _dump(job))
+    if targets:
+        launch(project, job_id)
+    return _dump({"job_id": job_id, "state": state, "buyers": len(targets)})
+
+
+def job_status(project: Path, job_id: str) -> str:
+    """The counts of a job as JSON: done, pending, failed, excluded and the last error."""
+    job = _read_job(project, job_id)
+    settled = len(job["done"]) + len(job["failed"]) + len(job["excluded"])
+    return _dump(
+        {
+            "job_id": job_id,
+            "state": job["state"],
+            "total": len(job["targets"]),
+            "done": len(job["done"]),
+            "pending": len(job["targets"]) - settled,
+            "failed": len(job["failed"]),
+            "excluded": len(job["excluded"]),
+            "last_error": job["last_error"],
+        }
+    )
+
+
+def _ask(
+    project: Path,
+    config: llm.Config,
+    card: dict[str, Any],
+    pitch: str,
+    timeout: float,
+    backoff: float,
+) -> tuple[str, str | None]:
+    """Ask one buyer; return ``done``, ``failed`` or ``excluded`` and the last error.
+
+    A call that fails (timeout, 5xx, connection) is retried with doubling backoff up to
+    ``ATTEMPTS`` times: the buyer is ``failed``. A reply that is not a valid answer is asked once
+    more; invalid twice, the buyer is ``excluded``. Only the buyer's own valid answer is written.
+    """
+    pid = card["id"]
+    prompt = brief(card, pitch)
+    problem = None
+    for _ in range(MAX_INVALID):
+        reply = ""
+        for attempt in range(ATTEMPTS):
+            try:
+                reply = llm.complete(config, prompt, timeout)
+                break
+            except llm.CallFailed as e:
+                if attempt == ATTEMPTS - 1:
+                    return "failed", f"{pid}: {e}"
+                time.sleep(backoff * 2**attempt)
+        answer, problem = extract_answer(reply, pid)
+        if answer is not None:
+            files.write_text(project, _path("answers", f"{pid}.json"), _dump(answer))
+            return "done", None
+    return "excluded", f"{pid}: {problem}"
+
+
+def execute(
+    project: Path, job_id: str, *, timeout: float = llm.TIMEOUT, backoff: float = BACKOFF
+) -> None:
+    """Ask each buyer of the job and file the answers one by one (the worker's entry point)."""
+    job = _read_job(project, job_id)
+    config = llm.load_config()
+    meta = _read_json(project, _path("panel.json"))
+    cards = {c["id"]: c for c in _load_cards(project)}
+    targets = job["targets"]
+    for start in range(0, len(targets), WAVE):
+        wave = targets[start : start + WAVE]
+        with ThreadPoolExecutor(max_workers=WAVE) as pool:
+            futures = {
+                pool.submit(_ask, project, config, cards[pid], meta["pitch"], timeout, backoff): pid
+                for pid in wave
+            }
+            for future in as_completed(futures):
+                outcome, error = future.result()
+                job[outcome].append(futures[future])
+                if error:
+                    job["last_error"] = error
+                files.write_text(project, _job_path(job_id), _dump(job))
+    job["state"] = "done"
+    files.write_text(project, _job_path(job_id), _dump(job))
+
+
+def work(project: Path, job_id: str) -> None:
+    """Run a job to the end; whatever goes wrong is written into the job, not lost."""
+    try:
+        execute(project, job_id)
+    except Exception as e:  # the worker has no caller to tell: the job file is the report
+        job = _read_job(project, job_id)
+        job |= {"state": "error", "last_error": f"{type(e).__name__}: {e}"}
+        files.write_text(project, _job_path(job_id), _dump(job))
+
+
+def _in_thread(project: Path, job_id: str) -> None:
+    threading.Thread(target=work, args=(project, job_id), daemon=True).start()
+
+
+def _in_process(project: Path, job_id: str) -> None:
+    """A detached ``founder-vn panel work``: it outlives the short-lived CLI call."""
+    subprocess.Popen(
+        [sys.executable, "-m", "founder_vn.cli", "panel", "work", job_id],
+        cwd=project,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+
+
+def run(project: Path, detached: bool) -> str:
+    """Start the job for the buyers without a valid answer and return its id at once.
+
+    ``detached`` hands the work to a separate process (the CLI); otherwise a thread of the
+    long-lived MCP server does it.
+    """
+    return start_job(project, _in_process if detached else _in_thread)

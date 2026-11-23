@@ -25,7 +25,9 @@ def build_parser() -> argparse.ArgumentParser:
     pricing_parser.add_argument("source", help="JSON file under founder/ with answers and prices")
     pricing_parser.add_argument("--json", action="store_true", help="print the numbers as JSON")
     pricing_parser.add_argument("--out", help="write the report under founder/ (e.g. pricing.md)")
-    panel_parser = sub.add_parser("panel", help="buyer panel bookkeeping: init, check, save, tally")
+    panel_parser = sub.add_parser(
+        "panel", help="buyer panel: init, run, status, check, save, tally"
+    )
     panel_sub = panel_parser.add_subparsers(dest="panel_command", required=True)
     init_parser = panel_sub.add_parser("init", help="deal persona cards from customer.json")
     init_parser.add_argument("--customer", default="customer.json", help="under founder/")
@@ -36,6 +38,11 @@ def build_parser() -> argparse.ArgumentParser:
     save_parser = panel_sub.add_parser("save", help="file a buyer's printed reply (stdin)")
     save_parser.add_argument("id", help="buyer id, e.g. P003")
     panel_sub.add_parser("tally", help="count the answers into results.md and results.json")
+    panel_sub.add_parser("run", help="ask each buyer through the configured model; prints a job id")
+    status_parser = panel_sub.add_parser("status", help="progress of a `panel run` job")
+    status_parser.add_argument("job_id", help="job id printed by `panel run`")
+    work_parser = panel_sub.add_parser("work", help=argparse.SUPPRESS)
+    work_parser.add_argument("job_id")
     plan_parser = sub.add_parser(
         "plan", help="compile business-plan.md from what exists under founder/"
     )
@@ -85,6 +92,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 text, code = panel.check(Path.cwd())
                 sys.stdout.write(text)
                 return code
+            elif args.panel_command == "run":
+                sys.stdout.write(panel.run(Path.cwd(), detached=True))
+            elif args.panel_command == "status":
+                sys.stdout.write(panel.job_status(Path.cwd(), args.job_id))
+            elif args.panel_command == "work":
+                panel.work(Path.cwd(), args.job_id)
             elif args.panel_command == "tally":
                 sys.stdout.write(panel.run_tally(Path.cwd()))
             else:
@@ -115,3 +128,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def run() -> None:
     sys.exit(main())
+
+
+if __name__ == "__main__":
+    run()

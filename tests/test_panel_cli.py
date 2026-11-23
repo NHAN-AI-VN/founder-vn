@@ -341,3 +341,60 @@ def test_init_without_n_deals_twenty_cards(founder: Path, run_cli: RunCli) -> No
     run = run_cli("panel", "init", "--seed", "7")
     assert run.exit_code == 0
     assert len(_cards(run)) == 20
+
+
+def _provider_env(monkeypatch: pytest.MonkeyPatch, provider: object) -> None:
+    monkeypatch.setenv("FOUNDER_LLM_BASE_URL", provider.base_url)  # type: ignore[attr-defined]
+    monkeypatch.setenv("FOUNDER_LLM_API_KEY", "khoa-gia")
+    monkeypatch.setenv("FOUNDER_LLM_MODEL", "mo-hinh-gia")
+
+
+def test_run_unconfigured_exits_2_naming_the_variables(
+    founder: Path, run_cli: RunCli, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    for name in ("FOUNDER_LLM_BASE_URL", "FOUNDER_LLM_API_KEY", "FOUNDER_LLM_MODEL"):
+        monkeypatch.delenv(name, raising=False)
+    run_cli("panel", "init", "--n", "3", "--seed", "7")
+    capsys.readouterr()
+    from founder_vn.cli import main
+
+    assert main(["panel", "run"]) == 2
+    err = capsys.readouterr().err
+    assert "FOUNDER_LLM_BASE_URL" in err and "FOUNDER_LLM_API_KEY" in err
+
+
+def test_run_returns_a_job_id_at_once_and_status_follows_it_to_done(
+    founder: Path, run_cli: RunCli, monkeypatch: pytest.MonkeyPatch, fake_provider: object
+) -> None:
+    import re
+    import time
+
+    _provider_env(monkeypatch, fake_provider)
+
+    def script(body: dict, n: int) -> tuple[int, str, float]:
+        pid = re.search(r'"id": "(P\d+)"', body["messages"][0]["content"]).group(1)  # type: ignore[union-attr]
+        answer = {"id": pid, "buys": True, "reason_code": "need", "reason": "Cần."}
+        return 200, json.dumps(answer, ensure_ascii=False), 0.2
+
+    fake_provider.script = script  # type: ignore[attr-defined]
+    run_cli("panel", "init", "--n", "3", "--seed", "7")
+    started = time.monotonic()
+    run = run_cli("panel", "run")
+    assert time.monotonic() - started < 0.5  # three calls of 0.2 s each did not block the call
+    assert run.exit_code == 0
+    job = json.loads(run.stdout)
+    assert job["state"] == "running" and job["buyers"] == 3
+    status = {}
+    for _ in range(100):
+        status = json.loads(run_cli("panel", "status", job["job_id"]).stdout)
+        if status["state"] != "running":
+            break
+        time.sleep(0.1)
+    assert status["state"] == "done"
+    assert (status["done"], status["pending"], status["failed"], status["excluded"]) == (3, 0, 0, 0)
+    assert run_cli("panel", "check").exit_code == 0
+
+
+def test_status_of_an_unknown_job_exits_2(founder: Path, run_cli: RunCli) -> None:
+    run_cli("panel", "init", "--n", "3", "--seed", "7")
+    assert run_cli("panel", "status", "J-00000000").exit_code == 2
