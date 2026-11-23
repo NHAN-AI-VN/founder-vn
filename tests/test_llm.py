@@ -32,9 +32,10 @@ def test_partly_configured_names_only_the_missing_ones(monkeypatch: pytest.Monke
     monkeypatch.setenv("FOUNDER_LLM_MODEL", "mo-hinh-gia")
     with pytest.raises(llm.NotConfigured) as caught:
         llm.load_config()
-    assert "FOUNDER_LLM_BASE_URL" in str(caught.value)
-    assert "FOUNDER_LLM_API_KEY" in str(caught.value)
-    assert "FOUNDER_LLM_MODEL" not in str(caught.value)
+    first_line = str(caught.value).splitlines()[0]
+    assert "FOUNDER_LLM_BASE_URL" in first_line
+    assert "FOUNDER_LLM_API_KEY" in first_line
+    assert "FOUNDER_LLM_MODEL" not in first_line
 
 
 def test_complete_returns_the_reply_and_sends_only_model_and_messages(

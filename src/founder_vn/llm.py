@@ -43,7 +43,7 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     values = {name: source.get(name, "").strip() for name in ENV_NAMES}
     missing = [name for name, value in values.items() if not value]
     if missing:
-        raise NotConfigured(f"chưa cấu hình mô hình, thiếu {', '.join(missing)}. {SETUP}")
+        raise NotConfigured(f"chưa cấu hình mô hình, thiếu {', '.join(missing)}.\n{SETUP}")
     return Config(*(values[name] for name in ENV_NAMES))
 
 
