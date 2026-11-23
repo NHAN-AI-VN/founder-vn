@@ -11,6 +11,9 @@ import json
 import math
 import random
 import re
+import subprocess
+import sys
+import threading
 import time
 import uuid
 from collections.abc import Callable
@@ -647,3 +650,38 @@ def execute(
                 files.write_text(project, _job_path(job_id), _dump(job))
     job["state"] = "done"
     files.write_text(project, _job_path(job_id), _dump(job))
+
+
+def work(project: Path, job_id: str) -> None:
+    """Run a job to the end; whatever goes wrong is written into the job, not lost."""
+    try:
+        execute(project, job_id)
+    except Exception as e:  # the worker has no caller to tell: the job file is the report
+        job = _read_job(project, job_id)
+        job |= {"state": "error", "last_error": f"{type(e).__name__}: {e}"}
+        files.write_text(project, _job_path(job_id), _dump(job))
+
+
+def _in_thread(project: Path, job_id: str) -> None:
+    threading.Thread(target=work, args=(project, job_id), daemon=True).start()
+
+
+def _in_process(project: Path, job_id: str) -> None:
+    """A detached ``founder-vn panel work``: it outlives the short-lived CLI call."""
+    subprocess.Popen(
+        [sys.executable, "-m", "founder_vn.cli", "panel", "work", job_id],
+        cwd=project,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+
+
+def run(project: Path, detached: bool) -> str:
+    """Start the job for the buyers without a valid answer and return its id at once.
+
+    ``detached`` hands the work to a separate process (the CLI); otherwise a thread of the
+    long-lived MCP server does it.
+    """
+    return start_job(project, _in_process if detached else _in_thread)

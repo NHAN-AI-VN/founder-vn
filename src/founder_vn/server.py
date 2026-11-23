@@ -64,6 +64,22 @@ def panel_tally() -> str:
 
 
 @mcp.tool()
+def panel_run() -> str:
+    """Ask each buyer through the configured model (same text as `founder-vn panel run`).
+
+    Returns at once with a `job_id`; answers land in founder/panel/answers/ as they arrive. Poll
+    `job_status`. Only buyers without a valid answer are asked, so calling it again resumes.
+    """
+    return panel.run(Path.cwd(), detached=False)
+
+
+@mcp.tool()
+def job_status(job_id: str) -> str:
+    """Progress of a `panel_run` job (same text as `founder-vn panel status`): counts and last error."""
+    return panel.job_status(Path.cwd(), job_id)
+
+
+@mcp.tool()
 def plan_compile(check: bool = False) -> str:
     """Compile founder/business-plan.md (same text as `founder-vn plan`).
 
