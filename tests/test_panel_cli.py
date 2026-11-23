@@ -304,3 +304,34 @@ def test_tally_without_valid_answers_is_an_error(
     run_cli("panel", "init", "--n", "3", "--seed", "7")
     assert main(["panel", "tally"]) == 2
     assert "chưa có câu trả lời hợp lệ" in capsys.readouterr().err
+
+
+def test_tally_golden_seed_7(tallied: CliRun, assert_golden: Callable[[str, CliRun], None]) -> None:
+    assert_golden("panel_tally", tallied)
+
+
+def test_results_md_is_vietnamese_with_caveat_and_no_dollar(tallied: CliRun) -> None:
+    md = tallied.files["panel/results.md"]
+    assert "Panel là mô phỏng, không phải khách hàng thật" in md
+    assert "Tín hiệu cầu (mô phỏng, cận trên)" in md
+    assert "anh/chị" in md
+    assert "$" not in md
+    assert "Giá cao hơn quán quen / mười nghìn." in md
+
+
+def test_price_answers_are_consumable_by_pricing(tallied: CliRun, run_cli: RunCli) -> None:
+    """P001 and P003 use the long names, P002 the short names; P004, P005 gave none."""
+    shape = json.loads(tallied.files["panel/pricing_input.json"])
+    assert shape["answers"] == [
+        {"too_cheap": "15k", "bargain": "25k", "getting_expensive": "40k", "too_expensive": "55k"},
+        {"too_cheap": 12000, "bargain": 22000, "getting_expensive": 35000, "too_expensive": 48000},
+        {
+            "too_cheap": "20.000",
+            "bargain": "30.000",
+            "getting_expensive": "45.000",
+            "too_expensive": "60.000",
+        },
+    ]
+    run = run_cli("pricing", "panel/pricing_input.json", "--json")
+    assert run.exit_code == 0
+    assert json.loads(run.stdout)["answers"] == {"valid": 3, "dropped": 0}

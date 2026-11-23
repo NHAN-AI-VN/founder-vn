@@ -422,7 +422,7 @@ def results_md(res: dict[str, Any]) -> str:
     for title, key in (("Theo nhóm khách", "by_segment"), ("Theo cách mua", "by_behaviour")):
         lines += ["", f"## {title}", "", "| nhóm | số người | tỷ lệ mua |", "| --- | ---: | ---: |"]
         for g in res[key]:
-            thin = "  (mỏng)" if g["n"] < THIN_GROUP else ""
+            thin = " (mỏng)" if g["n"] < THIN_GROUP else ""
             lines.append(f"| {g['name']} | {g['n']} | {_pct(g['buy_rate'])}{thin} |")
     header = ["", "| lý do | số người | nguyên văn |", "| --- | ---: | --- |"]
     lines += ["", "## Vì sao không mua", *header, *_quotes(res["why_not"])]
