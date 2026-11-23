@@ -4,7 +4,7 @@ from pathlib import Path
 
 from mcp.server.mcpserver import MCPServer
 
-from founder_vn import __version__, cfo, info
+from founder_vn import __version__, cfo, info, pricing
 
 mcp = MCPServer("founder-vn", version=__version__)
 
@@ -29,6 +29,17 @@ def cfo_analyse(
     multiplier; `as_json` returns JSON; `out` writes the report under founder/ (e.g. "cfo.md").
     """
     return cfo.run(Path.cwd(), numbers, price, volume, as_json, out)
+
+
+@mcp.tool()
+def pricing_psm(source: str, as_json: bool = False, out: str | None = None) -> str:
+    """Van Westendorp price sensitivity (same text as `founder-vn pricing`).
+
+    `source` is a JSON file under founder/ with the panel's four price answers and optional
+    competitor prices; `as_json` returns JSON; `out` writes the report under founder/
+    (e.g. "pricing.md").
+    """
+    return pricing.run(Path.cwd(), source, as_json, out)
 
 
 def main() -> None:
