@@ -1,0 +1,16 @@
+{
+  "P001": {"id": "P001", "buys": true, "purchases_first_month": 8, "reason_code": "habit",
+    "reason": "Quen mua cà phê mang đi mỗi sáng.", "would_change_my_mind": "",
+    "price_too_cheap": "15k", "price_cheap": "25k", "price_expensive": "40k", "price_too_expensive": "55k"},
+  "P002": {"id": "P002", "buys": false, "purchases_first_month": 0, "reason_code": "price",
+    "reason": "Giá cao hơn quán quen | mười nghìn.", "would_change_my_mind": "Có thẻ tích điểm hoặc giảm giá ly đầu.",
+    "too_cheap": 12000, "bargain": 22000, "getting_expensive": 35000, "too_expensive": 48000},
+  "P003": {"id": "P003", "buys": true, "purchases_first_month": 4, "reason_code": "convenience",
+    "reason": "Quán nằm trên đường đi làm.", "would_change_my_mind": "",
+    "price_too_cheap": "20.000", "price_cheap": "30.000", "price_expensive": "45.000", "price_too_expensive": "60.000"},
+  "P004": {"id": "P004", "buys": false, "reason_code": "habit",
+    "reason": "Đã có quán quen gần nhà.", "would_change_my_mind": "Quán mới ngon hơn rõ rệt."},
+  "P005": {"id": "P005", "buys": true, "purchases_first_month": 3, "reason_code": "quality",
+    "reason": "Muốn thử vị cà phê muối.", "would_change_my_mind": ""},
+  "P006": {"id": "P006", "buys": "có", "reason_code": "price", "reason": "Hỏng định dạng."}
+}

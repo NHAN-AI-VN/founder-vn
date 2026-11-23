@@ -5,7 +5,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from founder_vn import cfo, files, info, install, pricing
+from founder_vn import cfo, files, info, install, panel, pricing
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -25,6 +25,17 @@ def build_parser() -> argparse.ArgumentParser:
     pricing_parser.add_argument("source", help="JSON file under founder/ with answers and prices")
     pricing_parser.add_argument("--json", action="store_true", help="print the numbers as JSON")
     pricing_parser.add_argument("--out", help="write the report under founder/ (e.g. pricing.md)")
+    panel_parser = sub.add_parser("panel", help="buyer panel bookkeeping: init, check, save, tally")
+    panel_sub = panel_parser.add_subparsers(dest="panel_command", required=True)
+    init_parser = panel_sub.add_parser("init", help="deal persona cards from customer.json")
+    init_parser.add_argument("--customer", default="customer.json", help="under founder/")
+    init_parser.add_argument("--pitch", default="pitch.md", help="under founder/")
+    init_parser.add_argument("--n", type=int, default=panel.DEFAULT_N, help="number of buyers")
+    init_parser.add_argument("--seed", type=int, help="same seed, same cards")
+    panel_sub.add_parser("check", help="list buyers whose answer is missing or broken")
+    save_parser = panel_sub.add_parser("save", help="file a buyer's printed reply (stdin)")
+    save_parser.add_argument("id", help="buyer id, e.g. P003")
+    panel_sub.add_parser("tally", help="count the answers into results.md and results.json")
     install_parser = sub.add_parser(
         "install", help="copy skills into a host and print its MCP setup"
     )
@@ -55,6 +66,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             sys.stdout.write(pricing.run(Path.cwd(), args.source, args.json, args.out))
         except (pricing.PricingInputError, files.PathRefused) as e:
+            print(f"lỗi: {e}", file=sys.stderr)
+            return 2
+        return 0
+    if args.command == "panel":
+        try:
+            if args.panel_command == "init":
+                sys.stdout.write(
+                    panel.init(Path.cwd(), args.customer, args.pitch, args.n, args.seed)
+                )
+            elif args.panel_command == "check":
+                text, code = panel.check(Path.cwd())
+                sys.stdout.write(text)
+                return code
+            elif args.panel_command == "tally":
+                sys.stdout.write(panel.run_tally(Path.cwd()))
+            else:
+                sys.stdout.write(panel.save(Path.cwd(), args.id, sys.stdin.read()))
+        except (panel.PanelError, files.PathRefused) as e:
             print(f"lỗi: {e}", file=sys.stderr)
             return 2
         return 0

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from mcp.server.mcpserver import MCPServer
 
-from founder_vn import __version__, cfo, info, pricing
+from founder_vn import __version__, cfo, info, panel, pricing
 
 mcp = MCPServer("founder-vn", version=__version__)
 
@@ -40,6 +40,27 @@ def pricing_psm(source: str, as_json: bool = False, out: str | None = None) -> s
     (e.g. "pricing.md").
     """
     return pricing.run(Path.cwd(), source, as_json, out)
+
+
+@mcp.tool()
+def panel_init(
+    customer: str = "customer.json",
+    pitch: str = "pitch.md",
+    n: int = panel.DEFAULT_N,
+    seed: int | None = None,
+) -> str:
+    """Deal persona cards (same text as `founder-vn panel init`).
+
+    `customer` and `pitch` are read under founder/; the cards are written to founder/panel/.
+    The same `seed` gives the same cards.
+    """
+    return panel.init(Path.cwd(), customer, pitch, n, seed)
+
+
+@mcp.tool()
+def panel_tally() -> str:
+    """Count the buyers' answers into results.md and results.json (same text as `founder-vn panel tally`)."""
+    return panel.run_tally(Path.cwd())
 
 
 def main() -> None:
