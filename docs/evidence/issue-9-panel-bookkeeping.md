@@ -37,13 +37,13 @@ The golden `tests/golden/panel_tally.json` was generated once from `panel tally`
 
 ## Cổng ba đoạn
 
-Last code commit: `c4f705e`. Each segment ran once at that HEAD; counts read from `.harness/gate-*.log`.
+Last code commit: `69ebc4d`. Each segment ran once at HEAD `cc86828` (one ledger commit after the last code commit, no code change in between); counts read from `.harness/gate-*.log`.
 
 ```
-static: ruff check "All checks passed!", ruff format --check "105 files already formatted", skill-lint exit 0
-unit:   173 passed
+static: ruff check "All checks passed!", ruff format --check clean, skill-lint exit 0
+unit:   175 passed
 build:  Successfully built dist/founder_vn-0.1.0-py3-none-any.whl
-gate-segment verify: GREEN on c4f705ed959b899bcb3d6a3b5620c0ea54804cfe
+gate-segment verify: GREEN on cc868285f88080e0ed643a58b024bcbaf532ceec
 ```
 
 ## Giới hạn
