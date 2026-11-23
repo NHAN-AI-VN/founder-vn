@@ -4,7 +4,7 @@ from pathlib import Path
 
 from mcp.server.mcpserver import MCPServer
 
-from founder_vn import __version__, cfo, info, panel, pricing
+from founder_vn import __version__, cfo, info, panel, plan, pricing
 
 mcp = MCPServer("founder-vn", version=__version__)
 
@@ -61,6 +61,16 @@ def panel_init(
 def panel_tally() -> str:
     """Count the buyers' answers into results.md and results.json (same text as `founder-vn panel tally`)."""
     return panel.run_tally(Path.cwd())
+
+
+@mcp.tool()
+def plan_compile(check: bool = False) -> str:
+    """Compile founder/business-plan.md (same text as `founder-vn plan`).
+
+    The verdict is computed from the CFO numbers only; the panel is a separate demand-signal
+    line. With `check` nothing is written and the text says whether the plan is current.
+    """
+    return plan.run(Path.cwd(), check)[0]
 
 
 def main() -> None:
