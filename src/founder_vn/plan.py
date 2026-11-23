@@ -154,8 +154,18 @@ def compile_plan(project: Path) -> tuple[str, str]:
     return result, "\n".join(lines) + "\n"
 
 
-def run(project: Path) -> str:
-    """Behind ``founder-vn plan`` and MCP ``plan_compile``: write the plan, return the stdout."""
+def run(project: Path, check: bool = False) -> tuple[str, int]:
+    """Behind ``founder-vn plan`` and MCP ``plan_compile``: return the stdout text and exit code.
+
+    Without ``check`` the plan is written. With it nothing is written: the code is 0 when
+    ``business-plan.md`` equals what would be compiled now, 1 when it is missing or stale.
+    """
     result, text = compile_plan(project)
-    files.write_text(project, PLAN_FILE, text)
-    return f"Kết luận: {VERDICT_LABELS[result]}. Đã ghi founder/{PLAN_FILE}\n"
+    if not check:
+        files.write_text(project, PLAN_FILE, text)
+        return f"Kết luận: {VERDICT_LABELS[result]}. Đã ghi founder/{PLAN_FILE}\n", 0
+    if not files.resolve(project, PLAN_FILE).exists():
+        return f"{PLAN_FILE} chưa có: chạy `founder-vn plan`\n", 1
+    if files.read_text(project, PLAN_FILE) != text:
+        return f"{PLAN_FILE} đã cũ so với các file hiện có: chạy `founder-vn plan`\n", 1
+    return f"{PLAN_FILE} khớp với các file hiện có\n", 0

@@ -36,7 +36,12 @@ def build_parser() -> argparse.ArgumentParser:
     save_parser = panel_sub.add_parser("save", help="file a buyer's printed reply (stdin)")
     save_parser.add_argument("id", help="buyer id, e.g. P003")
     panel_sub.add_parser("tally", help="count the answers into results.md and results.json")
-    sub.add_parser("plan", help="compile business-plan.md from what exists under founder/")
+    plan_parser = sub.add_parser(
+        "plan", help="compile business-plan.md from what exists under founder/"
+    )
+    plan_parser.add_argument(
+        "--check", action="store_true", help="write nothing; exit 1 if business-plan.md is stale"
+    )
     install_parser = sub.add_parser(
         "install", help="copy skills into a host and print its MCP setup"
     )
@@ -90,11 +95,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     if args.command == "plan":
         try:
-            sys.stdout.write(plan.run(Path.cwd()))
+            text, code = plan.run(Path.cwd(), args.check)
+            sys.stdout.write(text)
+            return code
         except (cfo.NumbersError, panel.PanelError, files.PathRefused) as e:
             print(f"lỗi: {e}", file=sys.stderr)
             return 2
-        return 0
     if args.command == "install":
         try:
             text = install.run(Path.cwd(), args.host, args.print_only)

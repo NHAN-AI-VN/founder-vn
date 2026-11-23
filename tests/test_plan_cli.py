@@ -166,3 +166,30 @@ def test_plan_golden_numbers_only(
 ) -> None:
     _numbers(project_root)
     assert_golden("plan_numbers_only", run_cli("plan"))
+
+
+def test_check_is_0_when_current_and_writes_nothing(project_root: Path, run_cli: RunCli) -> None:
+    _numbers(project_root)
+    run_cli("plan")
+    before = (project_root / "founder" / "business-plan.md").stat().st_mtime_ns
+    run = run_cli("plan", "--check")
+    assert run.exit_code == 0
+    assert run.stdout == "business-plan.md khớp với các file hiện có\n"
+    assert (project_root / "founder" / "business-plan.md").stat().st_mtime_ns == before
+
+
+def test_check_is_1_when_missing_and_creates_nothing(project_root: Path, run_cli: RunCli) -> None:
+    _numbers(project_root)
+    run = run_cli("plan", "--check")
+    assert run.exit_code == 1
+    assert run.stdout == "business-plan.md chưa có: chạy `founder-vn plan`\n"
+    assert "business-plan.md" not in run.files
+
+
+def test_check_is_1_when_a_source_changed_since(project_root: Path, run_cli: RunCli) -> None:
+    _numbers(project_root)
+    run_cli("plan")
+    _numbers(project_root, price="10k")
+    run = run_cli("plan", "--check")
+    assert run.exit_code == 1
+    assert run.stdout == "business-plan.md đã cũ so với các file hiện có: chạy `founder-vn plan`\n"
