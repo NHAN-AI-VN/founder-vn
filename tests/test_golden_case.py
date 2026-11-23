@@ -13,6 +13,7 @@ PHONE = re.compile(r"\b0\d{9}\b|\+84")
 STREET_ADDRESS = re.compile(r"\b[Ss]ố \d+[A-Za-z/]*,? (?:đường|Đường|phố|Phố) ")
 
 SUB_DISTRICT_NAMES = ("Phú Mỹ Hưng",)
+LEGAL_CLAIMS = ("thuế thuê nhà 10%", "bảo hiểm xã hội", "48 giờ/tuần")
 
 UPSTREAM_BULLETS = (
     "- Là gì:",
@@ -58,3 +59,9 @@ def test_readme_names_the_example_directory_as_the_golden_case() -> None:
     assert "examples/barbershop/" in text
     assert "golden case" in text.lower()
 
+
+
+def test_idea_file_carries_no_unsourced_legal_or_tax_claim() -> None:
+    text = IDEA.read_text(encoding="utf-8")
+    for claim in LEGAL_CLAIMS:
+        assert claim not in text, claim
