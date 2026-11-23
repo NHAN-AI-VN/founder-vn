@@ -15,6 +15,7 @@ from typing import Any
 from founder_vn import files
 
 PANEL_DIR = "panel"
+DEFAULT_N = 20
 INCOME_STEP = 100_000
 REASONS = ("price", "habit", "need", "trust", "quality", "convenience", "timing", "values", "other")
 REASON_LABELS = {

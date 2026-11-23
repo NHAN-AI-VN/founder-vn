@@ -46,7 +46,7 @@ def pricing_psm(source: str, as_json: bool = False, out: str | None = None) -> s
 def panel_init(
     customer: str = "customer.json",
     pitch: str = "pitch.md",
-    n: int = 100,
+    n: int = panel.DEFAULT_N,
     seed: int | None = None,
 ) -> str:
     """Deal persona cards (same text as `founder-vn panel init`).

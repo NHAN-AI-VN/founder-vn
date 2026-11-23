@@ -30,7 +30,7 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser = panel_sub.add_parser("init", help="deal persona cards from customer.json")
     init_parser.add_argument("--customer", default="customer.json", help="under founder/")
     init_parser.add_argument("--pitch", default="pitch.md", help="under founder/")
-    init_parser.add_argument("--n", type=int, default=100, help="number of buyers")
+    init_parser.add_argument("--n", type=int, default=panel.DEFAULT_N, help="number of buyers")
     init_parser.add_argument("--seed", type=int, help="same seed, same cards")
     panel_sub.add_parser("check", help="list buyers whose answer is missing or broken")
     save_parser = panel_sub.add_parser("save", help="file a buyer's printed reply (stdin)")

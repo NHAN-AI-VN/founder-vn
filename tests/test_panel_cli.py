@@ -335,3 +335,9 @@ def test_price_answers_are_consumable_by_pricing(tallied: CliRun, run_cli: RunCl
     run = run_cli("pricing", "panel/pricing_input.json", "--json")
     assert run.exit_code == 0
     assert json.loads(run.stdout)["answers"] == {"valid": 3, "dropped": 0}
+
+
+def test_init_without_n_deals_twenty_cards(founder: Path, run_cli: RunCli) -> None:
+    run = run_cli("panel", "init", "--seed", "7")
+    assert run.exit_code == 0
+    assert len(_cards(run)) == 20

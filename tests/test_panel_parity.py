@@ -67,3 +67,15 @@ def test_panel_tally_cli_equals_mcp_seed_7(
     text = mcp_call("panel_tally", None)
     assert text == cli.stdout
     assert _files(project_root) == cli.files
+
+
+def test_panel_init_default_n_is_twenty_on_cli_and_mcp(
+    project_root: Path, run_cli: Callable[..., CliRun], mcp_call: McpCall
+) -> None:
+    _restore(project_root, _inputs())
+    cli = run_cli("panel", "init", "--seed", "7")
+    assert len(json.loads(cli.files["panel/personas.json"])) == 20
+    _restore(project_root, _inputs())
+    text = mcp_call("panel_init", {"seed": 7})
+    assert text == cli.stdout
+    assert _files(project_root) == cli.files
