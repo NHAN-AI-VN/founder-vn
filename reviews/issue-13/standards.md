@@ -1,35 +1,43 @@
-Commit mã đã chấm: cada7bc77114
+Commit mã đã chấm: 4981e1d420d3
 
-# Review trục Standards, issue #13, vòng 2
+# Review trục Standards, #13 founder-competitors, vòng 3
 
-**Phán quyết: CHANGES_REQUESTED**
+Phán quyết: PASS.
 
 ## Phạm vi đã xét
 
-`git diff --stat main...HEAD` và `git log --stat main..HEAD` (6 commit: `b866f59` seam, `c50706a` slice, `ffdf727` evidence, `d193b6a` và `cada7bc` docs, `b139fd8` review spec). Đã đọc: `skills/founder-competitors/SKILL.md`, `skills/founder-competitors/survey-form.md`, `examples/barbershop/founder/survey-form.md`, `tests/test_competitors_skill.py`, `docs/evidence/issue-13-founder-competitors.md`. Chuẩn đối chiếu: `AGENTS.md`, `docs/agents/standards.md`, `docs/agents/evidence-gates.md`, `docs/agents/parallel-lanes.md`, `.kiro/skills/code-review/SKILL.md`. CI Gate ở `cada7bc77114`: success (theo tin nhắn mở đầu). Tôi chạy lại `uv run python scripts/skill_lint.py`: 1 skill, 2 file ví dụ, 0 finding, phiên bản package 0.1.0.
+`git diff --stat main...HEAD` và `git log --oneline main..HEAD` (b866f59 đến 4981e1d), toàn bộ diff đọc lại từ đầu. Chuẩn đối chiếu: `AGENTS.md`, `docs/agents/standards.md` (mục Shape of the code, Tests, Owner-facing output, Skills, Git), `docs/agents/evidence-gates.md`, `docs/agents/parallel-lanes.md`, `docs/founder-vn-design.md` §2 đến §5. File xét: `skills/founder-competitors/SKILL.md`, `skills/founder-competitors/survey-form.md`, `examples/barbershop/founder/survey-form.md`, `examples/barbershop/founder/competitors.md`, `tests/test_competitors_skill.py`, `docs/evidence/issue-13-founder-competitors.md`.
 
-Đạt: không đụng `src/` (không có phép tính thiếu parity, không ghi file ngoài lớp khoá, không số mặc định hay tỷ lệ hardcode); không `$` cạnh chữ số; xưng "anh/chị", đầu ra cho chủ hộ bằng tiếng Việt; `metadata.version` "0.1.0" khớp package; ví dụ có link nguồn và ngày truy cập 23/11/2026, khai rõ phương pháp bàn giấy; không lộ biến `FOUNDER_LLM_*`; commit `seam:` đứng trước commit `slice(`; test nằm ở seam đã khai (file skill, form, `install.run`); không có test gọi mạng.
+## Kết quả vòng 2 (S1, S2)
 
-## Finding chặn
+- S1 (cổng stale): đã xử lý. Khối `## Cổng ba đoạn` nay ghi `verify` GREEN ở `49a103f`, commit cuối chạm `skills/`, `tests/`, `examples/`. Hai commit sau đó (`3c83c5a`, `4981e1d`) chỉ chạm `reviews/` và `docs/evidence/`. `49a103f` không phải tổ tiên-stale của commit mã cuối, nó chính là commit mã cuối.
+- S2 (evidence): đã xử lý. Câu "Criterion 4 ... BLOCKED" đã thay bằng kết quả checklist; `## Giới hạn` có dòng lệnh đã chạy cho file ví dụ (`skill_lint.py`, `pytest`, kiểm link và đường dẫn); `## Giải quyết review nội bộ` đã điền.
 
-### S1: cổng ba đoạn trong evidence đã stale
+## Hình dạng vòng lặp
 
-- Chỗ: `docs/evidence/issue-13-founder-competitors.md`, khối `## Cổng ba đoạn` ghi `Last code commit: c50706a` và `gate-segment verify: GREEN on c50706a8c96e...`.
-- Sai: HEAD mã đang chấm là `cada7bc77114`. `c50706a` là tổ tiên của nó. Sau `c50706a`, `d193b6a` đã thêm file ví dụ 255 dòng vào `examples/`, và `cada7bc` phải sửa vì bước pytest của Gate đỏ (`test_example_is_anonymised`). Con số `233 passed` vì thế không còn nói gì về cây hiện tại, và cổng `static` (skill-lint nay quét thêm 2 file ví dụ) chưa được ghi lại ở SHA mới.
-- Chuẩn: `docs/agents/evidence-gates.md`, mục "Where evidence lives" (`GREEN on <sha>` phải là commit mã cuối); tin nhắn mở đầu lượt: SHA là tổ tiên của commit mã cuối thì cổng đã stale.
-- Chặn vì bằng chứng hoàn thành không khớp cây được giao. Sửa bằng commit bổ sung: chạy lại ba đoạn `scripts/harness/gate-segment.sh static|unit|build` rồi `verify` ở commit mã cuối (sau mọi sửa của lượt Spec), ghi SHA mới và số đếm mới. Không viết lại lịch sử.
+- (a) `b866f59 seam:` mang `## Seam`, đứng trước mọi commit `slice(`. Đạt.
+- (b) Diff không chạm `src/`; không commit nào cần test của `src/`. Mọi commit `slice(` chạm `tests/test_competitors_skill.py`; mỗi lát có dòng trong `## Lát` với assertion đỏ và lệnh chạy xanh. Đạt.
+- (c) Test ở seam đã khai (đọc `SKILL.md`, `survey-form.md`, golden example, qua `install.run`), không ở internals. Đạt.
+- (d) Cổng GREEN ở commit mã cuối `49a103f`. Đạt.
 
-### S2: evidence không ghi các commit sau slice và còn nêu giới hạn sai
+## Checklist skill và ví dụ
 
-- Chỗ: `docs/evidence/issue-13-founder-competitors.md`, mục `## Giới hạn` (dòng "Criterion 4 is not proven ... BLOCKED on the real survey") và mục `## Giải quyết review nội bộ` (tiêu đề rỗng).
-- Sai: (a) hai commit `d193b6a`, `cada7bc` thêm `examples/barbershop/founder/survey-form.md` mà evidence không có dòng nào: không ghi lệnh kiểm (link, đường dẫn, `scripts/skill_lint.py`), không ghi lỗi `test_example_is_anonymised` đã đỏ rồi xanh. (b) Giới hạn nói không có phiếu khảo sát, trái với file đã nằm trong repo. (c) Mục review nội bộ để trống dù lane đã có finding được xử lý (Gate đỏ ở `d193b6a`, chữa ở `cada7bc`).
-- Chuẩn: `docs/agents/evidence-gates.md`, bảng "Evidence by change type" (Documentation, skill or example: link/path validation, `skill_lint.py` green, source-pointer review) và "Where evidence lives" (mục **limits** nói đúng điều lát không chứng minh; mục `## Giải quyết review nội bộ`); `AGENTS.md`/`standards.md` (Git): commit nêu ticket, khẳng định phải có bằng chứng tái lập được.
-- Chặn vì khẳng định trong evidence mâu thuẫn với nội dung diff. Sửa: cập nhật `## Giới hạn` theo trạng thái thật (và theo kết quả lượt sửa Spec về `competitors.md`), thêm dòng bằng chứng cho file ví dụ, điền mục review nội bộ.
+- `$` cạnh chữ số: `uv run python scripts/skill_lint.py` báo 0 finding (1 skill, 3 file ví dụ).
+- Tiếng Anh trong đầu ra cho chủ hộ: `competitors.md` và phiếu bằng tiếng Việt, xưng "anh/chị". Các cụm tiếng Anh còn lại là tên dịch vụ niêm yết của đối thủ (Men's Cut, Executive Grooming Set, Essential Cut), không phải chữ của skill.
+- Số liệu có link và ngày: cột nguồn mỗi dòng có link và "ngày 23/11/2026"; mục `## 4` nói các link lấy từ phiếu. Không có khẳng định pháp lý hay thuế.
+- Miễn trừ trách nhiệm: có ở cuối `competitors.md` và trong `SKILL.md`, theo phương pháp khảo sát.
+- Cảnh báo "mẫu nhỏ" và phương pháp bàn giấy: có ở bản đồ định vị và khoảng trống. Không có kết quả panel nên không cần cảnh báo cận trên.
+- `metadata.version` "0.1.0" khớp phiên bản package 0.1.0 (lint xác nhận).
+- Phần giao thức dùng chung (kiểm phiên bản, MCP trước CLI, không tự tính, không trả lời thay người mua, không viết phán quyết) có đủ.
+
+## Kiểm chứng đã chạy ở HEAD
+
+`uv run pytest -q`: 238 passed. `uv run ruff check .`: sạch. Gate CI run 45149812237 ở `4981e1d420d3`: success. Diff không chạm `src/`, `scripts/`, `.github/`, nên không có ghi ngoài lớp khoá đường dẫn, không tính toán chỉ có ở một transport, không hardcode thuế, không gọi mạng trong test.
 
 ## Chưa xác minh
 
-- Không có bản tham chiếu T02 của đoạn `## Protocol` trong repo ở nhánh này (chỉ có một skill), nên không đối chiếu được "chép nguyên văn từ ticket T02". Văn bản khớp năm ý của `standards.md` (kiểm phiên bản, MCP trước CLI, không tự tính, không trả lời thay người mua, không viết phán quyết).
-- Lượt Spec (`reviews/issue-13/spec.md`) yêu cầu sửa `SKILL.md` và thêm `examples/barbershop/founder/competitors.md`. Khi đó sẽ có thêm golden file mới và quy tắc mới trong skill; tôi chưa chấm chúng. Mỗi thay đổi cần test ở seam, cổng chạy lại ở commit cuối, và checklist skill (disclaimer, link kèm ngày kiểm chứng, không `$`) áp dụng lại.
-- Chất lượng thực của các link trong file ví dụ (còn sống hay không) chưa được kiểm; tôi không tải lại các trang đó.
+- Lượt chạy skill trên phiếu mẫu là của chính agent lane, không phải một phiên Kiro CLI độc lập; evidence đã khai điều này ở `## Giới hạn`. Test chỉ đọc văn bản chỉ dẫn, không kiểm hành vi mô hình.
+- Link trong `competitors.md` chép từ phiếu, chưa kiểm còn sống.
+- Số lượt đánh giá trong bảng điểm sao không ghi ngày cập nhật của trang tổng hợp; `competitors.md` đã khai "ngày cập nhật không ghi".
 
-<promise>CHANGES_REQUESTED</promise>
+<promise>PASS</promise>
