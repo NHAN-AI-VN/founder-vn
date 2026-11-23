@@ -149,9 +149,18 @@ jobs:
           # 11 minutes for a cron that never fired (FV-M-7). So this step waits here, one minute at
           # a time, up to twelve, and decides again; a newer push cancels this run and its own Gate
           # takes over.
+          # FV-D17: the same loop covers a turn Kiro refused. After a post it waits one minute and
+          # reads Kiro's reply (session limit or error reply: no session exists); the orchestrator
+          # then answers "wait: … refused …" until refused_minutes have passed and posts the turn
+          # again from here, instead of leaving it to a cron that fires every few hours (FV-M-8).
           for i in $(seq 1 12); do
-            jq -e '.action == "wait" and (.reasons | any(test("settling")))' "$HARNESS_DECISION_FILE" >/dev/null 2>&1 || break
-            echo "branch still settling after an address turn (minute $i of 12): deciding again in 60 s"
+            if jq -e '.action == "post" or .action == "address" or .action == "sync"' "$HARNESS_DECISION_FILE" >/dev/null 2>&1; then
+              echo "turn posted: reading Kiro's reply in 60 s (minute $i of 12)"
+            elif jq -e '.action == "wait" and (.reasons | any(test("settling|refused")))' "$HARNESS_DECISION_FILE" >/dev/null 2>&1; then
+              echo "branch settling or turn refused (minute $i of 12): deciding again in 60 s"
+            else
+              break
+            fi
             sleep 60
             bash "$h/scripts/harness/review-web.sh" --pr "$pr" --repo "$GITHUB_REPOSITORY" --apply
           done

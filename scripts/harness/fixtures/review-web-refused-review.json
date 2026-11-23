@@ -1,0 +1,49 @@
+{
+  "enabled": true,
+  "lane": {
+    "ticket": 9,
+    "head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "code": "cccccccccccccccccccccccccccccccccccccccc"
+  },
+  "gate": {
+    "required": true,
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "reports": {
+    "standards": {
+      "current": false,
+      "signal": "<promise>CHANGES_REQUESTED</promise>"
+    },
+    "spec": {
+      "current": false,
+      "signal": "<promise>CHANGES_REQUESTED</promise>"
+    }
+  },
+  "now": "2026-11-23T04:00:00Z",
+  "limits": {
+    "rounds": 2,
+    "attempts": 2,
+    "turns": 14,
+    "stale_minutes": 120,
+    "quiet_minutes": 10,
+    "refused_minutes": 5,
+    "refusals": 6
+  },
+  "turns": [
+    {
+      "axis": "standards",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": 1,
+      "at": "2026-11-23T03:58:00Z",
+      "refused": true
+    },
+    {
+      "axis": "spec",
+      "code": "cccccccccccccccccccccccccccccccccccccccc",
+      "round": 1,
+      "at": "2026-11-23T03:58:00Z",
+      "refused": false
+    }
+  ]
+}

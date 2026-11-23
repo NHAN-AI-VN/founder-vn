@@ -1,0 +1,42 @@
+[
+  {
+    "login": "nhannguyen89",
+    "created_at": "2026-11-23T03:47:57Z",
+    "body": "/kiro Lượt sửa, vòng 1, cho issue #9.\n\n<!-- harness:turn axis=address code=26278a08ded3ca864c4eed5bb6f8b67f1c57a997 head=6fbf4977b249aaaaaaaaaaaaaaaaaaaaaaaaaaaa round=1 at=2026-11-23T03:47:57Z -->"
+  },
+  {
+    "login": "kiro-agent[bot]",
+    "created_at": "2026-11-23T03:48:03Z",
+    "body": "You've reached your session limit. Please wait for an existing session to finish, then mention /kiro again."
+  },
+  {
+    "login": "nhannguyen89",
+    "created_at": "2026-11-23T03:53:10Z",
+    "body": "/kiro Lượt sửa, vòng 1, cho issue #9 (ra lệnh lại).\n\n<!-- harness:turn axis=address code=26278a08ded3ca864c4eed5bb6f8b67f1c57a997 head=6fbf4977b249aaaaaaaaaaaaaaaaaaaaaaaaaaaa round=1 at=2026-11-23T03:53:10Z -->"
+  },
+  {
+    "login": "kiro-agent[bot]",
+    "created_at": "2026-11-23T03:53:16Z",
+    "body": "Taking a look at this issue and I'll get started soon.\n\n---\n<a href=\"https://app.kiro.dev/session/00000000-0000-0000-0000-000000000000\">View session</a>"
+  },
+  {
+    "login": "nhannguyen89",
+    "created_at": "2026-11-23T04:10:00Z",
+    "body": "/kiro Lượt sửa, vòng 2, cho issue #9.\n\n<!-- harness:turn axis=address code=ddddddddddddddddddddddddddddddddddddddd1 head=ddddddddddddddddddddddddddddddddddddddd1 round=2 at=2026-11-23T04:10:00Z -->"
+  },
+  {
+    "login": "nhannguyen89",
+    "created_at": "2026-11-23T04:10:30Z",
+    "body": "You've reached your session limit (quoted by a human, not Kiro's reply: must not count)."
+  },
+  {
+    "login": "nhannguyen89",
+    "created_at": "2026-11-23T04:20:00Z",
+    "body": "/kiro Lượt sửa, vòng 3, cho issue #9.\n\n<!-- harness:turn axis=address code=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee1 head=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee1 round=3 at=2026-11-23T04:20:00Z -->"
+  },
+  {
+    "login": "kiro-agent[bot]",
+    "created_at": "2026-11-23T04:20:05Z",
+    "body": "Something went wrong while processing your request. Please try again."
+  }
+]

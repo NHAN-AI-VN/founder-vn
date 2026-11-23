@@ -43,6 +43,10 @@ max_attempts=${HARNESS_TURN_ATTEMPTS:-2}
 max_turns=${HARNESS_MAX_TURNS:-14}
 stale_minutes=${HARNESS_TURN_STALE_MINUTES:-120}
 quiet_minutes=${HARNESS_QUIET_MINUTES:-10}
+# FV-D17: a turn Kiro refused (session limit, error reply) is posted again after refused_minutes,
+# at most refusals times for one code; the Gate tail waits these minutes out in its own run.
+refused_minutes=${HARNESS_REFUSED_MINUTES:-5}
+refusals=${HARNESS_TURN_REFUSALS:-6}
 turn_label=${HARNESS_TURN_LABEL:-harness:turn}
 prompts=${HARNESS_PROMPTS:-$here/../../.kiro/prompts}
 
@@ -145,8 +149,11 @@ turns='[]'
 for axis in standards spec address; do
   n=$(issue_of "$axis")
   [ -n "$n" ] || continue
-  t=$(gh api "repos/$repo/issues/$n/comments?per_page=100" --paginate \
-    --jq '[ .[] | .body | capture("<!-- harness:turn axis=(?<axis>[a-z]+) code=(?<code>[0-9a-f]+) head=(?<head>[0-9a-f]+) round=(?<round>[0-9]+) at=(?<at>[0-9TZ:-]+) -->") ]' 2>/dev/null || printf '[]')
+  # review-turns.jq reads the turns and, for each, Kiro's first reply: its session limit or its
+  # error reply means no session exists and the turn is `refused` (FV-D17).
+  comments=$(gh api "repos/$repo/issues/$n/comments?per_page=100" --paginate \
+    --jq '[ .[] | { login: .user.login, created_at, body } ]' 2>/dev/null | jq -s 'add // []' 2>/dev/null) || comments='[]'
+  t=$(jq -f "$here/review-turns.jq" <<< "$comments" 2>/dev/null) || t='[]'
   turns=$(jq --argjson t "$t" '. + $t' <<< "$turns")
 done
 turns=$(jq 'sort_by(.at)' <<< "$turns")
@@ -159,12 +166,13 @@ input=$(jq -n --argjson enabled "$([ "$enabled" = on ] && echo true || echo fals
   --argjson gate "$gate" --argjson standards "$standards" --argjson spec "$spec" --argjson turns "$turns" --arg now "$now" \
   --argjson rounds "$max_rounds" --argjson attempts "$max_attempts" --argjson maxturns "$max_turns" --argjson stale "$stale_minutes" \
   --arg headAt "$head_at" --argjson parked "$parked" --argjson quiet "$quiet_minutes" --arg mergeable "$mergeable" \
+  --argjson refusedmin "$refused_minutes" --argjson refusals "$refusals" \
   '{ enabled: $enabled, lane: { ticket: $ticket, head: $head, code: $code, headAt: (if $headAt == "" then null else $headAt end), parked: $parked, mergeable: $mergeable },
      gate: { required: $gate.required, status: $gate.status, conclusion: $gate.conclusion },
      reports: { standards: $standards, spec: $spec }, turns: $turns, now: $now,
-     limits: { rounds: $rounds, attempts: $attempts, turns: $maxturns, stale_minutes: $stale, quiet_minutes: $quiet } }')
+     limits: { rounds: $rounds, attempts: $attempts, turns: $maxturns, stale_minutes: $stale, quiet_minutes: $quiet, refused_minutes: $refusedmin, refusals: $refusals } }')
 decision=$(jq -f "$here/review-web.jq" <<< "$input")
-log "#$pr (ticket #$ticket, $head_ref): head ${head:0:12}, code ${code:0:12}, gate $(jq -r '"\(.status // "none")/\(.conclusion // "-")"' <<< "$gate"), standards $(jq -r '"\(.current)/\(.signal)"' <<< "$standards"), spec $(jq -r '"\(.current)/\(.signal)"' <<< "$spec"), turns $(jq length <<< "$turns"), head at ${head_at:-?}, parked $parked, mergeable $mergeable"
+log "#$pr (ticket #$ticket, $head_ref): head ${head:0:12}, code ${code:0:12}, gate $(jq -r '"\(.status // "none")/\(.conclusion // "-")"' <<< "$gate"), standards $(jq -r '"\(.current)/\(.signal)"' <<< "$standards"), spec $(jq -r '"\(.current)/\(.signal)"' <<< "$spec"), turns $(jq length <<< "$turns") ($(jq '[ .[] | select(.refused) ] | length' <<< "$turns") refused), head at ${head_at:-?}, parked $parked, mergeable $mergeable"
 log "decision: $(jq -c . <<< "$decision")"
 [ -z "${HARNESS_DECISION_FILE:-}" ] || printf '%s\n' "$decision" > "$HARNESS_DECISION_FILE"
 action=$(jq -r .action <<< "$decision")
@@ -271,7 +279,11 @@ case "$action" in
   exhausted)
     park "hết vòng sửa" "Còn finding chặn sau $max_rounds vòng sửa (điểm dừng theo thiết kế). Operator sửa hoặc bác bỏ bằng commit trên nhánh lane rồi gỡ nhãn \`harness:blocked\`; commit ấy dời commit mã nên harness ra lệnh vòng review mới." ;;
   stalled)
-    park "lượt không trả lời" "Session Kiro Web không push gì sau $max_attempts lần ra lệnh (mỗi lần chờ $stale_minutes phút). Kiểm tra session ở app.kiro.dev; sau đó commit bất kỳ trên nhánh lane và gỡ nhãn \`harness:blocked\` để harness ra lệnh lại." ;;
+    if jq -e '.reasons | any(test("refused"))' <<< "$decision" >/dev/null 2>&1; then
+      park "Kiro từ chối mở session" "Kiro Web trả lời $refusals lần ra lệnh bằng giới hạn session (\"You've reached your session limit\", trần 10 cloud session song song theo tài liệu) hay lỗi (\"Something went wrong\"), mỗi lần cách nhau ít nhất $refused_minutes phút, nên không có session nào làm lượt này (FV-D17). Kiểm tra và dừng các session còn chạy ở app.kiro.dev; sau đó commit bất kỳ trên nhánh lane và gỡ nhãn \`harness:blocked\` để harness ra lệnh lại."
+    else
+      park "lượt không trả lời" "Session Kiro Web không push gì sau $max_attempts lần ra lệnh (mỗi lần chờ $stale_minutes phút). Kiểm tra session ở app.kiro.dev; sau đó commit bất kỳ trên nhánh lane và gỡ nhãn \`harness:blocked\` để harness ra lệnh lại."
+    fi ;;
   wait|off)
     log "nothing to post ($action)" ;;
   *)
