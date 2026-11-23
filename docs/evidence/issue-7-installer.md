@@ -45,13 +45,13 @@ New golden files `tests/golden/install_{kiro,claude,codex,grok,kirocrew}.json` a
 
 ## Cổng ba đoạn
 
-Run on HEAD `c124219` (later commits touch evidence only).
+Run on HEAD `94cb0d7` (last code commit `359ffee`; later commits touch evidence only).
 
 ```
-static 0 c1242198b6cd1a675b114e0af4833b2a0a631ae2
-unit 0 c1242198b6cd1a675b114e0af4833b2a0a631ae2
-build 0 c1242198b6cd1a675b114e0af4833b2a0a631ae2
-gate-segment verify: GREEN on c1242198b6cd1a675b114e0af4833b2a0a631ae2
+static 0 94cb0d7f8c8f6d8cb24532bb07ac4dd5037ad434
+unit 0 94cb0d7f8c8f6d8cb24532bb07ac4dd5037ad434
+build 0 94cb0d7f8c8f6d8cb24532bb07ac4dd5037ad434
+gate-segment verify: GREEN on 94cb0d7f8c8f6d8cb24532bb07ac4dd5037ad434
 ```
 
 Logs: `All checks passed!`, `132 passed`, `Successfully built dist/founder_vn-0.1.0-py3-none-any.whl`. The built wheel lists `founder_vn/skills/.gitkeep`, so `skills/` is packaged via hatch `force-include`.
