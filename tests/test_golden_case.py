@@ -60,7 +60,6 @@ def test_readme_names_the_example_directory_as_the_golden_case() -> None:
     assert "golden case" in text.lower()
 
 
-
 def test_idea_file_carries_no_unsourced_legal_or_tax_claim() -> None:
     text = IDEA.read_text(encoding="utf-8")
     for claim in LEGAL_CLAIMS:
