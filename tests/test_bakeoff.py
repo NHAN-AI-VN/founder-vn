@@ -311,3 +311,52 @@ def test_only_reruns_the_named_candidates_and_keeps_the_other_rows(
         "5",
     ]
     assert bakeoff.main(argv) == 0
+
+
+SCORES = {
+    "judge": "agent độc lập (fake), chấm mù A/B",
+    "scored_at": "2026-11-24",
+    "scores": {
+        "mo-hinh-a": {"voice": 3, "honesty": 3, "note": "câu dài, bỏ trống giá"},
+        "mo-hinh-b": {"voice": 4, "honesty": 4, "note": "giọng đời thường, đủ giá"},
+        "mo-hinh-c": {
+            "voice": None,
+            "honesty": None,
+            "note": "không chạy được trên bậc miễn phí, không đánh giá",
+        },
+    },
+}
+
+
+def test_render_fills_the_scoring_form_from_scores_json_without_calling_any_model(
+    bakeoff_dir: Path, monkeypatch: pytest.MonkeyPatch, fake_provider: FakeProvider
+) -> None:
+    _setenv(monkeypatch, fake_provider)
+    fake_provider.script = lambda body, n: (200, _answer(_buyer(body), True, body["model"]), 0.0)
+    assert bakeoff.main([str(bakeoff_dir), "--seed", "7", "--pause", "0"]) == 0
+    text = (bakeoff_dir / "replies.md").read_text(encoding="utf-8")
+    assert "| mo-hinh-b |  |  |  |" in text and "Mô hình tham chiếu" not in text
+    (bakeoff_dir / "scores.json").write_text(json.dumps(SCORES, ensure_ascii=False), "utf-8")
+    spec = json.loads((bakeoff_dir / "models.json").read_text(encoding="utf-8"))
+    spec["reference"] = "mo-hinh-b"
+    (bakeoff_dir / "models.json").write_text(json.dumps(spec, ensure_ascii=False), "utf-8")
+    fake_provider.requests.clear()
+    for name in ("FOUNDER_LLM_BASE_URL", "FOUNDER_LLM_API_KEY", "FOUNDER_LLM_MODEL"):
+        monkeypatch.delenv(name, raising=False)
+    assert bakeoff.main([str(bakeoff_dir), "--render"]) == 0
+    assert fake_provider.requests == []
+    text = (bakeoff_dir / "replies.md").read_text(encoding="utf-8")
+    assert "| mo-hinh-a | 3 | 3 | câu dài, bỏ trống giá |" in text
+    assert "| mo-hinh-b | 4 | 4 | giọng đời thường, đủ giá |" in text
+    assert "| mo-hinh-c | — | — | không chạy được trên bậc miễn phí, không đánh giá |" in text
+    assert "agent độc lập (fake), chấm mù A/B" in text and "2026-11-24" in text
+    assert "Mô hình tham chiếu đã chọn: `mo-hinh-b`" in text
+    assert json.loads((bakeoff_dir / "results.json").read_text(encoding="utf-8"))["seed"] == 7
+    (bakeoff_dir / "scores.json").write_text(
+        json.dumps({**SCORES, "scores": {"mo-hinh-a": {"voice": 7, "honesty": 3, "note": ""}}}),
+        "utf-8",
+    )
+    with pytest.raises(bakeoff.BakeoffError, match=r"scores\.mo-hinh-a\.voice"):
+        bakeoff.load_scores(bakeoff_dir)
+    (bakeoff_dir / "scores.json").unlink()
+    assert bakeoff.load_scores(bakeoff_dir) is None

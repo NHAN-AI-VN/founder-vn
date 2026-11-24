@@ -115,6 +115,43 @@ def load_pitch(directory: Path) -> str:
     return text
 
 
+def _score(value: Any, where: str) -> None:
+    if value is None:
+        return
+    if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 5:
+        raise BakeoffError(f"'{where}' phải là số nguyên từ 1 đến 5, hoặc null khi không đánh giá")
+
+
+def load_scores(directory: Path) -> dict[str, Any] | None:
+    """The owner's (or their judge's) ``scores.json``, or None when the file does not exist.
+
+    Shape: ``judge`` (who scored and how), ``scored_at`` (YYYY-MM-DD), ``scores`` mapping a model
+    name to ``voice`` and ``honesty`` (1–5 or null) and a ``note``.
+    """
+    if not (directory / "scores.json").exists():
+        return None
+    spec = _read_json(directory, "scores.json")
+    if not isinstance(spec, dict):
+        raise BakeoffError("scores.json phải là một đối tượng JSON")
+    if not isinstance(spec.get("judge"), str) or not spec["judge"].strip():
+        raise BakeoffError("scores.json thiếu trường 'judge' (ai chấm, chấm thế nào)")
+    if not isinstance(spec.get("scored_at"), str) or not DATE.fullmatch(spec["scored_at"]):
+        raise BakeoffError("'scored_at' phải là ngày chấm, dạng YYYY-MM-DD")
+    scores = spec.get("scores")
+    if not isinstance(scores, dict) or not scores:
+        raise BakeoffError("scores.json thiếu trường 'scores' (điểm theo tên mô hình)")
+    for name, entry in scores.items():
+        if not isinstance(entry, dict):
+            raise BakeoffError(f"'scores.{name}' phải là một đối tượng JSON")
+        for field in ("voice", "honesty"):
+            if field not in entry:
+                raise BakeoffError(f"scores.json thiếu trường 'scores.{name}.{field}'")
+            _score(entry[field], f"scores.{name}.{field}")
+        if not isinstance(entry.get("note", ""), str):
+            raise BakeoffError(f"'scores.{name}.note' phải là chuỗi")
+    return spec
+
+
 def _cost(candidate: dict[str, Any], reply: llm.Reply) -> float | None:
     if reply.prompt_tokens is None or reply.completion_tokens is None:
         return None
@@ -228,8 +265,13 @@ def _cell(value: Any) -> str:
     return "—" if value in (None, "") else str(value).replace("|", "/").replace("\n", " ")
 
 
-def replies_md(results: dict[str, Any]) -> str:
-    """The Vietnamese side-by-side document the owner reads to judge voice and honesty."""
+def replies_md(
+    results: dict[str, Any],
+    scores: dict[str, Any] | None = None,
+    reference: str | None = None,
+) -> str:
+    """The Vietnamese side-by-side document the owner reads to judge voice and honesty; with
+    ``scores`` the form is filled, with ``reference`` the chosen model is named."""
     models = results["models"]
     lines = [
         "# Bake-off mô hình cho panel người mua",
@@ -261,13 +303,33 @@ def replies_md(results: dict[str, Any]) -> str:
         "",
         "## Phiếu chấm của chủ dự án",
         "",
-        'Đọc mục "Từng người mua" rồi chấm 1–5 (5 là tốt nhất). Mô hình được chọn ghi vào '
-        "trường `reference` của `models.json`.",
+    ]
+    if scores is None:
+        lines.append(
+            'Đọc mục "Từng người mua" rồi chấm 1–5 (5 là tốt nhất) vào `scores.json`, rồi chạy '
+            "lại script với `--render`. Mô hình được chọn ghi vào trường `reference` của "
+            "`models.json`."
+        )
+    else:
+        lines.append(
+            f"Chấm bởi: {scores['judge']}, ngày {scores['scored_at']}. Thang 1–5, 5 là tốt nhất."
+        )
+    lines += [
         "",
         "| mô hình | giọng Việt tự nhiên (1–5) | thẳng thắn, không chiều người bán (1–5) | ghi chú |",
         "| --- | ---: | ---: | --- |",
     ]
-    lines += [f"| {m['name']} |  |  |  |" for m in models]
+    for m in models:
+        entry = (scores or {}).get("scores", {}).get(m["name"])
+        if entry is None:
+            lines.append(f"| {m['name']} |  |  |  |")
+        else:
+            lines.append(
+                f"| {m['name']} | {_cell(entry['voice'])} | {_cell(entry['honesty'])} | "
+                f"{_cell(entry.get('note'))} |"
+            )
+    if reference:
+        lines += ["", f"Mô hình tham chiếu đã chọn: `{reference}` (quyết định của chủ dự án)."]
     lines += ["", "## Từng người mua"]
     for card in results["personas"]:
         lines += [
@@ -369,7 +431,24 @@ def run(
         "replies": rows,
     }
     (directory / "results.json").write_text(_dump(results), encoding="utf-8")
-    (directory / "replies.md").write_text(replies_md(results), encoding="utf-8")
+    (directory / "replies.md").write_text(
+        replies_md(results, load_scores(directory), spec.get("reference")), encoding="utf-8"
+    )
+    return results
+
+
+def render(directory: Path) -> dict[str, Any]:
+    """Rewrite ``replies.md`` from the existing ``results.json``, ``scores.json`` and the
+    ``reference`` of ``models.json``; no model is called, no configuration is needed."""
+    spec = load_models(directory)
+    results = _read_json(directory, "results.json")
+    if not isinstance(results, dict) or "models" not in results or "replies" not in results:
+        raise BakeoffError(
+            "results.json không phải kết quả của script này; chạy lại không --render"
+        )
+    (directory / "replies.md").write_text(
+        replies_md(results, load_scores(directory), spec.get("reference")), encoding="utf-8"
+    )
     return results
 
 
@@ -398,16 +477,24 @@ def main(argv: list[str] | None = None) -> int:
         metavar="MODEL",
         help="ask only this candidate again (repeatable); other rows kept from results.json",
     )
+    parser.add_argument(
+        "--render",
+        action="store_true",
+        help="rewrite replies.md from results.json, scores.json and models.json; no model call",
+    )
     args = parser.parse_args(argv)
     try:
-        results = run(
-            args.directory,
-            seed=args.seed,
-            pause=args.pause,
-            backoff=args.backoff,
-            timeout=args.timeout,
-            only=set(args.only) if args.only else None,
-        )
+        if args.render:
+            results = render(args.directory)
+        else:
+            results = run(
+                args.directory,
+                seed=args.seed,
+                pause=args.pause,
+                backoff=args.backoff,
+                timeout=args.timeout,
+                only=set(args.only) if args.only else None,
+            )
     except BakeoffError as e:
         print(f"lỗi: {e}", file=sys.stderr)
         return 2
@@ -417,7 +504,8 @@ def main(argv: list[str] | None = None) -> int:
             f"lỗi gọi {m['failed']}, độ trễ TB {_num(m['mean_seconds'], 1)} giây, chi phí TB "
             f"{_num(m['mean_cost_usd_per_buyer'], 6)} USD mỗi người mua"
         )
-    print(f"Đã ghi {args.directory / 'results.json'} và {args.directory / 'replies.md'}")
+    written = "replies.md" if args.render else "results.json và replies.md"
+    print(f"Đã ghi {written} trong {args.directory}")
     return 0
 
 
