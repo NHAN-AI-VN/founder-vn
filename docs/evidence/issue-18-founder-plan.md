@@ -41,17 +41,17 @@ Walked over `skills/*/SKILL.md` and `examples/barbershop/founder/**/*.md`, each 
 
 ## Cổng ba đoạn
 
-Last code commit: `41fcefb`. Each segment ran once; counts read from `.harness/gate-*.log`.
+Last code commit: `827dd83` (review round 1 fixes; the evidence-only commit after it changes no code). Each segment ran once; counts read from `.harness/gate-*.log`.
 
 ```
 bash scripts/harness/gate-segment.sh static
 bash scripts/harness/gate-segment.sh unit
 bash scripts/harness/gate-segment.sh build
 bash scripts/harness/gate-segment.sh verify
-static: ruff check "All checks passed!", ruff format --check "194 files already formatted", skill-lint "6 skills checked, 15 example file(s), 0 finding(s)"
-unit:   343 passed
+static: ruff check "All checks passed!", ruff format --check "196 files already formatted", skill-lint "6 skills checked, 15 example file(s), 0 finding(s)"
+unit:   347 passed
 build:  Successfully built dist/founder_vn-0.1.0-py3-none-any.whl
-verify: GREEN on 41fcefbccf2c3aa54518a318877967aff9d1a202
+verify: GREEN on 827dd83548086d30f71d5d7e3efd45f7d7619243
 ```
 
 ## Giới hạn
