@@ -6,7 +6,7 @@ description: >-
   "hòa vốn", "cần bao nhiêu vốn", "tính lãi lỗ", "có nên mở".
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
   author: founder-vn author
   source: https://github.com/Jakeschincariol/founder-skill
   commit: fd9385b0cfe1b96bebce3898fbd506d73eff5a9d
