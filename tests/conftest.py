@@ -170,7 +170,13 @@ def fake_provider() -> Iterator[FakeProvider]:
         def log_message(self, format: str, *args: Any) -> None:
             pass
 
-    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    class Server(ThreadingHTTPServer):
+        # socketserver's default listen backlog is 5; a wave of ten concurrent connects can
+        # overflow it, the refused call is retried by the panel after its 2 s backoff, and the
+        # concurrency the test measures drops below ten (flaky on macOS, diagnosed on lane #15).
+        request_queue_size = 64
+
+    server = Server(("127.0.0.1", 0), Handler)
     state.base_url = f"http://127.0.0.1:{server.server_address[1]}/v1"
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
