@@ -32,7 +32,7 @@ Cách mua: Quen tiệm, quen thợ. Cắt ở một tiệm quen gần nhà hoặ
 | --- | --- | --- | --- | ---: | --- | --- |
 | gemini-3.1-flash-lite | không | Tôi đã quen cắt ở tiệm gần nhà bao năm nay, thợ đã quá hiểu kiểu tóc của tôi rồi, nên không có lý do gì phải mạo hiểm thử chỗ mới dù dịch vụ bên bạn nghe khá bài bản. | Nếu tiệm quen của tôi đóng cửa hoặc thợ nghỉ việc, tôi sẽ cân nhắc ghé thử một lần vì thấy đánh giá trên Google Maps của bạn tốt. | 0 | — / — / — / — | hợp lệ |
 | gemini-3.5-flash-lite | không | Tôi đã cắt ở tiệm quen gần nhà bao năm nay, thợ rành tóc tôi rồi nên không muốn đổi qua tiệm mới làm gì. | Thợ quen nghỉ làm hoặc tiệm quen đóng cửa, cộng với việc tôi đọc được rất nhiều đánh giá 5 sao trên Google Maps khen tiệm này. | 0 | 50.000 đ / 199.000 đ / 350.000 đ / 500.000 đ | hợp lệ |
-| gemini-3.8-flash | — | lỗi gọi: quá thời gian chờ 90 giây | — | — | — | — |
+| gemini-3.8-flash | — | lỗi gọi: quá thời gian chờ 180 giây | — | — | — | — |
 
 ### P002 · Quang Vinh, 41 tuổi, Nhân viên văn phòng, thu nhập 20.500.000 đ/tháng
 
@@ -52,7 +52,7 @@ Cách mua: Mua gói, săn ưu đãi. Chờ khuyến mãi khai trương hoặc g�
 | --- | --- | --- | --- | ---: | --- | --- |
 | gemini-3.1-flash-lite | mua | Mức giá lẻ 199k hơi cao so với chỗ cũ, nhưng tính ra mua gói 12 lần tặng 2 thì chỉ còn tầm 165k/lần, chấp nhận được với dịch vụ trọn gói không chèo kéo. | — | 2 | 80.000 đ / 150.000 đ / 199.000 đ / 279.000 đ | hợp lệ |
 | gemini-3.5-flash-lite | mua | Bình thường tôi hay cắt 125-150k nên 199k hơi cao, nhưng bên này có gói 12 lần tặng 2 thành ra mua gói thì tính ra chỉ tầm 166k/lần, lại gần văn phòng và không bị chèo kéo bán thêm mỹ phẩm nên tôi thấy hợp lý. | — | 2 | 80.000 đ / 160.000 đ / 199.000 đ / 279.000 đ | hợp lệ |
-| gemini-3.8-flash | — | lỗi gọi: máy chủ mô hình trả mã 503 | — | — | — | — |
+| gemini-3.8-flash | — | lỗi gọi: quá thời gian chờ 180 giây | — | — | — | — |
 
 ### P004 · Hồng Nhung, 29 tuổi, Nhân viên văn phòng, thu nhập 22.100.000 đ/tháng
 
@@ -62,7 +62,7 @@ Cách mua: Đặt lịch qua app, trả QR. Chọn thợ và giờ trên app ho�
 | --- | --- | --- | --- | ---: | --- | --- |
 | gemini-3.1-flash-lite | mua | Cách đặt lịch qua app/Zalo và cam kết không chèo kéo làm mình thấy thoải mái, phù hợp với giờ giấc văn phòng bận rộn của mình. | — | 1 | — / — / — / — | hợp lệ |
 | gemini-3.5-flash-lite | mua | Tiệm ngay gần văn phòng, lại đặt được lịch qua app và Zalo đúng khung giờ sau 18:00 nên rất hợp với lịch bận rộn của mình. | — | 2 | 80.000 đ / 199.000 đ / 350.000 đ / 500.000 đ | hợp lệ |
-| gemini-3.8-flash | — | lỗi gọi: máy chủ mô hình trả mã 503 | — | — | — | — |
+| gemini-3.8-flash | — | lỗi gọi: máy chủ mô hình trả mã 429 | — | — | — | — |
 
 ### P005 · Cẩm Tú, 27 tuổi, Nhân viên văn phòng, thu nhập 19.100.000 đ/tháng
 
@@ -72,4 +72,4 @@ Cách mua: Đặt lịch qua app, trả QR. Chọn thợ và giờ trên app ho�
 | --- | --- | --- | --- | ---: | --- | --- |
 | gemini-3.1-flash-lite | mua | Tiệm có app đặt lịch và cam kết không chèo kéo làm thêm dịch vụ là điểm cộng lớn với dân văn phòng như mình. Giá Essential 199k cho 45-50 phút cũng khá hợp lý để tranh thủ cắt vào giờ nghỉ trưa hoặc tối. | — | 2 | 50.000 đ / 200.000 đ / 350.000 đ / 500.000 đ | hợp lệ |
 | gemini-3.5-flash-lite | mua | Đặt lịch trước qua app, quét QR thanh toán không lằng nhằng và cam kết không chèo kéo dịch vụ là đúng gu tôi. | — | 2 | 80.000 đ / 199.000 đ / 350.000 đ / 500.000 đ | hợp lệ |
-| gemini-3.8-flash | — | lỗi gọi: máy chủ mô hình trả mã 503 | — | — | — | — |
+| gemini-3.8-flash | — | lỗi gọi: máy chủ mô hình trả mã 429 | — | — | — | — |

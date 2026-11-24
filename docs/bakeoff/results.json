@@ -370,7 +370,7 @@
    "name": "Tố Uyên",
    "segment": "Quản lý, chủ doanh nghiệp nhỏ",
    "state": "failed",
-   "error": "quá thời gian chờ 90 giây"
+   "error": "quá thời gian chờ 180 giây"
   },
   {
    "model": "gemini-3.8-flash",
@@ -386,7 +386,7 @@
    "name": "Khánh Linh",
    "segment": "Quản lý, chủ doanh nghiệp nhỏ",
    "state": "failed",
-   "error": "máy chủ mô hình trả mã 503"
+   "error": "quá thời gian chờ 180 giây"
   },
   {
    "model": "gemini-3.8-flash",
@@ -394,7 +394,7 @@
    "name": "Hồng Nhung",
    "segment": "Nhân viên văn phòng",
    "state": "failed",
-   "error": "máy chủ mô hình trả mã 503"
+   "error": "máy chủ mô hình trả mã 429"
   },
   {
    "model": "gemini-3.8-flash",
@@ -402,7 +402,7 @@
    "name": "Cẩm Tú",
    "segment": "Nhân viên văn phòng",
    "state": "failed",
-   "error": "máy chủ mô hình trả mã 503"
+   "error": "máy chủ mô hình trả mã 429"
   }
  ]
 }
