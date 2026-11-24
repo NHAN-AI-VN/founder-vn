@@ -1,5 +1,6 @@
 """founder-board: the skill text, the lens reference and the golden case (design §3, issue #14)."""
 
+import json
 import re
 import subprocess
 import sys
@@ -94,6 +95,65 @@ def test_golden_brief_stands_alone_from_idea_md() -> None:
     assert not DOLLAR.search(brief)
 
 
-# ⏳ #14 criterion 4: examples/barbershop/founder/board/{offers,product,systems}.md and board.md
-# need a real model run of `founder-vn board run` (Kiro CLI golden case); the lane sandbox had no
-# usable FOUNDER_LLM_BASE_URL. Add the golden test for the memos and the chair's summary with them.
+# #14 criterion 4: the golden case is a real model run of `founder-vn board run` on Kiro CLI
+# (examples/barbershop/founder/board/{offers,product,systems}.{json,md}, board.json and board.md).
+# The memo text is non-deterministic, so these tests pin the fixed shape, the package renderer and
+# the chair's-summary structure, not the model's words.
+
+BOARD_DIR = EXAMPLE_DIR / "board"
+BOARD_MD = EXAMPLE_DIR / "board.md"
+
+
+def _memo(lens: str) -> dict:
+    return json.loads((BOARD_DIR / f"{lens}.json").read_text(encoding="utf-8"))
+
+
+def test_golden_board_json_records_the_model_and_prompt_hash() -> None:
+    meta = json.loads((BOARD_DIR / "board.json").read_text(encoding="utf-8"))
+    assert meta["mode"] == "model"
+    assert isinstance(meta["model"], str) and meta["model"].strip()
+    assert re.fullmatch(r"[0-9a-f]{64}", meta["prompt_hash"])
+    assert meta["lenses"] == list(board.LENSES)
+
+
+def test_golden_memos_have_the_fixed_shape_and_match_the_package_renderer() -> None:
+    for lens in board.LENSES:
+        memo = _memo(lens)
+        assert board.memo_problem(memo) is None, lens
+        rendered = (BOARD_DIR / f"{lens}.md").read_text(encoding="utf-8")
+        assert rendered == board.memo_md(lens, memo), lens
+        assert not DOLLAR.search(rendered), lens
+
+
+def test_golden_board_md_is_the_chair_summary_over_the_real_memos() -> None:
+    md = BOARD_MD.read_text(encoding="utf-8")
+    for heading in (
+        "## Ba lens, ba cách đọc",
+        "## Chỗ các lens không đồng ý",
+        "## Danh sách điều kiện",
+        "## Số còn mở và skill trả lời",
+    ):
+        assert heading in md, heading
+    # every lens, with its score and vote exactly as its own memo prints them
+    for lens, spec in board.LENSES.items():
+        memo = _memo(lens)
+        assert spec["title"] in md, lens
+        line = f"**Điểm: {memo['score']}/10** · **Phiếu: {board.VOTES[memo['vote']]}**"
+        assert line in md, line
+    # conditions merged into a checklist that keeps the lens names
+    assert md.count("- [ ]") >= 3
+    for tag in ("[Offers]", "[Product]", "[Systems]"):
+        assert tag in md, tag
+    # open numbers routed to the skill that answers each; none answered here
+    for skill in ("founder-cfo", "founder-competitors", "founder-consumer", "founder-pricing"):
+        assert skill in md, skill
+    assert "ngoài bộ công cụ" in md
+    # the two closing lines, verbatim; no verdict; no dollar sign
+    assert (
+        "Ba bản đọc này là mô phỏng từ ba khung đã xuất bản, không nói thay tác giả của chúng, "
+        "và không thay thế khách hàng thật." in md
+    )
+    assert "Đây không phải tư vấn tài chính, thuế hay pháp lý." in md
+    for verdict in ("Profitable", "Not yet", "Incomplete"):
+        assert verdict not in md, verdict
+    assert not DOLLAR.search(md)

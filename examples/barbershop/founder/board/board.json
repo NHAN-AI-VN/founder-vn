@@ -1,0 +1,10 @@
+{
+ "mode": "model",
+ "model": "gemini-3.5-flash-lite",
+ "prompt_hash": "7a0178802252049d04770140678c5b228699b15ee0e734aeed21533758fd464c",
+ "lenses": [
+  "offers",
+  "product",
+  "systems"
+ ]
+}
