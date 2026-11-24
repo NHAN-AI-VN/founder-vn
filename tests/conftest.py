@@ -105,6 +105,9 @@ class FakeProvider:
     headers: list[Any] = field(default_factory=list)
     # script(body, request number from 0) -> (HTTP status, reply text, delay in seconds)
     script: Callable[[dict[str, Any], int], tuple[int, str, float]] | None = None
+    # (prompt_tokens, completion_tokens) put in the reply's `usage`; None omits the field; a
+    # callable usage(body, request number) decides per request
+    usage: Any = (11, 7)
     active: int = 0
     max_active: int = 0
 
@@ -138,20 +141,26 @@ def fake_provider() -> Iterator[FakeProvider]:
             if status != 200:
                 self.send_error(status)
                 return
-            payload = json.dumps(
-                {
-                    "id": "fake-1",
-                    "object": "chat.completion",
-                    "model": body.get("model", "fake-model"),
-                    "choices": [
-                        {
-                            "index": 0,
-                            "message": {"role": "assistant", "content": reply},
-                            "finish_reason": "stop",
-                        }
-                    ],
+            completion = {
+                "id": "fake-1",
+                "object": "chat.completion",
+                "model": body.get("model", "fake-model"),
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {"role": "assistant", "content": reply},
+                        "finish_reason": "stop",
+                    }
+                ],
+            }
+            usage = state.usage(body, number) if callable(state.usage) else state.usage
+            if usage is not None:
+                completion["usage"] = {
+                    "prompt_tokens": usage[0],
+                    "completion_tokens": usage[1],
+                    "total_tokens": usage[0] + usage[1],
                 }
-            ).encode()
+            payload = json.dumps(completion).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(payload)))
