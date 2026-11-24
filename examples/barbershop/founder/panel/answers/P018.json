@@ -1,0 +1,12 @@
+{
+ "id": "P018",
+ "buys": false,
+ "reason_code": "habit",
+ "reason": "Tôi quen cắt tiệm cũ dưới nhà, cứ phóng xe đến gửi ngay trước cửa là xong, không quen lằng nhằng đặt app hay Zalo lại còn phải cọc tiền giờ giấc.",
+ "would_change_my_mind": "Chắc phải có thợ quen qua đó cắt cực kỳ hợp ý và chỗ gửi xe phải tiện lợi ngay trước cửa như chỗ cũ tôi mới sang.",
+ "purchases_first_month": 0,
+ "price_too_cheap": 80000,
+ "price_cheap": 150000,
+ "price_expensive": 250000,
+ "price_too_expensive": 350000
+}

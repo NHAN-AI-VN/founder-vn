@@ -1,0 +1,12 @@
+{
+ "id": "P016",
+ "buys": true,
+ "reason_code": "convenience",
+ "reason": "Tôi ghét chờ đợi và hay cắt vào cuối tuần, đặt lịch qua app đúng giờ lại không bị chèo kéo mua thêm dịch vụ là điểm cộng lớn, giá 200k cho một lần chăm sóc nhanh gọn trong giờ nghỉ trưa hay cuối tuần là hợp lý.",
+ "would_change_my_mind": "",
+ "purchases_first_month": 2,
+ "price_too_cheap": 80000,
+ "price_cheap": 199000,
+ "price_expensive": 350000,
+ "price_too_expensive": 500000
+}

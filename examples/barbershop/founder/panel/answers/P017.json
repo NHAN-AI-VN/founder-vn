@@ -1,0 +1,12 @@
+{
+ "id": "P017",
+ "buys": false,
+ "reason_code": "timing",
+ "reason": "Tôi hay cắt tóc vào cuối tuần hoặc giờ nghỉ trưa, nhưng khung giờ này lại bắt đặt cọc 50.000 đ nên tôi rất ngại và không muốn rườm rà.",
+ "would_change_my_mind": "Bỏ chính sách đặt cọc vào cuối tuần thì tôi sẽ ghé thử.",
+ "purchases_first_month": 0,
+ "price_too_cheap": 80000,
+ "price_cheap": 199000,
+ "price_expensive": 300000,
+ "price_too_expensive": 500000
+}

@@ -1,0 +1,12 @@
+{
+ "id": "P020",
+ "buys": false,
+ "reason_code": "price",
+ "reason": "Giá 199.000đ cao hơn tiệm quen của tôi, với thu nhập hơn 15 triệu thì tôi thấy không đáng để chi trả mức này.",
+ "would_change_my_mind": "Nếu quán có chương trình giảm giá vé lẻ xuống khoảng 150.000đ hoặc gói 12 lần giá mềm hơn thì tôi sẽ cân nhắc.",
+ "purchases_first_month": 0,
+ "price_too_cheap": 50000,
+ "price_cheap": 120000,
+ "price_expensive": 170000,
+ "price_too_expensive": 200000
+}

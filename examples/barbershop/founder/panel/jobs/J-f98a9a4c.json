@@ -1,0 +1,13 @@
+{
+ "job_id": "J-f98a9a4c",
+ "state": "done",
+ "targets": [
+  "P018"
+ ],
+ "done": [],
+ "failed": [
+  "P018"
+ ],
+ "excluded": [],
+ "last_error": "P018: máy chủ mô hình trả mã 429"
+}

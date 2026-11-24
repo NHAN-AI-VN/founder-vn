@@ -1,0 +1,27 @@
+{
+  "business": "Tiệm cắt tóc nam kiểu barbershop ở Quận 7 cũ (ví dụ tổng hợp, không phải số liệu thật)",
+  "target": "Nam giới 27 đến 45 tuổi sống hoặc làm việc quanh Quận 7 cũ, thu nhập 15 đến 50 triệu đồng một tháng, đã từng thử ít nhất một barbershop có gu",
+  "where": "Quận 7 cũ, thành phố Hồ Chí Minh",
+  "age": [27, 45],
+  "segments": [
+    {"name": "Nam, nhân viên văn phòng", "share": 0.6, "income": [15000000, 30000000]},
+    {"name": "Nam, quản lý hoặc chủ doanh nghiệp nhỏ", "share": 0.4, "income": [30000000, 50000000]}
+  ],
+  "behaviours": [
+    {"name": "Quen một thợ", "share": 0.4, "how": "Cắt ở một tiệm quen hoặc chuỗi đại chúng, 10 đến 12 lần một năm, trả 125.000 đ đến 200.000 đ một lần."},
+    {"name": "Thử tiệm mới", "share": 0.3, "how": "Đã thử vài barbershop có gu, xem Google Maps và Facebook trước khi chọn."},
+    {"name": "Đặt lịch qua app", "share": 0.3, "how": "Thích đặt giờ qua app hoặc Zalo và trả bằng mã QR, ghét chờ."}
+  ],
+  "objections": [
+    "Giá 199.000 đ cao hơn tiệm quen của tôi",
+    "Chuỗi đại chúng rẻ hơn nhiều và cũng cắt ổn",
+    "Tôi chưa biết thợ ở đây cắt có đẹp không",
+    "Tiệm xa chỗ tôi ở hoặc chỗ làm",
+    "Đặt cọc cho giờ đẹp làm tôi ngại"
+  ],
+  "habits": [
+    "cắt tóc vào cuối tuần hoặc giờ nghỉ trưa",
+    "xem đánh giá trên Google Maps trước khi thử tiệm mới",
+    "gửi xe máy ngay trước cửa tiệm"
+  ]
+}

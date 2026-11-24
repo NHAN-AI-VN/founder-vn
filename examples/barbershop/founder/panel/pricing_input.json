@@ -1,0 +1,125 @@
+{
+ "business": "Tiệm cắt tóc nam kiểu barbershop ở Quận 7 cũ (ví dụ tổng hợp, không phải số liệu thật)",
+ "answers": [
+  {
+   "too_cheap": 50000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 160000,
+   "getting_expensive": 250000,
+   "too_expensive": 350000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 200000,
+   "too_expensive": 350000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 199000,
+   "getting_expensive": 350000,
+   "too_expensive": 500000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 50000,
+   "bargain": 199000,
+   "getting_expensive": 350000,
+   "too_expensive": 500000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 199000,
+   "getting_expensive": 350000,
+   "too_expensive": 600000
+  },
+  {
+   "too_cheap": 50000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 350000
+  },
+  {
+   "too_cheap": 50000,
+   "bargain": 199000,
+   "getting_expensive": 350000,
+   "too_expensive": 500000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 199000,
+   "getting_expensive": 300000,
+   "too_expensive": 500000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 50000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 199000,
+   "getting_expensive": 350000,
+   "too_expensive": 500000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 199000,
+   "getting_expensive": 300000,
+   "too_expensive": 500000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 350000
+  },
+  {
+   "too_cheap": 50000,
+   "bargain": 120000,
+   "getting_expensive": 180000,
+   "too_expensive": 250000
+  },
+  {
+   "too_cheap": 50000,
+   "bargain": 120000,
+   "getting_expensive": 170000,
+   "too_expensive": 200000
+  }
+ ]
+}

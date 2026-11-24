@@ -1,0 +1,13 @@
+{
+ "job_id": "J-5b1dc109",
+ "state": "done",
+ "targets": [
+  "P018"
+ ],
+ "done": [
+  "P018"
+ ],
+ "failed": [],
+ "excluded": [],
+ "last_error": null
+}
