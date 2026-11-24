@@ -32,7 +32,7 @@ Cách sửa (trong phạm vi lane): thêm miễn trừ vào bản một trang, s
 
 ## Chưa xác minh
 
-- Không có lần chạy model thật của `founder-plan`; `summary.md` do lane viết theo skill (docs/evidence/issue-18-founder-plan.md mục "Giới hạn" đã nói). Criterion 1 chỉ chứng minh ��ược ở mức văn bản chỉ dẫn, không ở hành vi model.
+- Không có lần chạy model thật của `founder-plan`; `summary.md` do lane viết theo skill (docs/evidence/issue-18-founder-plan.md mục "Giới hạn" đã nói). Criterion 1 chỉ chứng minh được ở mức văn bản chỉ dẫn, không ở hành vi model.
 - Phần giải thích check hỏng (Bước 3) chưa có ví dụ đầu ra, vì ca vàng là Profitable; không có ví dụ `Not yet` hay `Incomplete`. Ticket không đòi ví dụ này, nên không chặn.
 - Mục "Lưu ý" của `summary.md` lặp hai lần cùng một câu miễn trừ, và không có câu đóng "Panel là mô phỏng, cận trên, không phải khách hàng thật." như Bước 4 của skill quy định. Lệch nhỏ giữa skill và ví dụ, không chặn.
 - Phép đo tự động chống tiếng Anh là danh sách từ chặn, không phải bộ nhận diện ngôn ngữ; tôi đọc `summary.md` bằng tay, không đọc hết 404 dòng của `business-plan.md`.
