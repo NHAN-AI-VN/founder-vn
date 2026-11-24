@@ -14,22 +14,24 @@ Derived from the acceptance criteria (the ticket has no `## Seam` section); ever
 |---|---|---|---|
 | skill text: profile confirmation, pitch rules, `n`, tool order, never answer for a buyer, five points, caveat, gender in segment name, lint, installer | `tests/test_consumer_skill.py` (9 tests) | `FileNotFoundError: [Errno 2] No such file or directory: '.../skills/founder-consumer/SKILL.md'` | `uv run pytest tests/test_consumer_skill.py -q` (9 passed) |
 | golden case: `customer.json`, `pitch.md`, `panel/`, `consumer.md` | 4 `test_golden_*` tests in the same file | `FileNotFoundError: ... examples/barbershop/founder/customer.json` (also `pitch.md`, `panel/panel.json`, `consumer.md`; witnessed by moving the files away) | same command (13 passed) |
+| review fix S1: `consumer.md` addresses the Owner as "anh/chị" | `test_golden_readback_has_five_points_and_the_caveat_once` | `AssertionError` on `assert "anh/chị" in text` | `uv run pytest tests/test_consumer_skill.py -q` (13 passed) |
+| review fix SPEC-1: golden panel rerun on the reference model | same test (`res["model"] in text`, counts from `results.json`) | none new: the test reads `results.json`; the golden diff is regenerated data | same command (13 passed) |
 
 The skill and its text tests are one slice (the tests read the skill). The golden files are the second slice. The tests check instruction text and example files, not model behaviour.
 
 ## Cổng ba đoạn
 
-Last code commit: `4c7ba40` (last commit touching `skills/`, `tests/`, `examples/`). Each segment ran once at the HEAD below it; this evidence commit touches only `docs/evidence/`. Counts read from `.harness/gate-*.log`.
+Last code commit: `3aa6fdc` (last commit touching `skills/`, `tests/`, `examples/`). Each segment ran once at the HEAD below it; later commits touch only `docs/` and `reviews/`. Counts read from `.harness/gate-*.log`.
 
 ```
 bash scripts/harness/gate-segment.sh static
 bash scripts/harness/gate-segment.sh unit
 bash scripts/harness/gate-segment.sh build
 bash scripts/harness/gate-segment.sh verify
-static: ruff check "All checks passed!", ruff format --check "175 files already formatted", skill-lint "4 skills checked, 12 example file(s), 0 finding(s)"
+static: ruff check "All checks passed!", ruff format --check "already formatted", skill-lint "4 skills checked, 12 example file(s), 0 finding(s)"
 unit:   308 passed
 build:  Successfully built dist/founder_vn-0.1.0-py3-none-any.whl
-gate-segment verify: GREEN on 867bc35c71ee5d9e6f8508189f518753e951c2c8
+gate-segment verify: GREEN on f72f9ab447eff307a8bb8531442abde48fec089f
 ```
 
 ## Giới hạn
