@@ -1,6 +1,6 @@
 # Host pages
 
-One page per supported host. Only [Kiro](kiro.md) is verified end to end so far; the other pages
+One page per supported host. No host is verified end to end yet; the Kiro walkthrough (#19) is pending, and the pages
 are written from the output of `founder-vn install --host <host>` and say what is not yet witnessed (design §5). The MCP server command is the same
 everywhere: `uvx --from founder-vn founder-vn-mcp` (it resolves once `v0.2.0`, the first PyPI release, is published).
 
