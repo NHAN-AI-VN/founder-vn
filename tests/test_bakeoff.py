@@ -242,3 +242,34 @@ def test_main_exit_codes_and_messages(
     (bakeoff_dir / "models.json").unlink()
     assert bakeoff.main([str(bakeoff_dir)]) == 2
     assert "models.json" in capsys.readouterr().err
+
+
+ROOT = Path(__file__).resolve().parent.parent
+BAKEOFF_DIR = ROOT / "docs" / "bakeoff"
+
+
+def test_repo_inputs_come_from_the_golden_case_and_deal_five_personas_from_both_segments() -> None:
+    from test_golden_case import SUB_DISTRICT_NAMES
+
+    customer = bakeoff.load_customer(BAKEOFF_DIR)
+    pitch = bakeoff.load_pitch(BAKEOFF_DIR)
+    idea = (ROOT / "examples/barbershop/founder/idea.md").read_text(encoding="utf-8")
+    cards = panel.deal(customer, bakeoff.PERSONAS, bakeoff.DEFAULT_SEED)
+    assert len(cards) == 5
+    assert {c["segment"] for c in cards} == {s["name"] for s in customer["segments"]}
+    assert customer["age"] == [27, 45]
+    for segment in customer["segments"]:
+        assert 15_000_000 <= segment["income"][0] < segment["income"][1] <= 50_000_000
+    for price in ("199.000 đ", "279.000 đ", "139.000 đ"):
+        assert price in pitch and price in idea
+    assert 3 <= len(pitch.splitlines()) <= 6
+    for text in (pitch, json.dumps(customer, ensure_ascii=False)):
+        assert "$" not in text
+        assert "Quận 7 cũ" in text
+        for name in SUB_DISTRICT_NAMES:
+            assert name not in text
+    spec = json.loads((BAKEOFF_DIR / "models.json").read_text(encoding="utf-8"))
+    assert len(spec["models"]) == 3 and "reference" in spec
+    for model in spec["models"]:
+        assert model["name"].strip() and model["price_source"].startswith("https://")
+        assert "price_verified" in model
