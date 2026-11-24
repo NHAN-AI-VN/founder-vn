@@ -21,10 +21,15 @@ No automated seam judges Vietnamese voice or honesty: `replies.md` puts the text
 
 ## Lát
 
-Every test runs against the fake provider on 127.0.0.1; no network, no real model.
+Every test runs against the fake provider on 127.0.0.1; no network, no real model. Commands run in the lane's worktree (`.harness/lane-15`, see "Giới hạn").
 
 | Slice | Test | Assertion while red | Green rerun |
 |---|---|---|---|
+| llm usage | `tests/test_llm.py::test_complete_with_usage_returns_text_tokens_and_latency_from_the_same_call`, `test_complete_with_usage_tolerates_a_reply_without_usage` | `AttributeError: module 'founder_vn.llm' has no attribute 'complete_with_usage'` (2 failed, 3 passed) | `uv run pytest tests/test_llm.py -q` (5 passed), commit `dc7228c` |
+| script inputs | `tests/test_bakeoff.py::test_models_file_problems_are_errors_naming_the_field`, `test_customer_and_pitch_are_checked_like_the_panel_does` | `FileNotFoundError: [Errno 2] No such file or directory: '.../scripts/bakeoff.py'` (collection error) | `uv run pytest tests/test_bakeoff.py -q` (2 passed), `73923d6` |
+| run | `test_run_asks_each_candidate_the_same_five_personas_and_writes_results_and_replies` (15 calls, same five ids per model, brief identical to `panel.brief`, prompt hash, validity 4/5 for the model whose one reply is prose, buys 0 for the model that never buys, cost from the fake `usage` and the prices, `replies.md` content, no endpoint or key string in either output) | `AttributeError: module 'bakeoff' has no attribute 'run'` | same command (3 passed), `1313bf8` |
+| failure path and main | `test_a_candidate_that_keeps_failing_is_recorded_failed_after_retries_with_backoff`, `test_main_exit_codes_and_messages` | `AttributeError: module 'bakeoff' has no attribute 'main'`. The retry test passed on first run (the retry loop came with `ask` in the previous slice): red witnessed by mutation `ATTEMPTS = 1`, `AssertionError: assert 5 == 15` (requests to the failing model), restored, `git diff` empty | same command (5 passed), `f0adca6` |
+| repo inputs | `test_repo_inputs_come_from_the_golden_case_and_deal_five_personas_from_both_segments` | `bakeoff.BakeoffError: không thấy .../docs/bakeoff/customer.json` | same command (6 passed); `scripts/skill_lint.py`: 2 skills, 4 example files, 0 findings; `3d70360` |
 
 ## Cổng ba đoạn
 
@@ -32,7 +37,9 @@ Every test runs against the fake provider on 127.0.0.1; no network, no real mode
 
 ## Giới hạn
 
-(pending)
+- Phase 1 only (code, inputs, tests on the fake provider). No real model has been called yet: the Gemini free tier, its wire format and the Vietnamese replies are not proved by this file until `docs/bakeoff/results.json` and `replies.md` exist; the prices in `models.json` are unverified until `price_verified` is written, and the script refuses to run before that.
+- The lane works in a git worktree, `.harness/lane-15` (git-ignored, branch `lane/issue-15`), because the main checkout was switched to `lane/issue-12` by the owner's parallel session while this lane was set up; the lane's first seam commit landed on `lane/issue-12` locally, was never pushed (non-fast-forward), was cherry-picked to `lane/issue-15` and removed from `lane/issue-12` with `git reset --soft` (the owner's tree unchanged).
+- `README.md` is not touched until the operator's allocation comment exists on #15.
 
 ## Giải quyết review nội bộ
 
