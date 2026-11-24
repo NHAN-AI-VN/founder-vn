@@ -77,6 +77,10 @@ rẻ đến mức bạn nghi ngờ chất lượng, rẻ và đáng mua, bắt �
 """
 
 GIVEN_NAMES = [
+    # ⏳ One mixed list, dealt without regard to the customer's gender: the T14 bake-off
+    # (docs/bakeoff/replies.md) dealt four women's names out of five buyers for a men's
+    # barbershop because customer.json has no gender field. For founder-consumer (T15) to decide:
+    # a gender (or name list) in customer.json, or names that read for either.
     "Minh Anh",
     "Gia Bảo",
     "Thu Hà",
