@@ -1,38 +1,39 @@
-Commit mã đã chấm: a9f2ed2d5bfd
+Commit mã đã chấm: e804d8da5f7a
 
-# Review trục Spec, issue #18, vòng 1
+# Review trục Spec, issue #18, vòng 2
 
-Phán quyết: CHANGES_REQUESTED (một finding chặn, sửa được trong phạm vi lane).
+Phán quyết: PASS. Không còn finding chặn.
 
-Phạm vi: `git diff --stat main...HEAD` (10 file ngoài `reviews/`: `skills/founder-plan/SKILL.md`, `examples/barbershop/founder/summary.md`, `examples/barbershop/founder/business-plan.md`, `README.md`, `docs/review-checklist.md`, 3 file test, `docs/evidence/issue-18-founder-plan.md`). CI `Gate` run 45342730025: success. Tôi chạy lại `uv run pytest tests/test_plan_example.py tests/test_wave_a_checklist.py tests/test_plan_skill.py -q` (26 passed) và `founder-vn plan --check` trong `examples/barbershop` (mã 0, "business-plan.md khớp với các file hiện có"). Các test nằm dưới `tests/` nên thuộc cổng `unit`.
+Phạm vi: `git diff --stat main...HEAD` (12 file, gồm `skills/founder-plan/SKILL.md`, `examples/barbershop/founder/summary.md`, `examples/barbershop/founder/business-plan.md`, `README.md`, `docs/review-checklist.md`, ba file test, evidence và các file `reviews/`). `git log --oneline main..HEAD` có 18 commit; commit sửa vòng trước là `bb861e8`. CI `Gate` run 45343454643: success (theo tin nhắn mở đầu).
+
+## Đã chạy lại độc lập
+
+- `uv run pytest tests/test_plan_example.py tests/test_wave_a_checklist.py tests/test_plan_skill.py -q`: 26 passed. Các file nằm dưới `tests/` nên thuộc cổng `unit` (`uv run pytest -q` trong `.github/workflows/gate.yml`).
+- `founder-vn plan --check` trong `examples/barbershop`: mã 0, "business-plan.md khớp với các file hiện có".
+- Thử đỏ cho SPEC-1 vòng trước, trên bản sao tạm của `summary.md` (đã khôi phục, `git status` sạch):
+  1. Xoá đoạn caveat và miễn trừ cuối phần "Bản một trang" (vẫn còn `## Lưu ý` bên dưới): `test_one_page_version_stands_alone_with_caveat_disclaimer_and_sources` FAIL tại `tests/test_plan_example.py:70`.
+  2. Chỉ xoá câu miễn trừ khỏi phần một trang: cùng test FAIL cùng dòng.
+  Lý do: `_parts()` giờ cắt phần một trang tại `\n## ` kế tiếp, nên `## Lưu ý` không còn cung cấp caveat hay miễn trừ hộ. Bản sửa chứng minh được điều nó tuyên bố. Kiểm `link` và `23/11/2026` trên `page` cũng nằm trong đoạn đã cắt.
 
 ## Đối chiếu từng criterion
 
 ### Criterion 1: skill viết `summary.md` (tóm tắt điều hành và bản một trang), gọi compiler, không tự viết verdict, giải thích từng check hỏng bằng lời chủ hộ kèm skill sửa
 
-Đáp ứng ở mức văn bản chỉ dẫn. `skills/founder-plan/SKILL.md`: Bước 2 gọi `plan_compile` / `founder-vn plan` rồi kiểm `--check`; Bước 3 có bảng ba check ("Nghĩa là gì với anh/chị", "Skill sửa") và đường `Incomplete`; Bước 4 có hai phần; Protocol 5 và mục Rules cấm viết verdict tay. `tests/test_plan_skill.py` kiểm các đoạn đó. `business-plan.md` khớp đầu ra compiler (`plan --check` mã 0).
+Đáp ứng ở mức văn bản chỉ dẫn. `skills/founder-plan/SKILL.md`: Bước 2 gọi `plan_compile` / `founder-vn plan` rồi `--check` mã 0; Bước 3 có bảng ba check với cột "Nghĩa là gì với anh/chị" và "Skill sửa", cùng đường `Incomplete`; Bước 4 yêu cầu hai phần, bản một trang tự đứng được với caveat và miễn trừ riêng; Protocol 5 và mục Rules cấm viết verdict tay. Bằng chứng: `tests/test_plan_skill.py` (gồm test bảng check bằng đúng nhãn compiler in cho ba fixture Not yet), chạy trong `unit`. `business-plan.md` bằng đúng đầu ra `plan.compile_plan` (test và `plan --check`), dòng kết luận của `summary.md` bằng nhãn tính được (`test_verdict_line_in_plan_and_summary_equals_the_computed_verdict`).
 
 ### Criterion 2: thư mục ví dụ đủ idea, board, competitors, customer/pitch/panel, pricing, numbers/cfo, summary, business-plan; ẩn danh; README dẫn tới
 
-Đáp ứng. Đủ file trong `examples/barbershop/founder/` (có `test_example_holds_every_wave_a_artifact`); `README.md` dẫn tới thư mục và `business-plan.md`. Địa điểm ở cấp "Quận 7 cũ"; không thấy tên người, địa chỉ, số điện thoại, email trong các file đã quét.
+Đáp ứng. `examples/barbershop/founder/` có `idea.md`, `board.md`, `competitors.md`, `consumer.md`, `customer.json`, `pitch.md`, `panel/`, `pricing.md`, `numbers.json`, `cfo.md`, `summary.md`, `business-plan.md`; `tests/test_wave_a_checklist.py` kiểm đủ bộ. `README.md` dẫn tới `examples/barbershop/founder/` và `business-plan.md`, bảng skill ghi `founder-plan` shipped. Quét `examples/barbershop` tìm email, số điện thoại, "đường", "phường": không có. Địa điểm ở cấp "Quận 7 cũ".
 
-### Criterion 3: checklist qua mọi artefact Wave A
+### Criterion 3: checklist qua mọi artefact Wave A (không `$`, không tiếng Anh, link cho khẳng định pháp lý và số liệu, miễn trừ, caveat panel)
 
-Đáp ứng cho artefact. Đã đọc `summary.md` thật: không `$`, xưng "anh/chị", VND định dạng Việt, link Công báo kèm ngày 23/11/2026, caveat panel và miễn trừ. SPEC-1 của vòng trước đã được sửa: bản một trang giờ có link nguồn, caveat và miễn trừ riêng ở cuối phần. `docs/review-checklist.md` thêm danh sách tên riêng được chấp nhận, nói rõ phép đo chống tiếng Anh là stoplist.
-
-## Finding chặn
-
-### SPEC-1: test mới cho bản một trang không bắt được việc thiếu miễn trừ, nên bằng chứng của criterion 3 vẫn chưa chứng minh được điều nó tuyên bố
-
-Criterion 3 (disclaimer, caveat) cùng yêu cầu của vòng trước: "siết test để kiểm riêng nội dung sau tiêu đề Bản một trang". `tests/test_plan_example.py` hàm `_parts()` cắt `text.split(marker)[1]`, tức mọi thứ từ tiêu đề bản một trang đến hết file. Phần đó gồm cả mục `## Lưu ý` đứng sau, và mục ấy chứa nguyên caveat và miễn trừ (tôi kiểm: `"## Lưu ý" in page` là True). Vì vậy `test_one_page_version_stands_alone_with_caveat_disclaimer_and_sources` vẫn xanh nếu xoá caveat và miễn trừ khỏi bản một trang, đúng lỗi vòng trước. Test chạy trong cổng `unit` nhưng không fail khi lỗi quay lại, nên gác cổng này là hình thức. (Hai kiểm `link` và `23/11/2026` trong `page` cũng yếu như vậy, dù hai thứ này hiện chỉ nằm trong phần một trang.)
-
-Cách sửa (trong phạm vi lane): cắt bản một trang đến tiêu đề `## ` kế tiếp (hoặc đến `## Lưu ý`), rồi kiểm caveat, miễn trừ, link và ngày trên đoạn đã cắt. Thử đỏ: xoá miễn trừ khỏi bản một trang thì test phải fail.
+Đáp ứng. Đã đọc `summary.md` thật: xưng "anh/chị", tiền dạng `280.000 đ`, quét `$` cạnh chữ số trong `examples/barbershop/founder/*.md` không thấy, thuế suất 7% và ngưỡng 1.000.000.000 đ có link Công báo và ngày 23/11/2026 (cả ở phần điều hành lẫn bản một trang), caveat panel ở mọi chỗ nêu kết quả panel, miễn trừ có ở từng phần và ở cuối. `test_every_amount_in_the_summary_is_printed_by_a_tool` buộc mọi số tiền khớp đầu ra công cụ. Ba nhãn kết luận tiếng Anh (`Profitable (có lãi)` ...) được `docs/review-checklist.md` ghi rõ là tên riêng do công cụ in, nên không phải rò tiếng Anh. `tests/test_wave_a_checklist.py` (7 test) chạy cả bộ artefact trong `unit`.
 
 ## Chưa xác minh
 
-- Không có lần chạy model thật của `founder-plan`; `summary.md` do lane viết theo skill (`docs/evidence/issue-18-founder-plan.md`, mục "Giới hạn"). Criterion 1 chứng minh được ở mức chỉ dẫn, không ở hành vi model.
-- Bước 3 chưa có ví dụ đầu ra cho `Not yet` hay `Incomplete` vì ca vàng là Profitable. Ticket không đòi ví dụ này.
-- Phép đo chống tiếng Anh là stoplist; tôi đọc `summary.md` bằng tay và không đọc hết 404 dòng của `business-plan.md`.
-- `docs/founder-vn-design.md` không có mục nào khớp từ khoá `summary` hay `plan_compile` theo grep của tôi; tôi không đối chiếu thêm điều thiết kế nói về `founder-plan` ngoài các file ticket nêu.
+- Không có lần chạy model thật của `founder-plan`; `summary.md` do lane viết theo skill (`docs/evidence/issue-18-founder-plan.md`, mục "Giới hạn"). Criterion 1 chứng minh ở mức chỉ dẫn và artefact, không ở hành vi model.
+- Bước 3 chưa có ví dụ đầu ra thật cho `Not yet` hay `Incomplete` vì ca vàng là Profitable; chỉ có test bảng-nhãn theo fixture. Ticket không đòi ví dụ này.
+- Phép đo chống tiếng Anh là stoplist; tôi đọc `summary.md` bằng tay, không đọc hết 404 dòng của `business-plan.md` (nó do compiler sinh và khớp `plan --check`).
+- `docs/founder-vn-design.md` chỉ nhắc `plan` ở dòng 16 (thứ tự skill), 161 (PDF `business-plan.md`) và 173 (Đợt A); không có mục riêng cho `summary.md`, nên không có yêu cầu thiết kế nào bị bỏ sót hay trái.
 
-<promise>CHANGES_REQUESTED</promise>
+<promise>PASS</promise>
