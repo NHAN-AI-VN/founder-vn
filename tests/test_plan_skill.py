@@ -1,11 +1,12 @@
 """founder-plan: the skill text (design §3, issue #18)."""
 
+import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-from founder_vn import install
+from founder_vn import install, plan
 
 ROOT = Path(__file__).parent.parent
 SKILL = ROOT / "skills" / "founder-plan" / "SKILL.md"
@@ -92,3 +93,40 @@ def test_skill_lint_passes_on_the_repo() -> None:
 def test_installer_ships_the_skill(project_root: Path) -> None:
     install.run(project_root, "kiro", print_only=False, skills_dir=ROOT / "skills")
     assert (project_root / ".kiro/skills/founder-plan/SKILL.md").is_file()
+
+
+def _table_labels() -> set[str]:
+    section = _skill().split("## Step 3", 1)[1].split("## Step 4", 1)[0]
+    rows = [line for line in section.splitlines() if line.startswith("| ") and "---" not in line]
+    return {row.split("|")[1].strip() for row in rows[1:]}
+
+
+def test_failing_check_table_matches_the_labels_the_compiler_prints(tmp_path: Path) -> None:
+    spec = json.loads((ROOT / "tests" / "fixtures" / "cfo_numbers.json").read_text("utf-8"))
+    cases = (
+        {"price": "10k"},
+        {"price": "17k", "ramp_per_day": [5] * 12, "plan_per_day": 5},
+        {"capacity_per_day": 10},
+    )
+    printed: set[str] = set()
+    for i, changes in enumerate(cases):
+        project = tmp_path / str(i)
+        (project / "founder").mkdir(parents=True)
+        numbers = json.dumps({**spec, **changes}, ensure_ascii=False)
+        (project / "founder" / "numbers.json").write_text(numbers, encoding="utf-8")
+        result, text = plan.compile_plan(project)
+        assert result == plan.NOT_YET
+        failed = [
+            line.split("|")[1].strip() for line in text.splitlines() if "| Không đạt |" in line
+        ]
+        assert failed
+        printed |= {f.replace(f"mỗi {spec['unit']} ", "mỗi (đơn vị bán) ") for f in failed}
+    assert printed == _table_labels()
+
+
+def test_incomplete_verdict_names_the_missing_file_and_its_skill(tmp_path: Path) -> None:
+    result, text = plan.compile_plan(tmp_path)
+    assert result == plan.INCOMPLETE
+    assert "## Chưa làm" in text
+    assert "chạy skill `founder-cfo`" in text or "Chưa có số của CFO" in text
+    assert "Chưa làm" in _skill()
