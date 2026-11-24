@@ -1,0 +1,12 @@
+{
+ "id": "P007",
+ "buys": false,
+ "reason_code": "timing",
+ "reason": "Tôi không thích việc phải đặt cọc khi đặt lịch cuối tuần, vì lịch làm việc của tôi đôi khi thay đổi đột xuất, việc mất cọc hoặc phải canh giờ hủy trước 3 tiếng rất phiền phức.",
+ "would_change_my_mind": "Bỏ chính sách đặt cọc cho khách quen hoặc linh động hơn trong việc hủy lịch thì tôi sẽ cân nhắc.",
+ "purchases_first_month": 0,
+ "price_too_cheap": "dưới 50.000",
+ "price_cheap": "100.000 đến 150.000",
+ "price_expensive": "200.000 đến 250.000",
+ "price_too_expensive": "trên 300.000"
+}

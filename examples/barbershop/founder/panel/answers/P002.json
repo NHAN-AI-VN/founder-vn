@@ -1,0 +1,12 @@
+{
+ "id": "P002",
+ "buys": true,
+ "reason_code": "trust",
+ "reason": "Tôi thích cách tiệm minh bạch giá cả và không chèo kéo, quan trọng là cho chọn thợ trước qua app nên tôi yên tâm phần nào về chất lượng khi thử tiệm mới.",
+ "would_change_my_mind": "",
+ "purchases_first_month": 1,
+ "price_too_cheap": 50000,
+ "price_cheap": 199000,
+ "price_expensive": 350000,
+ "price_too_expensive": 500000
+}

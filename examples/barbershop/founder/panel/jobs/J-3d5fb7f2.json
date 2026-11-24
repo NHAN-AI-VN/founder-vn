@@ -1,0 +1,15 @@
+{
+ "job_id": "J-3d5fb7f2",
+ "state": "done",
+ "targets": [
+  "P016",
+  "P018"
+ ],
+ "done": [
+  "P018",
+  "P016"
+ ],
+ "failed": [],
+ "excluded": [],
+ "last_error": null
+}

@@ -1,0 +1,222 @@
+[
+ {
+  "id": "P001",
+  "name": "Thảo Vy",
+  "age": 28,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 15300000,
+  "behaviour": "Quen một thợ",
+  "behaviour_how": "Cắt ở một tiệm quen hoặc chuỗi đại chúng, 10 đến 12 lần một năm, trả 125.000 đ đến 200.000 đ một lần.",
+  "objection": "Đặt cọc cho giờ đẹp làm tôi ngại",
+  "habit": "cắt tóc vào cuối tuần hoặc giờ nghỉ trưa"
+ },
+ {
+  "id": "P002",
+  "name": "Hải Đăng",
+  "age": 35,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 17800000,
+  "behaviour": "Thử tiệm mới",
+  "behaviour_how": "Đã thử vài barbershop có gu, xem Google Maps và Facebook trước khi chọn.",
+  "objection": "Tôi chưa biết thợ ở đây cắt có đẹp không",
+  "habit": "cắt tóc vào cuối tuần hoặc giờ nghỉ trưa"
+ },
+ {
+  "id": "P003",
+  "name": "Yến Nhi",
+  "age": 30,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 27400000,
+  "behaviour": "Đặt lịch qua app",
+  "behaviour_how": "Thích đặt giờ qua app hoặc Zalo và trả bằng mã QR, ghét chờ.",
+  "objection": "Tiệm xa chỗ tôi ở hoặc chỗ làm",
+  "habit": "cắt tóc vào cuối tuần hoặc giờ nghỉ trưa"
+ },
+ {
+  "id": "P004",
+  "name": "Minh Anh",
+  "age": 39,
+  "segment": "Nam, quản lý hoặc chủ doanh nghiệp nhỏ",
+  "income": 47600000,
+  "behaviour": "Quen một thợ",
+  "behaviour_how": "Cắt ở một tiệm quen hoặc chuỗi đại chúng, 10 đến 12 lần một năm, trả 125.000 đ đến 200.000 đ một lần.",
+  "objection": "Chuỗi đại chúng rẻ hơn nhiều và cũng cắt ổn",
+  "habit": "xem đánh giá trên Google Maps trước khi thử tiệm mới"
+ },
+ {
+  "id": "P005",
+  "name": "Quang Vinh",
+  "age": 31,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 27600000,
+  "behaviour": "Đặt lịch qua app",
+  "behaviour_how": "Thích đặt giờ qua app hoặc Zalo và trả bằng mã QR, ghét chờ.",
+  "objection": "Giá 199.000 đ cao hơn tiệm quen của tôi",
+  "habit": "xem đánh giá trên Google Maps trước khi thử tiệm mới"
+ },
+ {
+  "id": "P006",
+  "name": "Hà My",
+  "age": 40,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 27200000,
+  "behaviour": "Thử tiệm mới",
+  "behaviour_how": "Đã thử vài barbershop có gu, xem Google Maps và Facebook trước khi chọn.",
+  "objection": "Chuỗi đại chúng rẻ hơn nhiều và cũng cắt ổn",
+  "habit": "gửi xe máy ngay trước cửa tiệm"
+ },
+ {
+  "id": "P007",
+  "name": "Ngọc Lan",
+  "age": 34,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 21800000,
+  "behaviour": "Quen một thợ",
+  "behaviour_how": "Cắt ở một tiệm quen hoặc chuỗi đại chúng, 10 đến 12 lần một năm, trả 125.000 đ đến 200.000 đ một lần.",
+  "objection": "Đặt cọc cho giờ đẹp làm tôi ngại",
+  "habit": "cắt tóc vào cuối tuần hoặc giờ nghỉ trưa"
+ },
+ {
+  "id": "P008",
+  "name": "Thanh Tâm",
+  "age": 43,
+  "segment": "Nam, quản lý hoặc chủ doanh nghiệp nhỏ",
+  "income": 32500000,
+  "behaviour": "Quen một thợ",
+  "behaviour_how": "Cắt ở một tiệm quen hoặc chuỗi đại chúng, 10 đến 12 lần một năm, trả 125.000 đ đến 200.000 đ một lần.",
+  "objection": "Đặt cọc cho giờ đẹp làm tôi ngại",
+  "habit": "xem đánh giá trên Google Maps trước khi thử tiệm mới"
+ },
+ {
+  "id": "P009",
+  "name": "Đức Anh",
+  "age": 28,
+  "segment": "Nam, quản lý hoặc chủ doanh nghiệp nhỏ",
+  "income": 46100000,
+  "behaviour": "Thử tiệm mới",
+  "behaviour_how": "Đã thử vài barbershop có gu, xem Google Maps và Facebook trước khi chọn.",
+  "objection": "Đặt cọc cho giờ đẹp làm tôi ngại",
+  "habit": "gửi xe máy ngay trước cửa tiệm"
+ },
+ {
+  "id": "P010",
+  "name": "Duy Khánh",
+  "age": 28,
+  "segment": "Nam, quản lý hoặc chủ doanh nghiệp nhỏ",
+  "income": 38600000,
+  "behaviour": "Thử tiệm mới",
+  "behaviour_how": "Đã thử vài barbershop có gu, xem Google Maps và Facebook trước khi chọn.",
+  "objection": "Chuỗi đại chúng rẻ hơn nhiều và cũng cắt ổn",
+  "habit": "gửi xe máy ngay trước cửa tiệm"
+ },
+ {
+  "id": "P011",
+  "name": "Xuân Bách",
+  "age": 35,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 25200000,
+  "behaviour": "Quen một thợ",
+  "behaviour_how": "Cắt ở một tiệm quen hoặc chuỗi đại chúng, 10 đến 12 lần một năm, trả 125.000 đ đến 200.000 đ một lần.",
+  "objection": "Đặt cọc cho giờ đẹp làm tôi ngại",
+  "habit": "cắt tóc vào cuối tuần hoặc giờ nghỉ trưa"
+ },
+ {
+  "id": "P012",
+  "name": "Phương Thảo",
+  "age": 30,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 18900000,
+  "behaviour": "Thử tiệm mới",
+  "behaviour_how": "Đã thử vài barbershop có gu, xem Google Maps và Facebook trước khi chọn.",
+  "objection": "Tiệm xa chỗ tôi ở hoặc chỗ làm",
+  "habit": "xem đánh giá trên Google Maps trước khi thử tiệm mới"
+ },
+ {
+  "id": "P013",
+  "name": "Tố Uyên",
+  "age": 40,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 21300000,
+  "behaviour": "Đặt lịch qua app",
+  "behaviour_how": "Thích đặt giờ qua app hoặc Zalo và trả bằng mã QR, ghét chờ.",
+  "objection": "Chuỗi đại chúng rẻ hơn nhiều và cũng cắt ổn",
+  "habit": "xem đánh giá trên Google Maps trước khi thử tiệm mới"
+ },
+ {
+  "id": "P014",
+  "name": "Đình Phúc",
+  "age": 33,
+  "segment": "Nam, quản lý hoặc chủ doanh nghiệp nhỏ",
+  "income": 49400000,
+  "behaviour": "Quen một thợ",
+  "behaviour_how": "Cắt ở một tiệm quen hoặc chuỗi đại chúng, 10 đến 12 lần một năm, trả 125.000 đ đến 200.000 đ một lần.",
+  "objection": "Chuỗi đại chúng rẻ hơn nhiều và cũng cắt ổn",
+  "habit": "xem đánh giá trên Google Maps trước khi thử tiệm mới"
+ },
+ {
+  "id": "P015",
+  "name": "Bích Ngọc",
+  "age": 45,
+  "segment": "Nam, quản lý hoặc chủ doanh nghiệp nhỏ",
+  "income": 33000000,
+  "behaviour": "Quen một thợ",
+  "behaviour_how": "Cắt ở một tiệm quen hoặc chuỗi đại chúng, 10 đến 12 lần một năm, trả 125.000 đ đến 200.000 đ một lần.",
+  "objection": "Tôi chưa biết thợ ở đây cắt có đẹp không",
+  "habit": "gửi xe máy ngay trước cửa tiệm"
+ },
+ {
+  "id": "P016",
+  "name": "Mai Chi",
+  "age": 40,
+  "segment": "Nam, quản lý hoặc chủ doanh nghiệp nhỏ",
+  "income": 42500000,
+  "behaviour": "Đặt lịch qua app",
+  "behaviour_how": "Thích đặt giờ qua app hoặc Zalo và trả bằng mã QR, ghét chờ.",
+  "objection": "Chuỗi đại chúng rẻ hơn nhiều và cũng cắt ổn",
+  "habit": "cắt tóc vào cuối tuần hoặc giờ nghỉ trưa"
+ },
+ {
+  "id": "P017",
+  "name": "Nhật Huy",
+  "age": 38,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 21100000,
+  "behaviour": "Đặt lịch qua app",
+  "behaviour_how": "Thích đặt giờ qua app hoặc Zalo và trả bằng mã QR, ghét chờ.",
+  "objection": "Đặt cọc cho giờ đẹp làm tôi ngại",
+  "habit": "cắt tóc vào cuối tuần hoặc giờ nghỉ trưa"
+ },
+ {
+  "id": "P018",
+  "name": "Hồng Nhung",
+  "age": 39,
+  "segment": "Nam, quản lý hoặc chủ doanh nghiệp nhỏ",
+  "income": 32700000,
+  "behaviour": "Quen một thợ",
+  "behaviour_how": "Cắt ở một tiệm quen hoặc chuỗi đại chúng, 10 đến 12 lần một năm, trả 125.000 đ đến 200.000 đ một lần.",
+  "objection": "Chuỗi đại chúng rẻ hơn nhiều và cũng cắt ổn",
+  "habit": "gửi xe máy ngay trước cửa tiệm"
+ },
+ {
+  "id": "P019",
+  "name": "Trung Hiếu",
+  "age": 41,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 29300000,
+  "behaviour": "Thử tiệm mới",
+  "behaviour_how": "Đã thử vài barbershop có gu, xem Google Maps và Facebook trước khi chọn.",
+  "objection": "Giá 199.000 đ cao hơn tiệm quen của tôi",
+  "habit": "cắt tóc vào cuối tuần hoặc giờ nghỉ trưa"
+ },
+ {
+  "id": "P020",
+  "name": "Gia Bảo",
+  "age": 29,
+  "segment": "Nam, nhân viên văn phòng",
+  "income": 15400000,
+  "behaviour": "Đặt lịch qua app",
+  "behaviour_how": "Thích đặt giờ qua app hoặc Zalo và trả bằng mã QR, ghét chờ.",
+  "objection": "Giá 199.000 đ cao hơn tiệm quen của tôi",
+  "habit": "cắt tóc vào cuối tuần hoặc giờ nghỉ trưa"
+ }
+]

@@ -1,0 +1,12 @@
+{
+ "id": "P010",
+ "buys": true,
+ "reason_code": "convenience",
+ "reason": "Tôi thích sự chuyên nghiệp, đặt lịch qua app và không bị chèo kéo làm dịch vụ thêm. Với mức giá 200k cho trải nghiệm 50 phút chỉn chu thì hoàn toàn hợp lý với thu nhập của tôi.",
+ "would_change_my_mind": "",
+ "purchases_first_month": 1,
+ "price_too_cheap": 80000,
+ "price_cheap": 200000,
+ "price_expensive": 400000,
+ "price_too_expensive": 600000
+}

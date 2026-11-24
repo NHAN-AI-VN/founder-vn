@@ -1,0 +1,12 @@
+{
+ "id": "P019",
+ "buys": false,
+ "reason_code": "price",
+ "reason": "Mức giá 199.000 đồng cao hơn đáng kể so với tiệm quen mà tôi vẫn cắt ổn, tôi thấy chưa cần thiết phải chi thêm chỉ để nhận mấy dịch vụ cộng thêm như khăn nóng hay đồ uống.",
+ "would_change_my_mind": "Nếu có gói trải nghiệm lần đầu với giá ưu đãi để tôi kiểm chứng chất lượng thợ có thực sự xứng đáng với chênh lệch giá đó hay không.",
+ "purchases_first_month": 0,
+ "price_too_cheap": 80000,
+ "price_cheap": 120000,
+ "price_expensive": 180000,
+ "price_too_expensive": 250000
+}

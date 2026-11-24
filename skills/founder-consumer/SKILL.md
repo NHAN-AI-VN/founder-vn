@@ -50,7 +50,7 @@ Write `founder/pitch.md` in Vietnamese: three to six plain lines, in the words a
 ## Step 3: the panel
 
 1. Size: `n = 20` by default. Use 100 only when the Owner asks for it, and before running it tell the Owner in Vietnamese that it costs about five times the default in model calls and takes longer (the cost and time warning); run it only after the Owner agrees.
-2. Call `panel_init` with `customer.json`, `pitch.md` and `n` (CLI: `founder-vn panel init customer.json pitch.md --n 20`). It prints the seed.
+2. Call `panel_init` with `customer.json`, `pitch.md` and `n` (CLI: `founder-vn panel init --customer customer.json --pitch pitch.md --n 20`). It prints the seed.
 3. Call `panel_run` (CLI: `founder-vn panel run`). It returns at once with a `job_id`. Poll `job_status` with that id (CLI: `founder-vn panel status <job_id>`) every few seconds until `state` is `done`, telling the Owner in Vietnamese that the buyers are answering. If the tool says the model is not configured, stop and tell the Facilitator to set `FOUNDER_LLM_BASE_URL`, `FOUNDER_LLM_API_KEY` and `FOUNDER_LLM_MODEL`; do not write an answer yourself in place of a buyer. Never answer for a buyer: not for one that failed, not for one that timed out, not to fill a gap.
 4. If `state` is `error`, or buyers are excluded, say how many and why in plain words (the `last_error`), then call `panel_run` again: it asks only the buyers without a valid answer. A buyer still without a valid answer stays excluded and is reported as excluded; never fill one in.
 5. Call `panel_tally` (CLI: `founder-vn panel tally`). It writes `founder/panel/results.md` and `results.json`. Every number you say comes from them.

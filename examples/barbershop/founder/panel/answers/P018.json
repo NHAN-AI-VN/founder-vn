@@ -1,0 +1,12 @@
+{
+ "id": "P018",
+ "buys": false,
+ "reason_code": "convenience",
+ "reason": "Tôi quen cắt tiệm gần nhà, tiện gửi xe, giờ giấc tự do không cần đặt cọc hay cài app phiền phức. Giá 200k thì tôi ở tiệm quen cũng được phục vụ ổn rồi, không nhất thiết phải thay đổi.",
+ "would_change_my_mind": "Nếu tiệm nằm ngay trên đường đi làm về của tôi, không cần đặt cọc và không bắt cài thêm ứng dụng rườm rà.",
+ "purchases_first_month": 0,
+ "price_too_cheap": 50000,
+ "price_cheap": 150000,
+ "price_expensive": 250000,
+ "price_too_expensive": 400000
+}

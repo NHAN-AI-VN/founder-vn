@@ -1,11 +1,12 @@
 """founder-consumer: the skill text and its golden case (design §3, issue #16)."""
 
+import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-from founder_vn import install
+from founder_vn import install, panel
 
 ROOT = Path(__file__).parent.parent
 SKILL = ROOT / "skills" / "founder-consumer" / "SKILL.md"
@@ -90,3 +91,50 @@ def test_skill_lint_passes_on_the_repo() -> None:
 def test_installer_ships_the_skill(project_root: Path) -> None:
     install.run(project_root, "kiro", print_only=False, skills_dir=ROOT / "skills")
     assert (project_root / ".kiro/skills/founder-consumer/SKILL.md").is_file()
+
+
+EXAMPLE_DIR = ROOT / "examples" / "barbershop" / "founder"
+SUPERLATIVES = ("nhất", "số một", "số 1", "hoàn hảo", "tuyệt vời")
+
+
+def test_golden_customer_json_passes_the_panel_validation_and_is_gender_explicit() -> None:
+    spec = json.loads((EXAMPLE_DIR / "customer.json").read_text(encoding="utf-8"))
+    panel.validate_customer(spec)
+    for segment in spec["segments"]:
+        assert segment["name"].startswith("Nam"), segment["name"]
+    assert spec["habits"] and len(spec["objections"]) >= 3
+
+
+def test_golden_pitch_is_three_to_six_plain_lines_without_superlatives() -> None:
+    text = (EXAMPLE_DIR / "pitch.md").read_text(encoding="utf-8")
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    assert 3 <= len(lines) <= 6
+    lowered = text.lower()
+    for word in SUPERLATIVES:
+        assert word not in lowered, word
+    assert not DOLLAR.search(text)
+
+
+def test_golden_panel_has_twenty_buyers_and_matches_its_results() -> None:
+    base = EXAMPLE_DIR / "panel"
+    meta = json.loads((base / "panel.json").read_text(encoding="utf-8"))
+    res = json.loads((base / "results.json").read_text(encoding="utf-8"))
+    assert meta["n"] == 20
+    assert len(list((base / "answers").glob("P*.json"))) == 20
+    assert res["n"] == 20 and res["excluded"] == 0
+    assert res["buys"] + res["passes"] == res["answered"] == 20
+    assert meta["model"] and meta["prompt_hash"]
+    assert not any(k in meta for k in ("api_key", "base_url"))
+    assert (base / "results.md").is_file()
+
+
+def test_golden_readback_has_five_points_and_the_caveat_once() -> None:
+    text = (EXAMPLE_DIR / "consumer.md").read_text(encoding="utf-8")
+    res = json.loads((EXAMPLE_DIR / "panel" / "results.json").read_text(encoding="utf-8"))
+    points = re.findall(r"^[1-5]\. \*\*", text, flags=re.M)
+    assert len(points) == 5
+    assert text.count("mô phỏng, cận trên, không phải khách hàng thật") == 1
+    assert f"{res['buys']} mua, {res['passes']} không mua" in text
+    assert res["model"] in text
+    assert "không phải tư vấn tài chính, thuế hay pháp lý" in text
+    assert not DOLLAR.search(text)

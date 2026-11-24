@@ -1,0 +1,12 @@
+{
+ "id": "P005",
+ "buys": false,
+ "reason_code": "price",
+ "reason": "Tiệm quen của tôi chỉ tầm 120.000 - 150.000 đ thôi, 199.000 đ cho một gói cơ bản là hơi cao so với mức tôi sẵn sàng chi thường xuyên.",
+ "would_change_my_mind": "Nếu tiệm có chương trình dùng thử lần đầu giá ưu đãi hoặc có nhiều đánh giá 5 sao trên Google Maps thực sự chất lượng, tôi sẽ cân nhắc.",
+ "purchases_first_month": 0,
+ "price_too_cheap": 50000,
+ "price_cheap": 150000,
+ "price_expensive": 199000,
+ "price_too_expensive": 300000
+}

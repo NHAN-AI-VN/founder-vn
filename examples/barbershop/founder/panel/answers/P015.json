@@ -1,0 +1,12 @@
+{
+ "id": "P015",
+ "buys": false,
+ "reason_code": "trust",
+ "reason": "Tôi đã quen cắt ở tiệm cũ rồi, đổi qua thợ mới thì chưa biết tay nghề ra sao, nhỡ cắt hỏng lại mất công đi sửa. Với lại, việc phải đặt cọc rồi đặt lịch qua app cũng hơi phiền với người thích ghé là cắt liền như tôi.",
+ "would_change_my_mind": "Nếu tiệm có chương trình cắt thử một lần với giá ưu đãi hoặc cam kết tay nghề từ thợ cứng lâu năm, tôi sẽ cân nhắc.",
+ "purchases_first_month": 0,
+ "price_too_cheap": 50000,
+ "price_cheap": 150000,
+ "price_expensive": 250000,
+ "price_too_expensive": 400000
+}
