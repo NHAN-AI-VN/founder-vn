@@ -1,5 +1,5 @@
 {
-  "_note": "Ba ứng viên của bake-off T14, đều là mô hình rẻ trên endpoint OpenAI-compatible của Gemini API (Google AI Studio), chạy ở bậc miễn phí cho giai đoạn dev (quyết định của chủ dự án, 2026-11-23). Model ID chép từ trang mô hình của Google Cloud (docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/<id>, đọc 2026-11-23). Giá ghi theo các bản tổng hợp của trang giá chính thức (đọc 2026-11-23); chủ dự án mở price_source, đối chiếu từng số rồi ghi ngày kiểm vào price_verified. scripts/bakeoff.py từ chối chạy khi price_verified còn null.",
+  "_note": "Ba ứng viên của bake-off T14, đều là mô hình rẻ trên endpoint OpenAI-compatible của Gemini API (Google AI Studio), chạy ở bậc miễn phí cho giai đoạn dev (quyết định của chủ dự án, 2026-11-23). Model ID chép từ trang mô hình của Google Cloud (docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/<id>, đọc 2026-11-23) và khớp với trang giá. Giá là giá bậc trả phí, chủ dự án đọc trên price_source rồi dán vào session lane ngày price_verified; giá đầu ra của Google đã gồm token suy nghĩ. Bậc miễn phí: không thu tiền, dữ liệu gửi lên được Google dùng để cải thiện sản phẩm, nên chỉ chạy case mẫu của chủ dự án trên bậc này, không chạy dữ liệu người pilot. scripts/bakeoff.py từ chối chạy khi price_verified còn null.",
   "reference": null,
   "models": [
     {
@@ -7,15 +7,15 @@
       "input_usd_per_1m": 0.25,
       "output_usd_per_1m": 1.5,
       "price_source": "https://ai.google.dev/gemini-api/docs/pricing",
-      "price_verified": null,
-      "note": "mô hình rẻ nhất của Google theo trang mô hình"
+      "price_verified": "2026-11-24",
+      "note": "giá đầu vào cho chữ; âm thanh 0,50 không dùng"
     },
     {
       "name": "gemini-3.5-flash-lite",
       "input_usd_per_1m": 0.3,
       "output_usd_per_1m": 2.5,
       "price_source": "https://ai.google.dev/gemini-api/docs/pricing",
-      "price_verified": null,
+      "price_verified": "2026-11-24",
       "note": "mặc định suy nghĩ tối thiểu; bỏ qua temperature, top_k, top_p (client không gửi các tham số này)"
     },
     {
@@ -23,7 +23,7 @@
       "input_usd_per_1m": 0.75,
       "output_usd_per_1m": 3.75,
       "price_source": "https://ai.google.dev/gemini-api/docs/pricing",
-      "price_verified": null,
+      "price_verified": "2026-11-24",
       "note": "giá khuyến mãi tới 2026-12-31; từ 2027-01-01 là 1,50/7,50 USD mỗi 1M token; có thể dùng nhiều token suy nghĩ hơn, bake-off đo thật"
     }
   ]

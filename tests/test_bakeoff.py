@@ -268,8 +268,7 @@ def test_repo_inputs_come_from_the_golden_case_and_deal_five_personas_from_both_
         assert "Quận 7 cũ" in text
         for name in SUB_DISTRICT_NAMES:
             assert name not in text
-    spec = json.loads((BAKEOFF_DIR / "models.json").read_text(encoding="utf-8"))
+    spec = bakeoff.load_models(BAKEOFF_DIR)
     assert len(spec["models"]) == 3 and "reference" in spec
     for model in spec["models"]:
-        assert model["name"].strip() and model["price_source"].startswith("https://")
-        assert "price_verified" in model
+        assert model["price_source"].startswith("https://")
