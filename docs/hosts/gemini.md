@@ -25,3 +25,5 @@ Gemini CLI drops environment variables whose names contain `KEY` or `SECRET` whe
 ## Environment
 
 Model calls read `FOUNDER_LLM_BASE_URL`, `FOUNDER_LLM_API_KEY` and `FOUNDER_LLM_MODEL` from the host environment. Set them there; never write their values into a config file or this repository.
+
+Reference model for the buyer panel: set `FOUNDER_LLM_MODEL` to `gemini-3.5-flash-lite` (the model chosen by the bake-off, [docs/bakeoff/README.md](../bakeoff/README.md)). Panel results are comparable across hosts and across Owners only when every run uses this model; `results.json` records the model that answered.

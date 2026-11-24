@@ -1,0 +1,29 @@
+{
+  "_source": "Rút từ đoạn 'Cho ai' của examples/barbershop/founder/idea.md (bản ghi ngày 23/11/2026). Tỷ lệ hai nhóm và khoảng thu nhập theo nhóm là suy diễn của lane từ 'nhiều lượt' và 'biên cao'; cách mua, điều e ngại và thói quen là suy diễn từ 'Điều khách tìm' và cách đặt lịch của tiệm. Hồ sơ này chỉ dùng cho bake-off chọn mô hình; customer.json của case mẫu do skill founder-consumer xác nhận với chủ tiệm (T15).",
+  "business": "Tiệm cắt tóc nam kiểu barbershop (tên gọi tạm), Quận 7 cũ, TP.HCM",
+  "target": "Nam giới 27–45 tuổi sống hoặc làm việc quanh Quận 7 cũ, TP.HCM, thu nhập cá nhân 15–50 triệu đồng một tháng, hiện cắt tóc 10–12 lần một năm ở chuỗi đại chúng hoặc tiệm quen với 125.000–200.000 đ một lần, đã từng thử ít nhất một barbershop có gu",
+  "where": "Quận 7 cũ, TP.HCM",
+  "age": [27, 45],
+  "segments": [
+    {"name": "Nhân viên văn phòng", "share": 0.6, "income": [15000000, 30000000]},
+    {"name": "Quản lý, chủ doanh nghiệp nhỏ", "share": 0.4, "income": [30000000, 50000000]}
+  ],
+  "behaviours": [
+    {"name": "Đặt lịch qua app, trả QR", "share": 0.5, "how": "Chọn thợ và giờ trên app hoặc Zalo, trả bằng QR, không muốn ngồi chờ."},
+    {"name": "Quen tiệm, quen thợ", "share": 0.3, "how": "Cắt ở một tiệm quen gần nhà hoặc gần chỗ làm nhiều năm, chỉ đổi khi thợ nghỉ."},
+    {"name": "Mua gói, săn ưu đãi", "share": 0.2, "how": "Chờ khuyến mãi khai trương hoặc gói 12 lần giá 10 rồi mới thử tiệm mới."}
+  ],
+  "objections": [
+    "199.000 đ một lần cắt cao hơn chỗ tôi đang cắt, khoảng 125.000–150.000 đ",
+    "Tiệm quen của tôi gần hơn và thợ đã biết kiểu tóc của tôi",
+    "Không biết thợ mới có cắt hợp không, phải thử một lần đã",
+    "Sợ vào rồi bị mời mua thêm gói, sản phẩm",
+    "Phải đặt cọc 50.000 đ cho giờ tối thì phiền"
+  ],
+  "habits": [
+    "làm việc ở văn phòng gần tiệm, hay cắt tóc giờ trưa hoặc sau 18:00",
+    "cắt tóc khoảng 3–4 tuần một lần, thường cuối tuần",
+    "đọc đánh giá trên Google Maps trước khi thử chỗ mới",
+    "đi cà phê với bạn ở khu này vào cuối tuần"
+  ]
+}

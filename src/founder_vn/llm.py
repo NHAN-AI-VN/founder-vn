@@ -1,4 +1,4 @@
-"""The one OpenAI-compatible client behind ``panel run``.
+"""The one OpenAI-compatible client behind ``panel run`` and the model bake-off.
 
 Configured by ``FOUNDER_LLM_BASE_URL``, ``FOUNDER_LLM_API_KEY`` and ``FOUNDER_LLM_MODEL``; there
 is no default provider. The request carries only ``model`` and ``messages``: nothing relies on
@@ -6,6 +6,7 @@ is no default provider. The request carries only ``model`` and ``messages``: not
 """
 
 import os
+import time
 from collections.abc import Mapping
 from dataclasses import dataclass
 
@@ -37,6 +38,17 @@ class Config:
     model: str
 
 
+@dataclass(frozen=True)
+class Reply:
+    """One model reply: its text, the provider's token counts (None when it sent no ``usage``)
+    and the wall-clock seconds the call took."""
+
+    content: str
+    prompt_tokens: int | None
+    completion_tokens: int | None
+    seconds: float
+
+
 def load_config(env: Mapping[str, str] | None = None) -> Config:
     """Read the three variables; raise ``NotConfigured`` naming each missing one."""
     source = os.environ if env is None else env
@@ -47,10 +59,17 @@ def load_config(env: Mapping[str, str] | None = None) -> Config:
     return Config(*(values[name] for name in ENV_NAMES))
 
 
-def complete(config: Config, prompt: str, timeout: float = TIMEOUT) -> str:
-    """Send ``prompt`` as one user message; return the reply text or raise ``CallFailed``."""
+def _count(usage: object, field: str) -> int | None:
+    value = usage.get(field) if isinstance(usage, dict) else None
+    return value if isinstance(value, int) and not isinstance(value, bool) else None
+
+
+def complete_with_usage(config: Config, prompt: str, timeout: float = TIMEOUT) -> Reply:
+    """Send ``prompt`` as one user message; return the reply with its token counts and latency,
+    or raise ``CallFailed``."""
     url = config.base_url.rstrip("/") + "/chat/completions"
     body = {"model": config.model, "messages": [{"role": "user", "content": prompt}]}
+    started = time.perf_counter()
     try:
         response = httpx.post(
             url,
@@ -59,7 +78,8 @@ def complete(config: Config, prompt: str, timeout: float = TIMEOUT) -> str:
             timeout=timeout,
         )
         response.raise_for_status()
-        content = response.json()["choices"][0]["message"]["content"]
+        data = response.json()
+        content = data["choices"][0]["message"]["content"]
     except httpx.TimeoutException:
         raise CallFailed(f"quá thời gian chờ {timeout:g} giây") from None
     except httpx.HTTPStatusError as e:
@@ -68,6 +88,15 @@ def complete(config: Config, prompt: str, timeout: float = TIMEOUT) -> str:
         raise CallFailed(f"không gọi được máy chủ mô hình: {type(e).__name__}") from None
     except (ValueError, KeyError, IndexError, TypeError):
         raise CallFailed("câu trả lời của máy chủ mô hình không đọc được") from None
+    seconds = time.perf_counter() - started
     if not isinstance(content, str):
         raise CallFailed("câu trả lời của máy chủ mô hình không có nội dung chữ")
-    return content
+    usage = data.get("usage") if isinstance(data, dict) else None
+    return Reply(
+        content, _count(usage, "prompt_tokens"), _count(usage, "completion_tokens"), seconds
+    )
+
+
+def complete(config: Config, prompt: str, timeout: float = TIMEOUT) -> str:
+    """Send ``prompt`` as one user message; return the reply text or raise ``CallFailed``."""
+    return complete_with_usage(config, prompt, timeout).content

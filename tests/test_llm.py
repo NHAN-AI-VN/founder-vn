@@ -47,3 +47,28 @@ def test_complete_returns_the_reply_and_sends_only_model_and_messages(
     (body,) = fake_provider.requests
     assert body == {"model": "mo-hinh-gia", "messages": [{"role": "user", "content": "chào"}]}
     assert fake_provider.headers[0]["Authorization"] == "Bearer khoa-gia"
+
+
+def test_complete_with_usage_returns_text_tokens_and_latency_from_the_same_call(
+    monkeypatch: pytest.MonkeyPatch, fake_provider: FakeProvider
+) -> None:
+    _configure(monkeypatch, fake_provider)
+    fake_provider.reply = "đã nhận"
+    fake_provider.usage = (123, 45)
+    fake_provider.script = lambda body, n: (200, "đã nhận", 0.05)
+    reply = llm.complete_with_usage(llm.load_config(), "chào", timeout=5)
+    assert reply.content == "đã nhận"
+    assert (reply.prompt_tokens, reply.completion_tokens) == (123, 45)
+    assert reply.seconds >= 0.05
+    (body,) = fake_provider.requests
+    assert body == {"model": "mo-hinh-gia", "messages": [{"role": "user", "content": "chào"}]}
+
+
+def test_complete_with_usage_tolerates_a_reply_without_usage(
+    monkeypatch: pytest.MonkeyPatch, fake_provider: FakeProvider
+) -> None:
+    _configure(monkeypatch, fake_provider)
+    fake_provider.usage = None
+    reply = llm.complete_with_usage(llm.load_config(), "chào", timeout=5)
+    assert reply.content == "xin chào"
+    assert (reply.prompt_tokens, reply.completion_tokens) == (None, None)

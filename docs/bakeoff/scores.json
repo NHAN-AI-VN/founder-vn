@@ -1,0 +1,29 @@
+{
+  "judge": "agent độc lập theo yêu cầu của chủ dự án (Kiro CLI sub-agent, claude-fable-5.1), chấm mù: hai mô hình được đưa dưới tên A và B, không biết tên thật; đọc 5 persona, lời chào hàng và 10 câu trả lời; lựa chọn mô hình tham chiếu là của chủ dự án",
+  "scored_at": "2026-11-24",
+  "blind_labels": {"A": "gemini-3.1-flash-lite", "B": "gemini-3.5-flash-lite"},
+  "scores": {
+    "gemini-3.1-flash-lite": {
+      "voice": 3,
+      "honesty": 3,
+      "note": "Giọng ổn nhưng câu dài, lặp mẫu 'dân văn phòng bận rộn' (P002, P004, P005), nhại lời hứa 'không mời chào khi ngồi ghế'. Quyết định đúng thẻ, P003 tính 165k/lần tốt, nhưng bỏ trống bốn mức giá ở P001 và P004."
+    },
+    "gemini-3.5-flash-lite": {
+      "voice": 4,
+      "honesty": 4,
+      "note": "Giọng đời thường: 'thợ rành tóc tôi rồi', 'thành ra', 'không lằng nhằng', 'đúng gu'. Đủ bốn mức giá ở 5 persona, hợp thẻ; lý do bám thẻ (125-150k đang trả, gần văn phòng, sau 18:00, hợp thu nhập). Hơi lặp 'không chèo kéo'."
+    },
+    "gemini-3.8-flash": {
+      "voice": null,
+      "honesty": null,
+      "note": "không chạy được trên bậc miễn phí, không đánh giá: 0/5 ở hai lần chạy (503, quá 90 rồi 180 giây, 429)"
+    }
+  },
+  "per_persona": [
+    {"id": "P001", "better_voice": "B", "better_honesty": "B", "why": "B gọn, đời thường ('thợ rành tóc tôi rồi'); A bỏ trống bốn mức giá, câu dài hơn."},
+    {"id": "P002", "better_voice": "B", "better_honesty": "B", "why": "B ngắn, nêu '199k hợp lý với thu nhập'; A dài, nhại 'không mời chào khi ngồi ghế' của người bán."},
+    {"id": "P003", "better_voice": "ngang", "better_honesty": "B", "why": "Cả hai tính ~165k/lần đúng; B thêm 125-150k đang trả và gần văn phòng từ thẻ."},
+    {"id": "P004", "better_voice": "ngang", "better_honesty": "B", "why": "A bỏ trống giá, viện 'không chèo kéo' không có trong thẻ; B bám gần văn phòng và khung sau 18:00."},
+    {"id": "P005", "better_voice": "ngang", "better_honesty": "A", "why": "A dùng 'mình' hợp tuổi, gắn 199k với giờ trưa/tối của thẻ; B có 'lằng nhằng', 'đúng gu' nhưng ít số liệu."}
+  ]
+}
