@@ -19,6 +19,8 @@ Design decision: `summary.md` is not an input of the compiler (`plan.SECTIONS` s
 | golden case: `summary.md` (two parts, every amount printed by a tool, caveat, disclaimer, dated links) and `business-plan.md` (equals `plan.compile_plan`, `plan --check` exit 0, verdict line equals the computed verdict) | `tests/test_plan_example.py` (5 tests) | with both files moved away: `FileNotFoundError: ... founder/business-plan.md` and `... founder/summary.md` (5 failed) | `uv run pytest tests/test_plan_example.py -q` (5 passed) |
 | example completeness, README reference, checklist walk (no `$`, no English leak, legal claims with link and date, disclaimer, panel caveat) | `tests/test_wave_a_checklist.py` (7 tests) | with README restored to its placeholder row: `test_readme_references_the_complete_wave_a_example` failed (1 failed, 6 passed) | `uv run pytest tests/test_wave_a_checklist.py -q` (7 passed) |
 
+| review round 1: one-page version stands alone (sources for 7%, caveat and disclaimer inside each part) and `summary.md` closes with caveat then disclaimer | `tests/test_plan_example.py` (+2 tests) | `AssertionError: assert 'không phải tư vấn tài chính, thuế hay pháp lý' in '# Tóm tắt kế hoạch...` and `ValueError: substring not found` (2 failed, 5 passed) | `uv run pytest tests/test_plan_example.py tests/test_wave_a_checklist.py -q` (14 passed) |
+| review round 1: failing-check table in `SKILL.md` equals the labels `plan.compile_plan` prints for three Not yet fixtures; Incomplete path names the missing file | `tests/test_plan_skill.py` (+2 tests) | with the table row renamed to "Hòa vốn vượt công suất": `AssertionError: Hòa vốn không vượt công suất` (red witnessed by mutation, then restored) | `uv run pytest tests/test_plan_skill.py -q` (12 passed) |
 The artifacts already met six of the seven checklist tests when they were written, so those tests were red only through the README. The tests check instruction text and example files, not model behaviour.
 
 ## Golden case
@@ -55,11 +57,19 @@ verify: GREEN on 41fcefbccf2c3aa54518a318877967aff9d1a202
 ## Giới hạn
 
 - No real-model run of `founder-plan` happened in this sandbox: `summary.md` was written by the lane following the skill text, not by a Kiro CLI session with an Owner. The tests do not show that a host model follows the skill; they show the instruction text and the example files.
-- The failing-check explanations (Step 3 of the skill) are not exercised on the golden case, because its verdict is Profitable and all three checks pass. No `Not yet` or `Incomplete` example exists.
+- The failing-check explanations (Step 3 of the skill) have no worked example, because the golden case is Profitable. A fixture-driven test now ties the skill table to the labels the compiler prints for Not yet, but how a host model words the explanation is not tested.
 - The checklist tests check the example files; the English-leak test is a stoplist, not a language detector. The tests were not mutation-witnessed beyond the README case above.
 - `summary.md` is not a compiler input; if the design later wants it inside `business-plan.md`, that is a `plan.py` change and a new ticket.
 - The panel figures come from an earlier model run recorded in `founder/panel/` (model `gemini-3.5-flash-lite`); no panel was run in this lane and no `FOUNDER_LLM_*` value was read.
 
 ## Giải quyết review nội bộ
 
-None yet; the harness dispatches the review turns after the PR opens.
+Source: `.agents/tasks/task-founder-plan-skill-wave-a-example/2026-11-24-064500-review.md` and round 1 of `reviews/issue-18/` (SPEC-1 is the same finding as 3 below).
+
+1. Wrong decree for the 7% rate on the one-page version: fixed. The page now names GTGT 5% under Luật 48/2024/QH15 and TNCN 2% under Luật 109/2025/QH15 with Nghị định 253/2026/NĐ-CP, each linked, dated 23/11/2026. Test: `test_one_page_version_stands_alone_with_caveat_disclaimer_and_sources`.
+2. Summary ending deviates from the skill: fixed in the example, skill unchanged. The final "Lưu ý" now ends with the caveat sentence, then the disclaimer, and the duplicated disclaimer sentence is gone. Test: `test_summary_closes_with_the_caveat_then_the_disclaimer`.
+3. One-page version not self-contained on the disclaimer (also SPEC-1): fixed. Each part carries the caveat and the disclaimer, and the test checks each part separately.
+4. Failing-check path unexercised: fixed in part. `test_failing_check_table_matches_the_labels_the_compiler_prints` compiles three Not yet fixtures and requires the skill table rows to equal the failing labels, so a rename in `plan.verdict` turns it red. `test_incomplete_verdict_names_the_missing_file_and_its_skill` covers Incomplete. A second documented example was not added: the ticket does not ask for one and the compiler paths are already covered by `tests/test_plan_cli.py`. The wording of a model's explanation stays untested (see Giới hạn).
+5. English-leak check is a stoplist: justified, not changed in code. `docs/review-checklist.md` now lists the accepted proper names (verdict labels printed by the tool, book and framework names, lens names, competitor names). Localising `plan.VERDICT_LABELS` is a compiler change outside this ticket.
+
+`business-plan.md` is unchanged: `summary.md` is not a compiler input, and `founder-vn plan --check` still exits 0 (asserted by test).
