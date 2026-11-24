@@ -17,16 +17,26 @@ A development tool of the project owner, next to ``skill_lint.py``: not a comput
 Owner, so it has no CLI/MCP pair.
 """
 
+import dataclasses
 import json
 import re
+import statistics
 import sys
+import time
+from collections.abc import Callable
+from datetime import date
 from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from founder_vn import panel  # noqa: E402
+from founder_vn import llm, panel  # noqa: E402
 
+PERSONAS = 5
+DEFAULT_SEED = 14
+ATTEMPTS = 3
+BACKOFF = 10.0  # seconds before the second attempt of a failed call; doubles
+PAUSE = 4.0  # seconds between two calls: free tiers allow about 15 requests a minute
 MODEL_FIELDS = ("name", "input_usd_per_1m", "output_usd_per_1m", "price_source", "price_verified")
 DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 
@@ -102,3 +112,238 @@ def load_pitch(directory: Path) -> str:
             "pitch.md trống: viết lời chào hàng trước (bán gì, giá bao nhiêu, ở đâu)"
         )
     return text
+
+
+def _cost(candidate: dict[str, Any], reply: llm.Reply) -> float | None:
+    if reply.prompt_tokens is None or reply.completion_tokens is None:
+        return None
+    return (
+        reply.prompt_tokens * candidate["input_usd_per_1m"]
+        + reply.completion_tokens * candidate["output_usd_per_1m"]
+    ) / 1_000_000
+
+
+def ask(
+    config: llm.Config,
+    candidate: dict[str, Any],
+    card: dict[str, Any],
+    pitch: str,
+    *,
+    timeout: float = llm.TIMEOUT,
+    backoff: float = BACKOFF,
+    sleep: Callable[[float], Any] = time.sleep,
+) -> dict[str, Any]:
+    """Ask one candidate for one persona's answer, exactly as the panel asks; return the row.
+
+    A call that fails (429, 5xx, timeout, connection) is retried ``ATTEMPTS`` times with doubling
+    backoff; still failing, the row is ``failed``. A reply that is not a valid answer is kept with
+    its problem; the script never re-asks to make a model look better.
+    """
+    prompt = panel.brief(card, pitch)
+    row: dict[str, Any] = {
+        "model": candidate["name"],
+        "id": card["id"],
+        "name": card["name"],
+        "segment": card["segment"],
+    }
+    reply: llm.Reply | None = None
+    for attempt in range(ATTEMPTS):
+        try:
+            reply = llm.complete_with_usage(
+                dataclasses.replace(config, model=candidate["name"]), prompt, timeout
+            )
+            break
+        except llm.CallFailed as e:
+            if attempt == ATTEMPTS - 1:
+                return {**row, "state": "failed", "error": str(e)}
+            sleep(backoff * 2**attempt)
+    assert reply is not None
+    answer, problem = panel.extract_answer(reply.content, card["id"])
+    prices = (
+        {short: answer.get(long) for short, long in panel.PRICE_KEYS.items()} if answer else None
+    )
+    return {
+        **row,
+        "state": "answered",
+        "raw": reply.content,
+        "json_valid": answer is not None,
+        "problem": problem,
+        "buys": answer["buys"] if answer else None,
+        "reason_code": answer["reason_code"] if answer else None,
+        "reason": answer["reason"] if answer else None,
+        "would_change_my_mind": answer.get("would_change_my_mind") if answer else None,
+        "purchases_first_month": answer.get("purchases_first_month") if answer else None,
+        "prices": prices,
+        "seconds": reply.seconds,
+        "prompt_tokens": reply.prompt_tokens,
+        "completion_tokens": reply.completion_tokens,
+        "cost_usd": _cost(candidate, reply),
+    }
+
+
+def _mean(values: list[Any]) -> float | None:
+    numbers = [v for v in values if isinstance(v, (int, float)) and not isinstance(v, bool)]
+    return statistics.fmean(numbers) if numbers else None
+
+
+def summarise(candidate: dict[str, Any], rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """The machine-measured side of one candidate, counted from its rows."""
+    answered = [r for r in rows if r["state"] == "answered"]
+    valid = [r for r in answered if r["json_valid"]]
+    return {
+        "name": candidate["name"],
+        "calls": len(rows),
+        "answered": len(answered),
+        "failed": len(rows) - len(answered),
+        "json_valid": len(valid),
+        "json_valid_rate": len(valid) / len(answered) if answered else None,
+        "buys": sum(1 for r in valid if r["buys"] is True),
+        "mean_seconds": _mean([r["seconds"] for r in answered]),
+        "mean_prompt_tokens": _mean([r["prompt_tokens"] for r in answered]),
+        "mean_completion_tokens": _mean([r["completion_tokens"] for r in answered]),
+        "mean_cost_usd_per_buyer": _mean([r["cost_usd"] for r in answered]),
+        "input_usd_per_1m": candidate["input_usd_per_1m"],
+        "output_usd_per_1m": candidate["output_usd_per_1m"],
+        "price_source": candidate["price_source"],
+        "price_verified": candidate["price_verified"],
+    }
+
+
+def _dump(obj: Any) -> str:
+    return json.dumps(obj, indent=1, ensure_ascii=False) + "\n"
+
+
+def _vnd(value: Any) -> str:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return "—"
+    return f"{int(round(value)):,}".replace(",", ".") + " đ"
+
+
+def _num(value: float | None, digits: int) -> str:
+    return "—" if value is None else f"{value:.{digits}f}".replace(".", ",")
+
+
+def _cell(value: Any) -> str:
+    return "—" if value in (None, "") else str(value).replace("|", "/").replace("\n", " ")
+
+
+def replies_md(results: dict[str, Any]) -> str:
+    """The Vietnamese side-by-side document the owner reads to judge voice and honesty."""
+    models = results["models"]
+    lines = [
+        "# Bake-off mô hình cho panel người mua",
+        "",
+        f"Chạy ngày {results['ran_at']}: {len(results['personas'])} người mua mô phỏng, mỗi "
+        f"người hỏi {len(models)} mô hình bằng đúng brief của `founder-vn panel run`. Seed "
+        f"{results['seed']}, hash prompt `{results['prompt_hash']}`. Panel là mô phỏng, không "
+        "phải khách hàng thật; tài liệu này chỉ để chọn mô hình tham chiếu.",
+        "",
+        "## Số đo máy",
+        "",
+        "| mô hình | JSON hợp lệ | nói mua | lỗi gọi | độ trễ TB (giây) | token vào/ra TB | "
+        "chi phí TB mỗi người mua (USD) | giá vào/ra (USD mỗi 1M token, ngày kiểm) |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+    ]
+    for m in models:
+        lines.append(
+            f"| {m['name']} | {m['json_valid']}/{m['answered']} | {m['buys']}/{m['json_valid']} | "
+            f"{m['failed']} | {_num(m['mean_seconds'], 1)} | "
+            f"{_num(m['mean_prompt_tokens'], 0)}/{_num(m['mean_completion_tokens'], 0)} | "
+            f"{_num(m['mean_cost_usd_per_buyer'], 6)} | "
+            f"{_num(m['input_usd_per_1m'], 2)}/{_num(m['output_usd_per_1m'], 2)} "
+            f"({m['price_verified']}) |"
+        )
+    lines += [
+        "",
+        '"Nói mua" là số người mua mô phỏng trả lời `buys: true`; một mô hình nói mua gần hết '
+        "là một mô hình đang chiều người bán.",
+        "",
+        "## Phiếu chấm của chủ dự án",
+        "",
+        'Đọc mục "Từng người mua" rồi chấm 1–5 (5 là tốt nhất). Mô hình được chọn ghi vào '
+        "trường `reference` của `models.json`.",
+        "",
+        "| mô hình | giọng Việt tự nhiên (1–5) | thẳng thắn, không chiều người bán (1–5) | ghi chú |",
+        "| --- | ---: | ---: | --- |",
+    ]
+    lines += [f"| {m['name']} |  |  |  |" for m in models]
+    lines += ["", "## Từng người mua"]
+    for card in results["personas"]:
+        lines += [
+            "",
+            f"### {card['id']} · {card['name']}, {card['age']} tuổi, {card['segment']}, "
+            f"thu nhập {_vnd(card['income'])}/tháng",
+            "",
+            f"Cách mua: {card['behaviour']}. {card['behaviour_how']} Điều e ngại: "
+            f"{card['objection'].rstrip('.')}. Thói quen: {card['habit'] or '—'}",
+            "",
+            "| mô hình | mua? | lý do (nguyên văn) | điều gì đổi ý | lần/tháng | "
+            "rẻ nghi ngờ / đáng mua / bắt đầu đắt / quá đắt | JSON |",
+            "| --- | --- | --- | --- | ---: | --- | --- |",
+        ]
+        for row in results["replies"]:
+            if row["id"] != card["id"]:
+                continue
+            if row["state"] == "failed":
+                lines.append(
+                    f"| {row['model']} | — | lỗi gọi: {_cell(row['error'])} | — | — | — | — |"
+                )
+                continue
+            if not row["json_valid"]:
+                lines.append(
+                    f"| {row['model']} | — | {_cell(row['raw'])} | — | — | — | "
+                    f"hỏng: {_cell(row['problem'])} |"
+                )
+                continue
+            prices = row["prices"] or {}
+            lines.append(
+                f"| {row['model']} | {'mua' if row['buys'] else 'không'} | {_cell(row['reason'])} | "
+                f"{_cell(row['would_change_my_mind'])} | {_cell(row['purchases_first_month'])} | "
+                f"{_vnd(prices.get('too_cheap'))} / {_vnd(prices.get('bargain'))} / "
+                f"{_vnd(prices.get('getting_expensive'))} / {_vnd(prices.get('too_expensive'))} | "
+                "hợp lệ |"
+            )
+    return "\n".join(lines) + "\n"
+
+
+def run(
+    directory: Path,
+    *,
+    seed: int = DEFAULT_SEED,
+    pause: float = PAUSE,
+    backoff: float = BACKOFF,
+    timeout: float = llm.TIMEOUT,
+    sleep: Callable[[float], Any] = time.sleep,
+    env: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """Deal the personas, ask every candidate, write ``results.json`` and ``replies.md``."""
+    spec = load_models(directory)
+    customer = load_customer(directory)
+    pitch = load_pitch(directory)
+    try:
+        config = llm.load_config(env)
+    except llm.NotConfigured as e:
+        raise BakeoffError(str(e)) from None
+    cards = panel.deal(customer, PERSONAS, seed)
+    rows: list[dict[str, Any]] = []
+    for candidate in spec["models"]:
+        for card in cards:
+            if rows:
+                sleep(pause)
+            rows.append(
+                ask(config, candidate, card, pitch, timeout=timeout, backoff=backoff, sleep=sleep)
+            )
+    results = {
+        "ran_at": date.today().isoformat(),
+        "seed": seed,
+        "prompt_hash": panel.prompt_hash(cards, pitch),
+        "business": customer["business"],
+        "personas": cards,
+        "models": [
+            summarise(c, [r for r in rows if r["model"] == c["name"]]) for c in spec["models"]
+        ],
+        "replies": rows,
+    }
+    (directory / "results.json").write_text(_dump(results), encoding="utf-8")
+    (directory / "replies.md").write_text(replies_md(results), encoding="utf-8")
+    return results
