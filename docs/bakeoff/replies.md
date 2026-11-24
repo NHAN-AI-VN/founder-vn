@@ -14,13 +14,15 @@ Chạy ngày 2026-11-24: 5 người mua mô phỏng, mỗi người hỏi 3 mô 
 
 ## Phiếu chấm của chủ dự án
 
-Đọc mục "Từng người mua" rồi chấm 1–5 (5 là tốt nhất). Mô hình được chọn ghi vào trường `reference` của `models.json`.
+Chấm bởi: agent độc lập theo yêu cầu của chủ dự án (Kiro CLI sub-agent, claude-fable-5.1), chấm mù: hai mô hình được đưa dưới tên A và B, không biết tên thật; đọc 5 persona, lời chào hàng và 10 câu trả lời; lựa chọn mô hình tham chiếu là của chủ dự án, ngày 2026-11-24. Thang 1–5, 5 là tốt nhất.
 
 | mô hình | giọng Việt tự nhiên (1–5) | thẳng thắn, không chiều người bán (1–5) | ghi chú |
 | --- | ---: | ---: | --- |
-| gemini-3.1-flash-lite |  |  |  |
-| gemini-3.5-flash-lite |  |  |  |
-| gemini-3.8-flash |  |  |  |
+| gemini-3.1-flash-lite | 3 | 3 | Giọng ổn nhưng câu dài, lặp mẫu 'dân văn phòng bận rộn' (P002, P004, P005), nhại lời hứa 'không mời chào khi ngồi ghế'. Quyết định đúng thẻ, P003 tính 165k/lần tốt, nhưng bỏ trống bốn mức giá ở P001 và P004. |
+| gemini-3.5-flash-lite | 4 | 4 | Giọng đời thường: 'thợ rành tóc tôi rồi', 'thành ra', 'không lằng nhằng', 'đúng gu'. Đủ bốn mức giá ở 5 persona, hợp thẻ; lý do bám thẻ (125-150k đang trả, gần văn phòng, sau 18:00, hợp thu nhập). Hơi lặp 'không chèo kéo'. |
+| gemini-3.8-flash | — | — | không chạy được trên bậc miễn phí, không đánh giá: 0/5 ở hai lần chạy (503, quá 90 rồi 180 giây, 429) |
+
+Mô hình tham chiếu đã chọn: `gemini-3.5-flash-lite` (quyết định của chủ dự án).
 
 ## Từng người mua
 
