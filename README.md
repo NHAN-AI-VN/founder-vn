@@ -46,7 +46,12 @@ this model; `founder/panel/results.json` records the model that answered. Per-ho
 
 | Skill | Status |
 |---|---|
-| (filled in as each skill ticket lands) | placeholder |
+| `founder-board` | shipped (Wave A) |
+| `founder-competitors` | shipped (Wave A) |
+| `founder-consumer` | shipped (Wave A) |
+| `founder-pricing` | shipped (Wave A) |
+| `founder-cfo` | shipped (Wave A) |
+| `founder-plan` | shipped (Wave A): writes `summary.md`, compiles `business-plan.md` |
 
 ## Golden case
 
@@ -55,7 +60,12 @@ barbershop in Ho Chi Minh City planned as a household business, anonymised (work
 names, location at former-district level) and published with the case owner's consent (the case owner
 is the project owner; design decision Q51). Every skill is developed and demonstrated on it, and
 [`examples/barbershop/founder/idea.md`](examples/barbershop/founder/idea.md) is the idea file every
-skill reads first. Pilot participants' folders stay outside version control (design §6).
+skill reads first. The Wave A example is complete: `idea.md`, `board.md`, `competitors.md`,
+`consumer.md` with `customer.json`, `pitch.md` and the `panel/` results, `pricing.md`, `numbers.json`
+with `cfo.md`, `summary.md` and the compiled
+[`business-plan.md`](examples/barbershop/founder/business-plan.md) in
+[`examples/barbershop/founder/`](examples/barbershop/founder/). The plan file is written by
+`founder-vn plan` run from `examples/barbershop/`, never by hand. Pilot participants' folders stay outside version control (design §6).
 
 ## Contributing and law updates
 
