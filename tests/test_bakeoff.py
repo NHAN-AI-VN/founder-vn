@@ -272,3 +272,42 @@ def test_repo_inputs_come_from_the_golden_case_and_deal_five_personas_from_both_
     assert len(spec["models"]) == 3 and "reference" in spec
     for model in spec["models"]:
         assert model["price_source"].startswith("https://")
+
+
+def test_only_reruns_the_named_candidates_and_keeps_the_other_rows(
+    bakeoff_dir: Path, monkeypatch: pytest.MonkeyPatch, fake_provider: FakeProvider
+) -> None:
+    _setenv(monkeypatch, fake_provider)
+    quiet = {"pause": 0.0, "sleep": lambda s: None}
+    with pytest.raises(bakeoff.BakeoffError, match="results.json"):
+        bakeoff.run(bakeoff_dir, seed=7, only={"mo-hinh-b"}, **quiet)
+    fake_provider.script = lambda body, n: (200, _answer(_buyer(body), True, body["model"]), 0.0)
+    first = bakeoff.run(bakeoff_dir, seed=7, **quiet)
+    fake_provider.requests.clear()
+    fake_provider.script = lambda body, n: (200, _answer(_buyer(body), False, body["model"]), 0.0)
+    second = bakeoff.run(bakeoff_dir, seed=7, only={"mo-hinh-b"}, **quiet)
+    assert [r["model"] for r in fake_provider.requests] == ["mo-hinh-b"] * 5
+    a, b, c = second["models"]
+    assert (a["buys"], b["buys"], c["buys"]) == (5, 0, 5)
+    kept = [r for r in second["replies"] if r["model"] != "mo-hinh-b"]
+    assert kept == [r for r in first["replies"] if r["model"] != "mo-hinh-b"]
+    assert [r["model"] for r in second["replies"]] == ["mo-hinh-a"] * 5 + ["mo-hinh-b"] * 5 + [
+        "mo-hinh-c"
+    ] * 5
+    assert json.loads((bakeoff_dir / "results.json").read_text(encoding="utf-8")) == second
+    with pytest.raises(bakeoff.BakeoffError, match="seed"):
+        bakeoff.run(bakeoff_dir, seed=8, only={"mo-hinh-b"}, **quiet)
+    with pytest.raises(bakeoff.BakeoffError, match="mo-hinh-x"):
+        bakeoff.run(bakeoff_dir, seed=7, only={"mo-hinh-x"}, **quiet)
+    argv = [
+        str(bakeoff_dir),
+        "--seed",
+        "7",
+        "--pause",
+        "0",
+        "--only",
+        "mo-hinh-b",
+        "--timeout",
+        "5",
+    ]
+    assert bakeoff.main(argv) == 0

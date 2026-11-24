@@ -316,8 +316,13 @@ def run(
     timeout: float = llm.TIMEOUT,
     sleep: Callable[[float], Any] = time.sleep,
     env: dict[str, str] | None = None,
+    only: set[str] | None = None,
 ) -> dict[str, Any]:
-    """Deal the personas, ask every candidate, write ``results.json`` and ``replies.md``."""
+    """Deal the personas, ask every candidate, write ``results.json`` and ``replies.md``.
+
+    With ``only``, just the named candidates are asked again and the other candidates' rows are
+    kept from the existing ``results.json`` of the same seed and prompt hash.
+    """
     spec = load_models(directory)
     customer = load_customer(directory)
     pitch = load_pitch(directory)
@@ -326,18 +331,36 @@ def run(
     except llm.NotConfigured as e:
         raise BakeoffError(str(e)) from None
     cards = panel.deal(customer, PERSONAS, seed)
+    prompt_hash = panel.prompt_hash(cards, pitch)
+    names = [c["name"] for c in spec["models"]]
+    kept: list[dict[str, Any]] = []
+    if only is not None:
+        unknown = sorted(only - set(names))
+        if unknown:
+            raise BakeoffError(
+                f"--only nêu mô hình không có trong models.json: {', '.join(unknown)}"
+            )
+        previous = _read_json(directory, "results.json")
+        if previous.get("seed") != seed or previous.get("prompt_hash") != prompt_hash:
+            raise BakeoffError(
+                "results.json hiện có chạy với seed hoặc prompt khác; bỏ --only để chạy lại cả ba"
+            )
+        kept = [r for r in previous["replies"] if r["model"] not in only]
     rows: list[dict[str, Any]] = []
     for candidate in spec["models"]:
+        if only is not None and candidate["name"] not in only:
+            continue
         for card in cards:
             if rows:
                 sleep(pause)
             rows.append(
                 ask(config, candidate, card, pitch, timeout=timeout, backoff=backoff, sleep=sleep)
             )
+    rows = sorted(kept + rows, key=lambda r: (names.index(r["model"]), r["id"]))
     results = {
         "ran_at": date.today().isoformat(),
         "seed": seed,
-        "prompt_hash": panel.prompt_hash(cards, pitch),
+        "prompt_hash": prompt_hash,
         "business": customer["business"],
         "personas": cards,
         "models": [
@@ -365,9 +388,26 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--backoff", type=float, default=BACKOFF, help="seconds before retrying a failed call"
     )
+    parser.add_argument(
+        "--timeout", type=float, default=llm.TIMEOUT, help="seconds to wait for one reply"
+    )
+    parser.add_argument(
+        "--only",
+        action="append",
+        default=None,
+        metavar="MODEL",
+        help="ask only this candidate again (repeatable); other rows kept from results.json",
+    )
     args = parser.parse_args(argv)
     try:
-        results = run(args.directory, seed=args.seed, pause=args.pause, backoff=args.backoff)
+        results = run(
+            args.directory,
+            seed=args.seed,
+            pause=args.pause,
+            backoff=args.backoff,
+            timeout=args.timeout,
+            only=set(args.only) if args.only else None,
+        )
     except BakeoffError as e:
         print(f"lỗi: {e}", file=sys.stderr)
         return 2
