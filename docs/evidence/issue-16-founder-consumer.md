@@ -17,6 +17,21 @@ Derived from the acceptance criteria (the ticket has no `## Seam` section); ever
 
 The skill and its text tests are one slice (the tests read the skill). The golden files are the second slice. The tests check instruction text and example files, not model behaviour.
 
+## Cổng ba đoạn
+
+Last code commit: `4c7ba40` (last commit touching `skills/`, `tests/`, `examples/`). Each segment ran once at the HEAD below it; this evidence commit touches only `docs/evidence/`. Counts read from `.harness/gate-*.log`.
+
+```
+bash scripts/harness/gate-segment.sh static
+bash scripts/harness/gate-segment.sh unit
+bash scripts/harness/gate-segment.sh build
+bash scripts/harness/gate-segment.sh verify
+static: ruff check "All checks passed!", ruff format --check "175 files already formatted", skill-lint "4 skills checked, 12 example file(s), 0 finding(s)"
+unit:   308 passed
+build:  Successfully built dist/founder_vn-0.1.0-py3-none-any.whl
+gate-segment verify: GREEN on 867bc35c71ee5d9e6f8508189f518753e951c2c8
+```
+
 ## Giới hạn
 
 - **Kiro CLI is not available in the lane sandbox.** The golden case was produced by the lane agent following `skills/founder-consumer/SKILL.md` step by step. The panel ran through the package CLI (`founder-vn panel init`, `run`, `status`, `tally`) on the model named in `founder/panel/panel.json` (`FOUNDER_LLM_MODEL`: gemini-3.1-flash-lite), prompt hash `7602aad4...c71c6`. No other configuration value is recorded. This does not prove that a Kiro CLI session obeys the skill.
