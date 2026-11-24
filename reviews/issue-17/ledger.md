@@ -1,0 +1,3 @@
+# Review closure ledger — #17 founder-pricing skill
+
+SPEC-1 FIXED — the operator ran the skill on Kiro CLI (2026-11-24 05:58Z to 06:24Z, model claude-fable-5.1, skill blob 91b0d8dc7f0e, project examples/barbershop/, operator as the Owner, who left the opening-offer sample size and duration open when asked); the session's pricing.md replaced the lane's as the golden in commit 27d3c44 (same tool figures, the session's prose; 13 tests passed, skill_lint 0 findings, gate verify GREEN on 27d3c44); steps, commands, outputs, hashes and the five review-checklist items with how each was checked are recorded in docs/evidence/issue-17-founder-pricing.md ("Lượt chạy golden case trên Kiro CLI (tiêu chí 3)"); criterion 3 keeps its wording (reviews/issue-17/operator-answer.md).
