@@ -21,6 +21,11 @@ Model calls read `FOUNDER_LLM_BASE_URL`, `FOUNDER_LLM_API_KEY` and `FOUNDER_LLM_
 environment of the host. Set them in the host's own environment; do not write their values into
 `mcp.json` or into this repository.
 
+Reference model for the buyer panel: set `FOUNDER_LLM_MODEL` to `gemini-3.5-flash-lite` (the model
+chosen by the bake-off, [docs/bakeoff/README.md](../bakeoff/README.md)). Panel results are
+comparable across hosts and across Owners only when every run uses this model; `results.json`
+records the model that answered.
+
 `uvx founder-vn-mcp` resolves the package from PyPI, so it works once the `v0.1.0` release is
 published (see `.github/workflows/release.yml`).
 

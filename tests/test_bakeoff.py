@@ -360,3 +360,36 @@ def test_render_fills_the_scoring_form_from_scores_json_without_calling_any_mode
         bakeoff.load_scores(bakeoff_dir)
     (bakeoff_dir / "scores.json").unlink()
     assert bakeoff.load_scores(bakeoff_dir) is None
+
+
+HOST_PAGES = ("README", "kiro", "claude", "codex", "gemini", "grok", "kirocrew")
+
+
+def test_reference_model_is_named_in_readme_host_pages_and_the_note() -> None:
+    spec = bakeoff.load_models(BAKEOFF_DIR)
+    reference = spec["reference"]
+    assert reference in {m["name"] for m in spec["models"]}
+    scores = bakeoff.load_scores(BAKEOFF_DIR)
+    assert scores is not None and reference in scores["scores"]
+    for name in HOST_PAGES:
+        text = (ROOT / "docs" / "hosts" / f"{name}.md").read_text(encoding="utf-8")
+        assert f"`{reference}`" in text and "FOUNDER_LLM_MODEL" in text, name
+        assert "docs/bakeoff/README.md" in text or "../bakeoff/README.md" in text, name
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert f"`{reference}`" in readme and "FOUNDER_LLM_MODEL" in readme
+    assert "docs/bakeoff/README.md" in readme
+    note = (BAKEOFF_DIR / "README.md").read_text(encoding="utf-8")
+    assert f"`{reference}`" in note
+    for candidate in spec["models"]:
+        assert f"`{candidate['name']}`" in note
+    assert "chỉ so sánh được" in note or "comparable" in note
+    assert "$" not in note
+
+
+def test_rendered_replies_carry_the_scores_and_the_reference() -> None:
+    text = (BAKEOFF_DIR / "replies.md").read_text(encoding="utf-8")
+    spec = bakeoff.load_models(BAKEOFF_DIR)
+    assert f"Mô hình tham chiếu đã chọn: `{spec['reference']}`" in text
+    assert "| gemini-3.8-flash | — | — |" in text
+    for secret_shape in ("googleapis", "AIza", "Bearer "):
+        assert secret_shape not in text
