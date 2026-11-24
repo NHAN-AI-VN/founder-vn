@@ -5,7 +5,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from founder_vn import cfo, files, info, install, panel, plan, pricing
+from founder_vn import board, cfo, files, info, install, panel, plan, pricing
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -43,6 +43,13 @@ def build_parser() -> argparse.ArgumentParser:
     status_parser.add_argument("job_id", help="job id printed by `panel run`")
     work_parser = panel_sub.add_parser("work", help=argparse.SUPPRESS)
     work_parser.add_argument("job_id")
+    board_parser = sub.add_parser("board", help="board of three lenses: run")
+    board_sub = board_parser.add_subparsers(dest="board_command", required=True)
+    board_sub.add_parser(
+        "run", help="ask the three lenses about board/brief.md through the configured model"
+    )
+    board_work = board_sub.add_parser("work", help=argparse.SUPPRESS)
+    board_work.add_argument("job_id")
     plan_parser = sub.add_parser(
         "plan", help="compile business-plan.md from what exists under founder/"
     )
@@ -102,6 +109,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                 sys.stdout.write(panel.run_tally(Path.cwd()))
             else:
                 sys.stdout.write(panel.save(Path.cwd(), args.id, sys.stdin.read()))
+        except (panel.PanelError, files.PathRefused) as e:
+            print(f"lỗi: {e}", file=sys.stderr)
+            return 2
+        return 0
+    if args.command == "board":
+        try:
+            if args.board_command == "run":
+                sys.stdout.write(board.run(Path.cwd(), detached=True))
+            else:
+                board.work(Path.cwd(), args.job_id)
         except (panel.PanelError, files.PathRefused) as e:
             print(f"lỗi: {e}", file=sys.stderr)
             return 2

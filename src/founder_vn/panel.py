@@ -25,6 +25,7 @@ from founder_vn import files, llm
 
 PANEL_DIR = "panel"
 JOBS_DIR = "jobs"
+JOB_ROOTS = (PANEL_DIR, "board")
 WAVE = 10
 ATTEMPTS = 3
 MAX_INVALID = 2
@@ -527,14 +528,14 @@ def run_tally(project: Path) -> str:
     )
 
 
-def _job_path(job_id: str) -> str:
+def _job_path(job_id: str, root: str = PANEL_DIR) -> str:
     if not JOB_ID.fullmatch(job_id):
         raise PanelError(f"job '{job_id}' không hợp lệ: có dạng J-xxxxxxxx")
-    return _path(JOBS_DIR, f"{job_id}.json")
+    return f"{root}/{JOBS_DIR}/{job_id}.json"
 
 
-def _read_job(project: Path, job_id: str) -> dict[str, Any]:
-    path = _job_path(job_id)
+def _read_job(project: Path, job_id: str, root: str = PANEL_DIR) -> dict[str, Any]:
+    path = _job_path(job_id, root)
     for attempt in range(5):  # a worker may be rewriting the file at this moment
         try:
             return json.loads(_read(project, path))  # type: ignore[no-any-return]
@@ -579,8 +580,20 @@ def start_job(project: Path, launch: Callable[[Path, str], None]) -> str:
 
 
 def job_status(project: Path, job_id: str) -> str:
-    """The counts of a job as JSON: done, pending, failed, excluded and the last error."""
-    job = _read_job(project, job_id)
+    """The counts of a job as JSON: done, pending, failed, excluded and the last error.
+
+    One poll for every job type: a ``panel run`` job lives under ``founder/panel/jobs/``, a
+    ``board run`` job under ``founder/board/jobs/``.
+    """
+    for root in JOB_ROOTS:
+        try:
+            job = _read_job(project, job_id, root)
+            break
+        except PanelError as e:
+            if not str(e).startswith("không thấy job"):
+                raise
+    else:
+        raise PanelError(f"không thấy job {job_id}")
     settled = len(job["done"]) + len(job["failed"]) + len(job["excluded"])
     return _dump(
         {

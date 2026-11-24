@@ -1,0 +1,25 @@
+# Lens Offers: 100M Offers (Alex Hormozi)
+
+**Điểm: 5/10** · **Phiếu: làm có điều kiện**
+
+## Điểm mạnh
+
+- Lời hứa 'không ai mời mua thêm khi anh ngồi ghế' giải quyết rất rõ sự khó chịu lớn nhất của khách hàng khi đi làm đẹp.
+- Mức giá niêm yết từ 199.000 đ đến 389.000 đ tương xứng với phân khúc nam giới thu nhập 15–50 triệu đồng mỗi tháng tại Quận 7.
+
+## Điều có thể giết ý tưởng này
+
+- Gói 12 lần giá 10 lần và hoàn tiền phần chưa dùng làm tăng rủi ro tài chính cho tiệm và làm loãng giá trị dịch vụ nếu khách đổi ý hàng loạt.
+- Thiếu sự đảm bảo mạnh mẽ (guarantee) vượt trội để loại bỏ hoàn toàn sự nghi ngờ của khách mới khi chuyển từ tiệm quen sang tiệm chưa biết.
+
+## Câu hỏi còn mở
+
+- Tỷ lệ khách hàng mục tiêu sẵn sàng trả trước 1.990.000 đ cho gói 12 lần trong lần ghé đầu tiên là bao nhiêu phần trăm?
+- Chi phí thực tế để thuyết phục một khách hàng từ bỏ tiệm quen sang tiệm mới qua kênh Google Maps và Facebook là bao nhiêu đồng?
+
+## Điều kiện
+
+- Khảo sát trực tiếp ít nhất 50 nam giới thuộc nhóm thu nhập 15–50 triệu đồng tại Quận 7 để kiểm tra mức độ sẵn sàng trả 199.000 đ cho gói Essential Cut.
+- Thiết kế một cơ chế bảo đảm dịch vụ rõ ràng (ví dụ: cắt lại miễn phí hoặc hoàn tiền nếu không đúng ý) để đưa vào đề xuất giá trị trước ngày khai trương.
+
+Đây là ý kiến mô phỏng theo một khung đã xuất bản, không nói thay tác giả và không phải tư vấn tài chính, thuế hay pháp lý.
