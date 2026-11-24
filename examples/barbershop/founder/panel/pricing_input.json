@@ -4,8 +4,50 @@
   {
    "too_cheap": 50000,
    "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 160000,
+   "getting_expensive": 250000,
+   "too_expensive": 350000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
    "getting_expensive": 200000,
-   "too_expensive": 300000
+   "too_expensive": 350000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 199000,
+   "getting_expensive": 350000,
+   "too_expensive": 500000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 400000
   },
   {
    "too_cheap": 50000,
@@ -14,94 +56,34 @@
    "too_expensive": 500000
   },
   {
-   "too_cheap": 50000,
-   "bargain": 200000,
-   "getting_expensive": 400000,
+   "too_cheap": 80000,
+   "bargain": 199000,
+   "getting_expensive": 350000,
    "too_expensive": 600000
   },
   {
    "too_cheap": 50000,
    "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 350000
+  },
+  {
+   "too_cheap": 50000,
+   "bargain": 199000,
+   "getting_expensive": 350000,
+   "too_expensive": 500000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 199000,
    "getting_expensive": 300000,
    "too_expensive": 500000
   },
   {
-   "too_cheap": 50000,
-   "bargain": 150000,
-   "getting_expensive": 199000,
-   "too_expensive": 300000
-  },
-  {
-   "too_cheap": 50000,
-   "bargain": 199000,
-   "getting_expensive": 350000,
-   "too_expensive": 500000
-  },
-  {
-   "too_cheap": "dưới 50.000",
-   "bargain": "100.000 đến 150.000",
-   "getting_expensive": "200.000 đến 250.000",
-   "too_expensive": "trên 300.000"
-  },
-  {
-   "too_cheap": 50000,
-   "bargain": 150000,
-   "getting_expensive": 250000,
-   "too_expensive": 400000
-  },
-  {
-   "too_cheap": 50000,
-   "bargain": 200000,
-   "getting_expensive": 500000,
-   "too_expensive": 800000
-  },
-  {
    "too_cheap": 80000,
-   "bargain": 200000,
-   "getting_expensive": 400000,
-   "too_expensive": 600000
-  },
-  {
-   "too_cheap": 50000,
-   "bargain": 120000,
-   "getting_expensive": 200000,
-   "too_expensive": 300000
-  },
-  {
-   "too_cheap": 50000,
-   "bargain": 199000,
-   "getting_expensive": 350000,
-   "too_expensive": 500000
-  },
-  {
-   "too_cheap": 50000,
-   "bargain": 200000,
-   "getting_expensive": 350000,
-   "too_expensive": 500000
-  },
-  {
-   "too_cheap": 50000,
-   "bargain": 200000,
-   "getting_expensive": 350000,
-   "too_expensive": 500000
-  },
-  {
-   "too_cheap": 50000,
    "bargain": 150000,
    "getting_expensive": 250000,
    "too_expensive": 400000
-  },
-  {
-   "too_cheap": 50000,
-   "bargain": 200000,
-   "getting_expensive": 400000,
-   "too_expensive": 700000
-  },
-  {
-   "too_cheap": 50000,
-   "bargain": 199000,
-   "getting_expensive": 350000,
-   "too_expensive": 500000
   },
   {
    "too_cheap": 50000,
@@ -111,14 +93,32 @@
   },
   {
    "too_cheap": 80000,
+   "bargain": 199000,
+   "getting_expensive": 350000,
+   "too_expensive": 500000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 199000,
+   "getting_expensive": 300000,
+   "too_expensive": 500000
+  },
+  {
+   "too_cheap": 80000,
+   "bargain": 150000,
+   "getting_expensive": 250000,
+   "too_expensive": 350000
+  },
+  {
+   "too_cheap": 50000,
    "bargain": 120000,
    "getting_expensive": 180000,
    "too_expensive": 250000
   },
   {
    "too_cheap": 50000,
-   "bargain": 100000,
-   "getting_expensive": 150000,
+   "bargain": 120000,
+   "getting_expensive": 170000,
    "too_expensive": 200000
   }
  ]

@@ -1,13 +1,11 @@
 {
- "job_id": "J-3d5fb7f2",
+ "job_id": "J-5b1dc109",
  "state": "done",
  "targets": [
-  "P016",
   "P018"
  ],
  "done": [
-  "P018",
-  "P016"
+  "P018"
  ],
  "failed": [],
  "excluded": [],

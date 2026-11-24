@@ -2,11 +2,11 @@
  "id": "P009",
  "buys": false,
  "reason_code": "timing",
- "reason": "Tôi ghét nhất việc đặt cọc giờ đẹp, cảm giác bị gò bó dù mình là khách hàng. Với lịch trình bận rộn của quản lý, tôi cần sự linh hoạt chứ không muốn phải lo canh giờ hủy để lấy lại 50k.",
- "would_change_my_mind": "Bỏ chính sách đặt cọc cho khung giờ cao điểm, thay bằng việc ưu tiên đặt chỗ qua Zalo là đủ, vì tôi chắc chắn sẽ giữ uy tín khi đã hẹn.",
+ "reason": "Tôi hay cắt tầm chiều tối với cuối tuần mà tiệm lại bắt đặt cọc 50k, khoản này làm tôi ngại nên tôi qua tiệm khác cho nhanh.",
+ "would_change_my_mind": "Bỏ cái khoản đặt cọc giờ cao điểm đi thì tôi ghé thử.",
  "purchases_first_month": 0,
  "price_too_cheap": 50000,
- "price_cheap": 200000,
- "price_expensive": 500000,
- "price_too_expensive": 800000
+ "price_cheap": 199000,
+ "price_expensive": 350000,
+ "price_too_expensive": 500000
 }

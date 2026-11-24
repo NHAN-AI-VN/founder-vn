@@ -1,6 +1,6 @@
 {
  "mode": "model",
- "model": "gemini-3.1-flash-lite",
+ "model": "gemini-3.5-flash-lite",
  "prompt_hash": "7602aad48363987ca4053b9c60fb76550adbc4af9bbdd18c3059ef29f04c71c6",
  "business": "Tiệm cắt tóc nam kiểu barbershop ở Quận 7 cũ (ví dụ tổng hợp, không phải số liệu thật)",
  "seed": 837740,
@@ -8,15 +8,15 @@
  "answered": 20,
  "excluded": 0,
  "excluded_buyers": [],
- "buys": 7,
- "passes": 13,
- "buy_rate": 0.35,
+ "buys": 8,
+ "passes": 12,
+ "buy_rate": 0.4,
  "by_segment": [
   {
    "name": "Nam, quản lý hoặc chủ doanh nghiệp nhỏ",
    "n": 8,
-   "buys": 3,
-   "buy_rate": 0.375
+   "buys": 4,
+   "buy_rate": 0.5
   },
   {
    "name": "Nam, nhân viên văn phòng",
@@ -41,8 +41,8 @@
   {
    "name": "Quen một thợ",
    "n": 8,
-   "buys": 1,
-   "buy_rate": 0.125
+   "buys": 2,
+   "buy_rate": 0.25
   }
  ],
  "why_not": [
@@ -52,39 +52,49 @@
    "quotes": [
     {
      "id": "P001",
-     "text": "Mức giá 199k thì cũng ổn nhưng tôi không thích việc phải đặt cọc khi đặt lịch cuối tuần, nhất là khi tôi lại hay tranh thủ đi cắt vào giờ nghỉ trưa hoặc cuối tuần."
+     "text": "Tôi hay cắt tóc vào cuối tuần hoặc giờ nghỉ trưa, nhưng bên bạn lại yêu cầu đặt cọc 50.000 đ cho khung giờ này nên tôi thấy ngại không muốn làm thủ tục rườm rà."
     },
     {
      "id": "P007",
-     "text": "Tôi không thích việc phải đặt cọc khi đặt lịch cuối tuần, vì lịch làm việc của tôi đôi khi thay đổi đột xuất, việc mất cọc hoặc phải canh giờ hủy trước 3 tiếng rất phiền phức."
+     "text": "Tôi hay cắt vào cuối tuần mà lại cứ bắt đặt cọc 50.000 đ làm tôi ngại, với lại 199.000 đ cho một lần thì hơi quá ngân sách quen thuộc một chút."
     }
    ]
   },
   {
    "reason_code": "convenience",
-   "n": 3,
+   "n": 2,
    "quotes": [
     {
-     "id": "P004",
-     "text": "Tôi là quản lý nên lịch khá bận, việc phải đặt cọc và quản lý thời gian khắt khe như vậy hơi phiền phức so với tiệm quen hiện tại. Mức giá 199k cũng không chênh lệch nhiều so với chỗ tôi đang cắt, nên tôi chưa thấy lý do gì để thay đổi thói quen."
+     "id": "P003",
+     "text": "Tiệm ở tuốt Quận 7 cũ xa chỗ tôi quá, với lại khung giờ tôi hay cắt là cuối tuần thì lại phải lằng nhằng đặt cọc 50k, không khoẻ bằng mấy chỗ gần nhà."
     },
     {
      "id": "P012",
-     "text": "Tiệm nằm ở Quận 7 trong khi tôi làm việc và sinh hoạt ở khu vực khác, việc đi lại xa xôi không thuận tiện cho lịch trình văn phòng của tôi."
+     "text": "Tiệm ở tuốt Quận 7 cũ mà tôi lại ngại đi xa chỗ ở hoặc chỗ làm, với lại chưa kịp check Google Maps xem review thế nào."
     }
    ]
   },
   {
    "reason_code": "price",
-   "n": 3,
+   "n": 2,
    "quotes": [
     {
-     "id": "P005",
-     "text": "Tiệm quen của tôi chỉ tầm 120.000 - 150.000 đ thôi, 199.000 đ cho một gói cơ bản là hơi cao so với mức tôi sẵn sàng chi thường xuyên."
+     "id": "P019",
+     "text": "199.000 đ cho một lần cắt là cao hơn hẳn tiệm quen của tôi rồi, trong khi tôi chỉ muốn thử cho biết chứ chưa chắc đã hợp."
     },
     {
-     "id": "P019",
-     "text": "Mức giá 199.000 đồng cao hơn đáng kể so với tiệm quen mà tôi vẫn cắt ổn, tôi thấy chưa cần thiết phải chi thêm chỉ để nhận mấy dịch vụ cộng thêm như khăn nóng hay đồ uống."
+     "id": "P020",
+     "text": "Giá 199.000đ cao hơn tiệm quen của tôi, với thu nhập hơn 15 triệu thì tôi thấy không đáng để chi trả mức này."
+    }
+   ]
+  },
+  {
+   "reason_code": "habit",
+   "n": 1,
+   "quotes": [
+    {
+     "id": "P018",
+     "text": "Tôi quen cắt tiệm cũ dưới nhà, cứ phóng xe đến gửi ngay trước cửa là xong, không quen lằng nhằng đặt app hay Zalo lại còn phải cọc tiền giờ giấc."
     }
    ]
   },
@@ -94,7 +104,7 @@
    "quotes": [
     {
      "id": "P015",
-     "text": "Tôi đã quen cắt ở tiệm cũ rồi, đổi qua thợ mới thì chưa biết tay nghề ra sao, nhỡ cắt hỏng lại mất công đi sửa. Với lại, việc phải đặt cọc rồi đặt lịch qua app cũng hơi phiền với người thích ghé là cắt liền như tôi."
+     "text": "Tôi chưa biết thợ ở đây cắt có đẹp không, với lại quen cắt tiệm cũ quen mặt rồi, qua đây lỡ thợ mới cắt hỏng thì mất công lắm."
     }
    ]
   }
@@ -102,44 +112,43 @@
  "why_yes": [
   {
    "reason_code": "convenience",
-   "n": 6,
+   "n": 7,
    "quotes": [
     {
-     "id": "P003",
-     "text": "Tôi thích cách các bạn dùng app/Zalo để đặt lịch và cam kết không chèo kéo, điều này rất phù hợp với nhịp sống bận rộn của dân văn phòng như tôi."
+     "id": "P002",
+     "text": "Tôi hay tranh thủ giờ nghỉ trưa hoặc cuối tuần để cắt tóc, việc đặt lịch trước qua app giúp tôi chủ động thời gian mà không phải chờ đợi."
     },
     {
-     "id": "P006",
-     "text": "Với thu nhập của tôi, 200k cho gần một tiếng thư giãn là hợp lý. Tôi thích việc không bị chèo kéo dịch vụ và đặt lịch trước qua app giúp tiết kiệm thời gian đáng kể."
+     "id": "P004",
+     "text": "Gói 1.990.000 cho 12 lần tính ra khoảng 165k/lần, vừa tầm tiền tôi hay trả, lại chủ động đặt giờ qua app không phải chờ đợi."
     }
    ]
   },
   {
-   "reason_code": "trust",
+   "reason_code": "price",
    "n": 1,
    "quotes": [
     {
-     "id": "P002",
-     "text": "Tôi thích cách tiệm minh bạch giá cả và không chèo kéo, quan trọng là cho chọn thợ trước qua app nên tôi yên tâm phần nào về chất lượng khi thử tiệm mới."
+     "id": "P006",
+     "text": "Gói 199k cho 45 phút có cả gội, khăn nóng với đồ uống là hợp lý, mà mua gói 12 lần tính ra chưa tới 170k/lần lại càng hời hơn mấy tiệm gu tôi hay thử."
     }
    ]
   }
  ],
  "flip": [
-  "Nếu tiệm bỏ chính sách đặt cọc cho khung giờ cuối tuần hoặc cho phép đặt qua Zalo mà không cần cọc trước thì tôi sẽ cân nhắc.",
-  "Nếu tiệm có dịch vụ chăm sóc da mặt đi kèm hoặc có thêm ưu đãi cho khách hàng thân thiết lâu dài mà không cần đặt cọc phức tạp, tôi sẽ cân nhắc.",
-  "Nếu tiệm có chương trình dùng thử lần đầu giá ưu đãi hoặc có nhiều đánh giá 5 sao trên Google Maps thực sự chất lượng, tôi sẽ cân nhắc.",
-  "Bỏ chính sách đặt cọc cho khách quen hoặc linh động hơn trong việc hủy lịch thì tôi sẽ cân nhắc.",
-  "Bỏ chính sách đặt cọc cho khách hàng thân thiết hoặc cho phép hủy sát giờ mà không mất phí.",
-  "Bỏ chính sách đặt cọc cho khung giờ cao điểm, thay bằng việc ưu tiên đặt chỗ qua Zalo là đủ, vì tôi chắc chắn sẽ giữ uy tín khi đã hẹn.",
-  "Nếu tiệm bỏ chính sách đặt cọc cho khung giờ cao điểm hoặc có chính sách ưu đãi dùng thử với mức giá tốt hơn.",
-  "Nếu tiệm có thêm chi nhánh ở khu vực trung tâm hoặc gần nơi tôi làm việc thì tôi sẽ cân nhắc trải nghiệm thử.",
-  "Nếu tiệm có chương trình cắt thử một lần với giá ưu đãi hoặc cam kết tay nghề từ thợ cứng lâu năm, tôi sẽ cân nhắc.",
-  "Bỏ quy định đặt cọc khi đặt lịch qua app hoặc Zalo, thay vào đó là chính sách nhắc lịch tự động và chỉ phạt nếu vắng mặt không báo trước.",
-  "Nếu tiệm nằm ngay trên đường đi làm về của tôi, không cần đặt cọc và không bắt cài thêm ứng dụng rườm rà.",
-  "Nếu có gói trải nghiệm lần đầu với giá ưu đãi để tôi kiểm chứng chất lượng thợ có thực sự xứng đáng với chênh lệch giá đó hay không.",
-  "Nếu tiệm có chương trình trải nghiệm lần đầu với giá ưu đãi hoặc giảm giá cho khách hàng mới để mình thử tay nghề thợ trước khi cam kết mua gói dài hạn."
+  "Bỏ chính sách đặt cọc 50k vào cuối tuần hoặc cho phép hủy sát giờ hơn mà không mất phí.",
+  "Tiệm dời về gần chỗ tôi ở hoặc chỗ làm hơn, và bỏ cái vụ đặt cọc cuối tuần đi.",
+  "Bỏ quy định đặt cọc vào cuối tuần thì tôi có thể thử ghé.",
+  "Bỏ quy định đặt cọc khi đặt lịch giờ cao điểm.",
+  "Bỏ cái khoản đặt cọc giờ cao điểm đi thì tôi ghé thử.",
+  "Bỏ cọc cuối tuần hoặc miễn cọc cho khách đặt lịch quen.",
+  "Tiệm có thêm chi nhánh gần khu tôi ở hoặc làm việc, và đọc review trên Google Maps thấy ổn áp.",
+  "Nếu có thợ quen giới thiệu hoặc cho cắt thử một lần hợp ý thì tôi mới ghé.",
+  "Bỏ chính sách đặt cọc vào cuối tuần thì tôi sẽ ghé thử.",
+  "Chắc phải có thợ quen qua đó cắt cực kỳ hợp ý và chỗ gửi xe phải tiện lợi ngay trước cửa như chỗ cũ tôi mới sang.",
+  "Có giá vé trải nghiệm lần đầu khoảng 120.000 đ thì tôi sẽ ghé thử vào giờ nghỉ trưa.",
+  "Nếu quán có chương trình giảm giá vé lẻ xuống khoảng 150.000đ hoặc gói 12 lần giá mềm hơn thì tôi sẽ cân nhắc."
  ],
- "purchases_first_month_per_buyer": 1.2857142857142858,
+ "purchases_first_month_per_buyer": 1.125,
  "price_answers": 20
 }

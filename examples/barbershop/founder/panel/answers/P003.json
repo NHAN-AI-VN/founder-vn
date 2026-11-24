@@ -1,12 +1,12 @@
 {
  "id": "P003",
- "buys": true,
+ "buys": false,
  "reason_code": "convenience",
- "reason": "Tôi thích cách các bạn dùng app/Zalo để đặt lịch và cam kết không chèo kéo, điều này rất phù hợp với nhịp sống bận rộn của dân văn phòng như tôi.",
- "would_change_my_mind": "",
- "purchases_first_month": 1,
- "price_too_cheap": 50000,
- "price_cheap": 200000,
- "price_expensive": 400000,
- "price_too_expensive": 600000
+ "reason": "Tiệm ở tuốt Quận 7 cũ xa chỗ tôi quá, với lại khung giờ tôi hay cắt là cuối tuần thì lại phải lằng nhằng đặt cọc 50k, không khoẻ bằng mấy chỗ gần nhà.",
+ "would_change_my_mind": "Tiệm dời về gần chỗ tôi ở hoặc chỗ làm hơn, và bỏ cái vụ đặt cọc cuối tuần đi.",
+ "purchases_first_month": 0,
+ "price_too_cheap": 80000,
+ "price_cheap": 150000,
+ "price_expensive": 250000,
+ "price_too_expensive": 400000
 }

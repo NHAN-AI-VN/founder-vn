@@ -2,11 +2,11 @@
  "id": "P011",
  "buys": false,
  "reason_code": "timing",
- "reason": "Tôi không thích việc phải đặt cọc khi đi cắt tóc, việc này tạo cảm giác gò bó khi lịch trình cuối tuần của tôi vốn đã hay thay đổi. Ngoài ra, giá 199k cho một lần cắt là hơi cao so với mức tôi thường chi trả ở tiệm quen.",
- "would_change_my_mind": "Nếu tiệm bỏ chính sách đặt cọc cho khung giờ cao điểm hoặc có chính sách ưu đãi dùng thử với mức giá tốt hơn.",
+ "reason": "Tôi hay cắt vào cuối tuần mà tiệm lại bắt đặt cọc 50.000 đ khung giờ này nên tôi ngại, với lại giá 199.000 đ cũng sát ngưỡng tôi hay trả rồi.",
+ "would_change_my_mind": "Bỏ cọc cuối tuần hoặc miễn cọc cho khách đặt lịch quen.",
  "purchases_first_month": 0,
  "price_too_cheap": 50000,
- "price_cheap": 120000,
- "price_expensive": 200000,
- "price_too_expensive": 300000
+ "price_cheap": 150000,
+ "price_expensive": 250000,
+ "price_too_expensive": 350000
 }

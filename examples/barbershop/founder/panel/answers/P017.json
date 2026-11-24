@@ -2,11 +2,11 @@
  "id": "P017",
  "buys": false,
  "reason_code": "timing",
- "reason": "Tôi ghét nhất là việc phải đặt cọc khi đặt lịch, dù là 50.000đ cũng làm tôi thấy phiền phức và mất thời gian quản lý. Việc cắt tóc là nhu cầu linh hoạt, quy định này khiến tôi cảm thấy bị gò bó không đáng có.",
- "would_change_my_mind": "Bỏ quy định đặt cọc khi đặt lịch qua app hoặc Zalo, thay vào đó là chính sách nhắc lịch tự động và chỉ phạt nếu vắng mặt không báo trước.",
+ "reason": "Tôi hay cắt tóc vào cuối tuần hoặc giờ nghỉ trưa, nhưng khung giờ này lại bắt đặt cọc 50.000 đ nên tôi rất ngại và không muốn rườm rà.",
+ "would_change_my_mind": "Bỏ chính sách đặt cọc vào cuối tuần thì tôi sẽ ghé thử.",
  "purchases_first_month": 0,
- "price_too_cheap": 50000,
+ "price_too_cheap": 80000,
  "price_cheap": 199000,
- "price_expensive": 350000,
+ "price_expensive": 300000,
  "price_too_expensive": 500000
 }

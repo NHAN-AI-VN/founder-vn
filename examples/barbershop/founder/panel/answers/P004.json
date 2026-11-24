@@ -1,12 +1,12 @@
 {
  "id": "P004",
- "buys": false,
+ "buys": true,
  "reason_code": "convenience",
- "reason": "Tôi là quản lý nên lịch khá bận, việc phải đặt cọc và quản lý thời gian khắt khe như vậy hơi phiền phức so với tiệm quen hiện tại. Mức giá 199k cũng không chênh lệch nhiều so với chỗ tôi đang cắt, nên tôi chưa thấy lý do gì để thay đổi thói quen.",
- "would_change_my_mind": "Nếu tiệm có dịch vụ chăm sóc da mặt đi kèm hoặc có thêm ưu đãi cho khách hàng thân thiết lâu dài mà không cần đặt cọc phức tạp, tôi sẽ cân nhắc.",
- "purchases_first_month": 0,
- "price_too_cheap": 50000,
- "price_cheap": 150000,
- "price_expensive": 300000,
- "price_too_expensive": 500000
+ "reason": "Gói 1.990.000 cho 12 lần tính ra khoảng 165k/lần, vừa tầm tiền tôi hay trả, lại chủ động đặt giờ qua app không phải chờ đợi.",
+ "would_change_my_mind": "",
+ "purchases_first_month": 1,
+ "price_too_cheap": 80000,
+ "price_cheap": 160000,
+ "price_expensive": 250000,
+ "price_too_expensive": 350000
 }
