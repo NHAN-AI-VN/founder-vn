@@ -1,5 +1,5 @@
-# Review closure ledger — #16 founder-consumer (vòng 1)
+# Review closure ledger — #16 founder-consumer
 
-S1 FIXED — consumer.md xưng "anh/chị"; assert thêm vào test_golden_readback_has_five_points_and_the_caveat_once, đỏ trước, xanh sau (commit "fix: #16 S1").
-SPEC-1 FIXED — panel chạy lại với gemini-3.5-flash-lite (mô hình tham chiếu), panel/, consumer.md và evidence cập nhật (commit "fix: #16 SPEC-1").
-SPEC-2 DEFERRED — needs operator decision (checklist item on issue #16: Kiro CLI session vs accepting founder-vn package CLI run); tracked on issue #16. Ghi trong mục Giới hạn của docs/evidence/issue-16-founder-consumer.md.
+S1 FIXED — consumer.md xưng "anh/chị"; assert thêm vào test_golden_readback_has_five_points_and_the_caveat_once, đỏ trước, xanh sau (commit 0fcbe00 "fix: #16 S1").
+SPEC-1 FIXED — panel chạy lại với gemini-3.5-flash-lite (mô hình tham chiếu), panel/, consumer.md và evidence cập nhật (commit 3aa6fdc "fix: #16 SPEC-1").
+SPEC-2 FIXED — the operator answered (reviews/issue-16/operator-answer.md): criterion 5 on #16 is amended to accept the golden case produced by following SKILL.md with the panel run through the package CLI on the reference model (gemini-3.5-flash-lite, prompt hash and seed in examples/barbershop/founder/panel/panel.json); the Kiro CLI session of the skill is verified by the T18 (#19) clean-install walkthrough that runs the six Wave A skills on Kiro CLI; the same commit rewrites the first "Giới hạn" line of docs/evidence/issue-16-founder-consumer.md; code, tests, example files and the gate block (verify GREEN on f72f9ab, last code commit 3aa6fdc) unchanged.
