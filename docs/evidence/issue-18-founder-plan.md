@@ -20,6 +20,7 @@ Design decision: `summary.md` is not an input of the compiler (`plan.SECTIONS` s
 | example completeness, README reference, checklist walk (no `$`, no English leak, legal claims with link and date, disclaimer, panel caveat) | `tests/test_wave_a_checklist.py` (7 tests) | with README restored to its placeholder row: `test_readme_references_the_complete_wave_a_example` failed (1 failed, 6 passed) | `uv run pytest tests/test_wave_a_checklist.py -q` (7 passed) |
 
 | review round 1: one-page version stands alone (sources for 7%, caveat and disclaimer inside each part) and `summary.md` closes with caveat then disclaimer | `tests/test_plan_example.py` (+2 tests) | `AssertionError: assert 'không phải tư vấn tài chính, thuế hay pháp lý' in '# Tóm tắt kế hoạch...` and `ValueError: substring not found` (2 failed, 5 passed) | `uv run pytest tests/test_plan_example.py tests/test_wave_a_checklist.py -q` (14 passed) |
+| address round 1, SPEC-1: one-page version cut at the next `## ` heading so `## Lưu ý` cannot supply its caveat and disclaimer | `tests/test_plan_example.py::test_one_page_version_stands_alone_with_caveat_disclaimer_and_sources` | with the disclaimer deleted from the one-page version only: `AssertionError` (1 failed, 6 passed) | `uv run pytest tests/test_plan_example.py -q` (7 passed) |
 | review round 1: failing-check table in `SKILL.md` equals the labels `plan.compile_plan` prints for three Not yet fixtures; Incomplete path names the missing file | `tests/test_plan_skill.py` (+2 tests) | with the table row renamed to "Hòa vốn vượt công suất": `AssertionError: Hòa vốn không vượt công suất` (red witnessed by mutation, then restored) | `uv run pytest tests/test_plan_skill.py -q` (12 passed) |
 The artifacts already met six of the seven checklist tests when they were written, so those tests were red only through the README. The tests check instruction text and example files, not model behaviour.
 
@@ -41,7 +42,7 @@ Walked over `skills/*/SKILL.md` and `examples/barbershop/founder/**/*.md`, each 
 
 ## Cổng ba đoạn
 
-Last code commit: `827dd83` (review round 1 fixes; the evidence-only commit after it changes no code). Each segment ran once; counts read from `.harness/gate-*.log`.
+Last code commit: `bb861e8` (round 1 address: SPEC-1 test fix; later commits change only the ledger and this file). Each segment ran once; counts read from `.harness/gate-*.log`.
 
 ```
 bash scripts/harness/gate-segment.sh static
@@ -51,7 +52,7 @@ bash scripts/harness/gate-segment.sh verify
 static: ruff check "All checks passed!", ruff format --check "196 files already formatted", skill-lint "6 skills checked, 15 example file(s), 0 finding(s)"
 unit:   347 passed
 build:  Successfully built dist/founder_vn-0.1.0-py3-none-any.whl
-verify: GREEN on 827dd83548086d30f71d5d7e3efd45f7d7619243
+verify: GREEN on 61e074694fcc1276b4cb25d6d022bc19eeb31951
 ```
 
 ## Giới hạn
