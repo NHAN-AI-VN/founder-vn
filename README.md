@@ -31,6 +31,17 @@ Version 0.1.0 is not published yet. The PyPI package and the `founder-vn install
 | Facilitator | `founder-vn install --host kiro\|claude\|codex\|grok\|kirocrew` | not yet released |
 | MCP server | `uvx founder-vn-mcp` | not yet released |
 
+## Model
+
+The buyer panel (`founder-vn panel run`, MCP `panel_run`) asks one OpenAI-compatible model,
+configured in the host's environment by `FOUNDER_LLM_BASE_URL`, `FOUNDER_LLM_API_KEY` and
+`FOUNDER_LLM_MODEL`; there is no default provider, and the values never go into a config file or
+this repository. Suggested `FOUNDER_LLM_MODEL`: **`gemini-3.5-flash-lite`**, the reference model
+chosen by the bake-off in [docs/bakeoff/README.md](docs/bakeoff/README.md) (what was tried, what was
+chosen, why). Panel results are comparable across hosts and across Owners only when every run uses
+this model; `founder/panel/results.json` records the model that answered. Per-host setup:
+[docs/hosts/](docs/hosts/README.md).
+
 ## Status
 
 | Skill | Status |
@@ -73,6 +84,9 @@ số, nên không có số nào do mô hình tự nghĩ ra.
   và `uvx founder-vn-mcp` (chưa phát hành, bản 0.1.0 chưa lên PyPI).
 - **Quy tắc cứng**: mọi khẳng định pháp lý cần link chính thức và ngày kiểm tra. Luật đổi thì mở
   issue "Law changed".
+- **Mô hình cho panel người mua**: đặt `FOUNDER_LLM_MODEL=gemini-3.5-flash-lite` (mô hình tham
+  chiếu chọn qua bake-off, [docs/bakeoff/README.md](docs/bakeoff/README.md)); panel chỉ so sánh
+  được giữa các host khi mọi lần chạy dùng đúng mô hình này.
 - **Nguồn gốc**: điều chỉnh từ founder-skill của Jake Schincariol (MIT), commit
   `fd9385b0cfe1b96bebce3898fbd506d73eff5a9d`.
 - Báo cáo chỉ là bản mô phỏng, không phải tư vấn tài chính, thuế hay pháp lý.

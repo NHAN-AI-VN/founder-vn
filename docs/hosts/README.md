@@ -15,3 +15,8 @@ everywhere: `uvx founder-vn-mcp` (it resolves once `v0.1.0` is published).
 
 Model calls read `FOUNDER_LLM_BASE_URL`, `FOUNDER_LLM_API_KEY` and `FOUNDER_LLM_MODEL` from the
 host environment. Never write their values into a host config or into this repository.
+
+Suggested `FOUNDER_LLM_MODEL`: `gemini-3.5-flash-lite`, the reference model of the buyer panel
+chosen by the bake-off of ticket T14 ([docs/bakeoff/README.md](../bakeoff/README.md): what was
+tried, what was chosen, why). The panel is comparable across hosts only when this model is used;
+`founder/panel/results.json` records the model that answered, so a run on another model is visible.
