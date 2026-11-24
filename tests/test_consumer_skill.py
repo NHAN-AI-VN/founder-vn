@@ -136,5 +136,6 @@ def test_golden_readback_has_five_points_and_the_caveat_once() -> None:
     assert text.count("mô phỏng, cận trên, không phải khách hàng thật") == 1
     assert f"{res['buys']} mua, {res['passes']} không mua" in text
     assert res["model"] in text
+    assert "anh/chị" in text
     assert "không phải tư vấn tài chính, thuế hay pháp lý" in text
     assert not DOLLAR.search(text)
