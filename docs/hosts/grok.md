@@ -17,7 +17,7 @@ In `~/.grok/config.toml`:
 ```toml
 [mcp_servers.founder-vn]
 command = "uvx"
-args = ["founder-vn-mcp"]
+args = ["--from", "founder-vn", "founder-vn-mcp"]
 ```
 
 ## Environment

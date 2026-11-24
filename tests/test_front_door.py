@@ -33,7 +33,7 @@ def test_readme_names_purpose_audience_hosts_and_both_install_routes() -> None:
         "KiroCrew",
         "npx skills add NHAN-AI-VN/founder-vn",
         "founder-vn install --host",
-        "uvx founder-vn-mcp",
+        "uvx --from founder-vn founder-vn-mcp",
         "not yet released",
     ):
         assert needle in text, needle

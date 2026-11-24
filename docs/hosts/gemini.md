@@ -11,7 +11,7 @@ Status: pending confirmation. This host needs confirmation at install time (desi
   "mcpServers": {
     "founder-vn": {
       "command": "uvx",
-      "args": ["founder-vn-mcp"],
+      "args": ["--from", "founder-vn", "founder-vn-mcp"],
       "env": {
         "FOUNDER_LLM_API_KEY": "$FOUNDER_LLM_API_KEY"
       }

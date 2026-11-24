@@ -29,7 +29,7 @@ Version 0.1.0 is not published yet. The PyPI package and the `founder-vn install
 |---|---|---|
 | Development (skills only) | `npx skills add NHAN-AI-VN/founder-vn` | works from the repository |
 | Facilitator | `founder-vn install --host kiro\|claude\|codex\|grok\|kirocrew` | not yet released |
-| MCP server | `uvx founder-vn-mcp` | not yet released |
+| MCP server | `uvx --from founder-vn founder-vn-mcp` | not yet released |
 
 ## Model
 
@@ -91,7 +91,7 @@ số, nên không có số nào do mô hình tự nghĩ ra.
 - **Host hỗ trợ**: Kiro CLI, Claude Code, Codex, Gemini / Antigravity CLI (cần xác nhận khi cài),
   Grok Build, KiroCrew (thêm qua dashboard).
 - **Cách cài**: `npx skills add NHAN-AI-VN/founder-vn` (phát triển); `founder-vn install --host ...`
-  và `uvx founder-vn-mcp` (chưa phát hành, bản 0.1.0 chưa lên PyPI).
+  và `uvx --from founder-vn founder-vn-mcp` (chưa phát hành, bản 0.1.0 chưa lên PyPI).
 - **Quy tắc cứng**: mọi khẳng định pháp lý cần link chính thức và ngày kiểm tra. Luật đổi thì mở
   issue "Law changed".
 - **Mô hình cho panel người mua**: đặt `FOUNDER_LLM_MODEL=gemini-3.5-flash-lite` (mô hình tham

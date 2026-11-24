@@ -128,7 +128,8 @@ cho chủ hộ; chủ hộ tự chạy CLI không phải đối tượng v1.
 
 - Cài skill: `npx skills add <owner>/founder-vn` (dev) hoặc `founder-vn install --host
   kiro|claude|codex|grok|kirocrew` (người hỗ trợ chỉ cần Python/uv): sao chép skill vào đúng thư mục
-  và in đoạn cấu hình MCP. Server trên PyPI, chạy `uvx founder-vn-mcp`. `docs/hosts/<host>.md` có
+  và in đoạn cấu hình MCP. Server trên PyPI, chạy `uvx --from founder-vn founder-vn-mcp` (`uvx <lệnh>` cài gói tên `<lệnh>`
+  nếu không có `--from`, Q53). `docs/hosts/<host>.md` có
   đoạn cấu hình cho từng host; KiroCrew thêm qua dashboard; "Gemini CLI / Antigravity CLI" cần xác
   nhận khi cài. Kiro Power / Claude Code plugin để sau pilot.
 - Bố cục repo: `skills/founder-*/SKILL.md`, `src/founder_vn/`, `permits/sources.md`,
@@ -203,7 +204,7 @@ bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; track star
 Kiro Power / Claude Code plugin; máy tính web tĩnh dùng chung công thức; mô hình tài chính bền vững
 cho dự án OSS (chưa bàn, không cần cho v1).
 
-## Phụ lục: nhật ký quyết định (Q1–Q52)
+## Phụ lục: nhật ký quyết định (Q1–Q53)
 
 Vòng 1
 
@@ -298,3 +299,11 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   thời, chưa tính" không có con số, vì `src/founder_vn/cfo.py` (T05) không đổi trong T11 nên phần
   này do skill nối vào cuối `cfo.md`; (2) tách `tax_rate_on_revenue` thành hai tỷ lệ với hai căn cứ
   tính, thêm cờ mốc 3 tỷ đồng và đưa phần giới hạn vào báo cáo của công cụ là một ticket mới sau T11.
+- Q53 (2026-11-24, quyết định của operator, sau khi #19 BLOCKED) Server MCP khởi động bằng
+  `uvx --from founder-vn founder-vn-mcp`, không phải `uvx founder-vn-mcp`. Lý do: `uvx` suy gói từ tên
+  lệnh nếu `--from` không nêu gói, mà console script `founder-vn-mcp` nằm trong gói `founder-vn`. Đã đo
+  2026-11-24 với uv 0.11.24: `uvx founder-vn-mcp` báo "founder-vn-mcp was not found in the package
+  registry" (và sẽ báo y như vậy sau khi phát hành, vì không có gói tên đó);
+  `uvx --from ./dist/founder_vn-0.1.0-py3-none-any.whl founder-vn --version` in `founder-vn 0.1.0`.
+  Bản 0.1.0 chưa bao giờ lên PyPI; 0.2.0 là bản PyPI đầu tiên. Sửa §5, `src/founder_vn/install.py`,
+  `docs/hosts/` và README cùng thay đổi.

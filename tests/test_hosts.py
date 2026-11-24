@@ -21,8 +21,8 @@ def test_kiro_mcp_json_registers_the_console_script() -> None:
         "scripts"
     ]
     assert entry["command"] == "uvx"
-    assert entry["args"] == ["founder-vn-mcp"]
-    assert entry["args"][0] in scripts
+    assert entry["args"] == ["--from", "founder-vn", "founder-vn-mcp"]
+    assert entry["args"][-1] in scripts
 
 
 def test_kiro_doc_carries_no_secret_values() -> None:
@@ -71,3 +71,10 @@ def test_hosts_readme_lists_every_page_without_stub_state() -> None:
     for name in ("kiro", "claude", "codex", "gemini", "grok", "kirocrew"):
         assert f"({name}.md)" in text
     assert "| stub" not in text
+
+
+def test_every_host_page_starts_the_server_with_uvx_from_the_package() -> None:
+    for name in ("README", "kiro", "claude", "codex", "gemini", "grok", "kirocrew"):
+        text = _page(name)
+        assert "uvx founder-vn-mcp" not in text, name
+        assert re.search(r"--from\W+founder-vn\W+founder-vn-mcp", text), name

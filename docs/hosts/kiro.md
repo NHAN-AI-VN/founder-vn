@@ -7,7 +7,7 @@ Add this to the Kiro `mcp.json` (workspace `.kiro/settings/mcp.json` or user lev
   "mcpServers": {
     "founder-vn": {
       "command": "uvx",
-      "args": ["founder-vn-mcp"]
+      "args": ["--from", "founder-vn", "founder-vn-mcp"]
     }
   }
 }
@@ -26,7 +26,7 @@ chosen by the bake-off, [docs/bakeoff/README.md](../bakeoff/README.md)). Panel r
 comparable across hosts and across Owners only when every run uses this model; `results.json`
 records the model that answered.
 
-`uvx founder-vn-mcp` resolves the package from PyPI, so it works once the `v0.1.0` release is
+`uvx --from founder-vn founder-vn-mcp` resolves the package from PyPI, so it works once the `v0.2.0` release (the first on PyPI) is
 published (see `.github/workflows/release.yml`).
 
 ## Installing the skills
