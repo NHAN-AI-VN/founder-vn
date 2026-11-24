@@ -193,3 +193,52 @@ def test_run_asks_each_candidate_the_same_five_personas_and_writes_results_and_r
     assert "mô phỏng" in text
     for secret in (fake_provider.base_url, "khoa-gia", "$"):
         assert secret not in text and secret not in json.dumps(written, ensure_ascii=False)
+
+
+def test_a_candidate_that_keeps_failing_is_recorded_failed_after_retries_with_backoff(
+    bakeoff_dir: Path, monkeypatch: pytest.MonkeyPatch, fake_provider: FakeProvider
+) -> None:
+    _setenv(monkeypatch, fake_provider)
+
+    def script(body: dict, n: int) -> tuple[int, str, float]:
+        if body["model"] == "mo-hinh-b":
+            return 429, "", 0.0
+        return 200, _answer(_buyer(body), buys=True, model=body["model"]), 0.0
+
+    fake_provider.script = script
+    slept: list[float] = []
+    results = bakeoff.run(bakeoff_dir, seed=7, pause=4.0, backoff=10.0, sleep=slept.append)
+    a, b, c = results["models"]
+    assert (b["calls"], b["answered"], b["failed"]) == (5, 0, 5)
+    assert (b["json_valid_rate"], b["mean_cost_usd_per_buyer"], b["mean_seconds"]) == (
+        None,
+        None,
+        None,
+    )
+    assert (a["failed"], c["failed"]) == (0, 0)
+    assert [r["model"] for r in fake_provider.requests].count("mo-hinh-b") == 15
+    assert (slept.count(10.0), slept.count(20.0), slept.count(4.0)) == (5, 5, 14)
+    row = next(r for r in results["replies"] if r["model"] == "mo-hinh-b")
+    assert (row["state"], row["error"]) == ("failed", "máy chủ mô hình trả mã 429")
+    text = (bakeoff_dir / "replies.md").read_text(encoding="utf-8")
+    assert "lỗi gọi: máy chủ mô hình trả mã 429" in text
+
+
+def test_main_exit_codes_and_messages(
+    bakeoff_dir: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    fake_provider: FakeProvider,
+) -> None:
+    for name in ("FOUNDER_LLM_BASE_URL", "FOUNDER_LLM_API_KEY", "FOUNDER_LLM_MODEL"):
+        monkeypatch.delenv(name, raising=False)
+    assert bakeoff.main([str(bakeoff_dir)]) == 2
+    assert "FOUNDER_LLM_BASE_URL" in capsys.readouterr().err
+    _setenv(monkeypatch, fake_provider)
+    fake_provider.script = lambda body, n: (200, _answer(_buyer(body), True, body["model"]), 0.0)
+    assert bakeoff.main([str(bakeoff_dir), "--seed", "7", "--pause", "0"]) == 0
+    out = capsys.readouterr().out
+    assert "replies.md" in out and "mo-hinh-a" in out and "5/5" in out
+    (bakeoff_dir / "models.json").unlink()
+    assert bakeoff.main([str(bakeoff_dir)]) == 2
+    assert "models.json" in capsys.readouterr().err

@@ -17,6 +17,7 @@ A development tool of the project owner, next to ``skill_lint.py``: not a comput
 Owner, so it has no CLI/MCP pair.
 """
 
+import argparse
 import dataclasses
 import json
 import re
@@ -347,3 +348,38 @@ def run(
     (directory / "results.json").write_text(_dump(results), encoding="utf-8")
     (directory / "replies.md").write_text(replies_md(results), encoding="utf-8")
     return results
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Run the bake-off from the command line; return the exit code (2 on a bad input)."""
+    parser = argparse.ArgumentParser(
+        prog="bakeoff.py",
+        description="Ask the same five simulated buyers of every candidate model; write "
+        "results.json and replies.md into the directory.",
+    )
+    parser.add_argument("directory", type=Path, help="holds models.json, customer.json, pitch.md")
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED, help="same seed, same personas")
+    parser.add_argument(
+        "--pause", type=float, default=PAUSE, help="seconds between two calls (free-tier pacing)"
+    )
+    parser.add_argument(
+        "--backoff", type=float, default=BACKOFF, help="seconds before retrying a failed call"
+    )
+    args = parser.parse_args(argv)
+    try:
+        results = run(args.directory, seed=args.seed, pause=args.pause, backoff=args.backoff)
+    except BakeoffError as e:
+        print(f"lỗi: {e}", file=sys.stderr)
+        return 2
+    for m in results["models"]:
+        print(
+            f"{m['name']}: JSON hợp lệ {m['json_valid']}/{m['answered']}, nói mua {m['buys']}, "
+            f"lỗi gọi {m['failed']}, độ trễ TB {_num(m['mean_seconds'], 1)} giây, chi phí TB "
+            f"{_num(m['mean_cost_usd_per_buyer'], 6)} USD mỗi người mua"
+        )
+    print(f"Đã ghi {args.directory / 'results.json'} và {args.directory / 'replies.md'}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
