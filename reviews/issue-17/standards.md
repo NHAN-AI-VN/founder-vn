@@ -1,4 +1,4 @@
-Commit mã đã chấm: 1b8ce2d0e526
+Commit mã đã chấm: 3cdb342f146d
 
 # Review trục Standards, issue #17, vòng 1
 
@@ -6,33 +6,33 @@ Phán quyết: PASS. Không có finding chặn.
 
 ## Phạm vi đã xét
 
-Diff `main...HEAD` (4 commit: `afc1e6c` seam, `77d914a` slice, `06cd1ac` slice, `1b8ce2d` docs): `skills/founder-pricing/SKILL.md`, `tests/test_pricing_skill.py`, `examples/barbershop/founder/pricing.md`, `examples/barbershop/founder/pricing_input.json`, `docs/evidence/issue-17-founder-pricing.md`.
+`git diff --stat origin/main...HEAD` và `git log --oneline origin/main..HEAD` (afc1e6c, 06cd1ac, 77d914a, 1b8ce2d, f4fe722, 538fd15, 27d3c44, 3cdb342). File mã và dữ liệu: `skills/founder-pricing/SKILL.md`, `tests/test_pricing_skill.py`, `examples/barbershop/founder/pricing.md`, `examples/barbershop/founder/pricing_input.json`, `docs/evidence/issue-17-founder-pricing.md`. Chuẩn: `AGENTS.md`, `docs/agents/standards.md`, `docs/agents/evidence-gates.md`. Diff không chạm `src/`, `pyproject.toml`, `uv.lock` hay file một-chủ nào.
 
-Chuẩn đối chiếu: `AGENTS.md`, `docs/agents/standards.md`, `docs/agents/evidence-gates.md`.
+## Kiểm tra đã chạy ở 3cdb342
 
-## Kết quả theo mục
+- `uv run pytest -q`: 321 passed.
+- `uv run ruff check .`: All checks passed. `uv run ruff format --check .`: sạch.
+- `python scripts/skill_lint.py`: 5 skills, 13 example file(s), 0 finding(s), package version 0.1.0.
+- CI Gate (run 45340591139, theo tin nhắn mở đầu): success.
+- `grep` tìm `$` cạnh chữ số trong `pricing.md` và `SKILL.md`: 0 kết quả.
 
-- Không đụng `src/`: không có ghi file ngoài lớp khoá đường dẫn, không có phép tính chỉ ở một transport, không có hằng số thuế hay ngưỡng. Skill gọi `pricing_psm` / `founder-vn pricing` và `cfo_model` / `founder-vn cfo --price`, đã có sẵn từ issue #8 và CFO.
-- Test không gọi mạng và không in biến `FOUNDER_LLM_*`.
-- Checklist skill:
-  - `scripts/skill_lint.py` chạy lại: 5 skill, 13 file ví dụ, 0 finding.
-  - Frontmatter khớp `founder-cfo` và `founder-competitors`: `name` bằng tên thư mục, `license`, `metadata.version` 0.1.0 bằng phiên bản package, `author`/`source`/`commit`.
-  - Khối `## Protocol` giống nguyên văn hai skill kia.
-  - `pricing.md` bằng tiếng Việt, xưng "anh/chị", tiền theo dạng VND, không có `$`.
-  - Giá đối thủ lấy từ `competitors.md` (có link nguồn và ngày khảo sát 23/11/2026). Không có khẳng định pháp lý hay thuế mới.
-  - Có miễn trừ trách nhiệm. Cảnh báo "Panel là mô phỏng, cận trên" xuất hiện đúng một lần.
-- Hình dạng vòng lặp:
-  - (a) Commit `seam:` có mục `## Seam` và đứng trước hai commit `slice(`.
-  - (b) Không commit nào chạm `src/`; mỗi commit slice đều chạm `tests/test_pricing_skill.py` và có một dòng trong `## Lát`. Số test khớp: 8 ở `77d914a`, 13 ở `06cd1ac`.
-  - (c) Test nằm ở seam đã khai (file skill và file golden), không ở internals.
-  - (d) `## Cổng ba đoạn` ghi `gate-segment verify` GREEN trên `06cd1ac0cb7e`, đúng là commit mã cuối. `1b8ce2d` chỉ đổi `docs/evidence/`.
-- Golden file: cả hai file mới, không có file đổi. Đã chạy lại `uv run pytest tests/test_pricing_skill.py -q` (13 passed) và `uv run ruff check .` (sạch). CI `Gate` ở `1b8ce2d0e526` success theo tin nhắn giao việc.
-- Con số trong `pricing.md` (28 lượt hòa vốn, giá bán 280.000 đ) khớp `cfo.md`.
+## Các mục chặn đã đối chiếu
+
+- Không ghi file ngoài lớp khoá đường dẫn, không phép tính mới ở một transport (diff không thêm mã Python; `pricing_psm` và `cfo --price` có sẵn từ #8). Không gọi mạng, không số mặc định, không tỷ lệ thuế hay ngưỡng hardcode, không giá trị `FOUNDER_LLM_*` trong file nào của diff.
+- Golden file: `pricing.md` đổi ở 27d3c44. Message của commit có đoạn "Why the golden changed" (nguồn là phiên Kiro CLI thật, mọi con số giữ nguyên so với bản trước, phần văn là của phiên), nêu test và lint đã chạy. Đạt quy tắc "golden đổi phải giải thích trong commit message".
+- Skill: `name` bằng tên thư mục, `metadata.version` 0.1.0 khớp phiên bản package, có `license`, `author`, `source`, `commit`, mô tả có cụm kích hoạt tiếng Việt. Đầu ra cho chủ hộ: tiếng Việt, xưng "anh/chị", tiền dạng `199.000 đ`, có miễn trừ trách nhiệm (dòng cuối) và cảnh báo "Panel là mô phỏng, cận trên" đúng một lần (ghép với test). Không có khẳng định pháp lý nào; giá đối thủ có ngày khảo sát 23/11/2026 và trỏ về `competitors.md` là nơi giữ link nguồn.
+
+## Hình dạng vòng lặp
+
+- (a) `afc1e6c seam: #17 founder-pricing` mang `## Seam`, đứng trước hai commit `slice(`.
+- (b) Không commit nào chạm `src/`. Cả hai commit `slice(` đều chạm `tests/test_pricing_skill.py` và có dòng trong `## Lát`; commit 27d3c44 (golden, tiền tố `golden(`) có dòng thứ ba trong `## Lát`, ghi rõ không có đỏ mới vì chỉ đổi văn trên cùng số liệu, và 5 test `test_golden_*` là cổng của file mới.
+- (c) Test nằm ở seam đã khai (file skill và golden), không ở internals.
+- (d) Khối `## Cổng ba đoạn` ghi `gate-segment verify` GREEN ở `27d3c44a81a3…`. Commit mã cuối là 27d3c44: `git diff --name-only 27d3c44 HEAD` chỉ gồm `docs/evidence/`, `reviews/issue-17/ledger.md`, `reviews/issue-17/operator-answer.md`. Commit 3cdb342 chỉ đổi tài liệu, nên cổng không stale.
 
 ## Chưa xác minh
 
-- Chưa chạy lại `founder-vn pricing` và `founder-vn cfo --price` để so từng con số với đầu ra công cụ (test của lane có kiểm 5 test `test_golden_*`; CI xanh).
-- Việc có đủ yêu cầu của ticket hay không thuộc trục Spec, không xét ở đây.
-- Evidence ghi rõ không có Kiro CLI trong sandbox lane nên chưa chứng minh một phiên host tuân theo skill; việc này thuộc T18 (#19).
+- Số "235 files already formatted" trong khối cổng khác số 187 tôi đo ở sandbox này (cây làm việc có thêm hoặc thiếu file ngoài diff, như thư mục `.agents/` chưa theo dõi). Cả hai đều xanh; tôi không coi đây là finding.
+- Tôi không chạy lại `gate-segment.sh verify` (nó ghi vào `.harness/`); dựa vào các lệnh gốc ở trên và CI Gate.
+- Việc phiên Kiro CLI thật đã chạy skill (tiêu chí 3) thuộc trục Spec, ngoài phạm vi.
 
 <promise>PASS</promise>
