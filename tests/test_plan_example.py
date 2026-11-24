@@ -58,7 +58,10 @@ def test_summary_carries_caveat_disclaimer_and_dated_links() -> None:
 def _parts() -> tuple[str, str]:
     text = _read("summary.md")
     marker = "## Bản một trang cho đối tác hoặc bên cho vay"
-    return text.split(marker)[0], marker + text.split(marker)[1]
+    first, rest = text.split(marker)
+    # Cut the one-page version at the next "## " heading so the closing "## Lưu ý"
+    # section cannot supply the caveat and disclaimer on its behalf.
+    return first, marker + rest.split("\n## ")[0]
 
 
 def test_one_page_version_stands_alone_with_caveat_disclaimer_and_sources() -> None:
