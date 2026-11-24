@@ -40,6 +40,8 @@ Giá bán 280.000 đ là vé gộp bình quân dự kiến theo `founder/idea.md
 
 **Việc làm tiếp.** Cả ba kiểm tra đạt nên chưa có skill nào cần chạy để sửa. Việc tiếp theo là thử với khách thật theo ưu đãi mở đầu trong `founder/pricing.md`, và theo dõi các điều kiện dừng trong `founder/idea.md`. Nếu đổi giá hoặc chi phí, chạy lại `founder-cfo` rồi `founder-plan` để kết luận được tính lại.
 
+Panel là mô phỏng, cận trên, không phải khách hàng thật. Kết quả này không phải tư vấn tài chính, thuế hay pháp lý.
+
 ## Bản một trang cho đối tác hoặc bên cho vay
 
 **Tiệm cắt tóc nam kiểu barbershop, Quận 7 cũ, TP.HCM** (ví dụ tổng hợp, không phải số liệu thật).
@@ -48,7 +50,7 @@ Tiệm 4 ghế cắt và 2 giường gội cho nam giới 27–45 tuổi quanh k
 
 - Giá bán bình quân 280.000 đ mỗi lượt, đóng góp 176.400 đ mỗi lượt.
 - Hòa vốn ở 28 lượt mỗi ngày; kế hoạch 40 lượt, công suất tối đa 66 lượt.
-- Năm 1: doanh thu 2.639.000.000 đ, thuế doanh thu 184.730.000 đ (thuế suất 7%, [nguồn Công báo](https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-253-2026-nd-cp-469959.htm), kiểm chứng ngày 23/11/2026), lợi nhuận hoạt động sau thuế 23.836.000 đ.
+- Năm 1: doanh thu 2.639.000.000 đ, thuế doanh thu 184.730.000 đ (thuế suất 7%, gồm GTGT 5% theo [Luật 48/2024/QH15](https://congbao.chinhphu.vn/van-ban/luat-so-48-2024-qh15-43576.htm) và TNCN 2% theo [Luật 109/2025/QH15](https://congbao.chinhphu.vn/van-ban/luat-so-109-2025-qh15-468671.htm) cùng [Nghị định 253/2026/NĐ-CP](https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-253-2026-nd-cp-469959.htm), kiểm chứng ngày 23/11/2026), lợi nhuận hoạt động sau thuế 23.836.000 đ.
 
 **Kết luận của công cụ: Profitable (có lãi)**, tính từ số của CFO; lợi nhuận năm 1 mỏng.
 
@@ -56,6 +58,8 @@ Tiệm 4 ghế cắt và 2 giường gội cho nam giới 27–45 tuổi quanh k
 
 **Bước kế tiếp:** thử giá và ưu đãi mở đầu với khách thật (bán trước, danh sách chờ) rồi so với điều kiện dừng sau 9 tháng vận hành.
 
+Panel là mô phỏng, cận trên, không phải khách hàng thật. Kết quả này không phải tư vấn tài chính, thuế hay pháp lý.
+
 ## Lưu ý
 
-Bản tóm tắt này là tổng hợp từ các file và con số anh/chị đã nhập, không phải tư vấn tài chính, thuế hay pháp lý. Thuế suất, ngưỡng miễn thuế và thủ tục pháp lý cần đối chiếu với quy định hiện hành (hoặc hỏi cơ quan thuế, kế toán) trước khi quyết định bỏ vốn. Kết quả này không phải tư vấn tài chính, thuế hay pháp lý.
+Bản tóm tắt này là tổng hợp từ các file và con số anh/chị đã nhập. Thuế suất, ngưỡng miễn thuế và thủ tục pháp lý cần đối chiếu với quy định hiện hành (hoặc hỏi cơ quan thuế, kế toán) trước khi quyết định bỏ vốn. Panel là mô phỏng, cận trên, không phải khách hàng thật. Kết quả này không phải tư vấn tài chính, thuế hay pháp lý.

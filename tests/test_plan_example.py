@@ -53,3 +53,24 @@ def test_summary_carries_caveat_disclaimer_and_dated_links() -> None:
     assert "23/11/2026" in text
     assert "permits/sources.md" in text
     assert not DOLLAR.search(text)
+
+
+def _parts() -> tuple[str, str]:
+    text = _read("summary.md")
+    marker = "## Bản một trang cho đối tác hoặc bên cho vay"
+    return text.split(marker)[0], marker + text.split(marker)[1]
+
+
+def test_one_page_version_stands_alone_with_caveat_disclaimer_and_sources() -> None:
+    for part in _parts():
+        assert CAVEAT in part
+        assert DISCLAIMER in part
+    page = _parts()[1]
+    for link in ("luat-so-48-2024-qh15", "luat-so-109-2025-qh15", "nghi-dinh-so-253-2026-nd-cp"):
+        assert link in page, link
+    assert "23/11/2026" in page
+
+
+def test_summary_closes_with_the_caveat_then_the_disclaimer() -> None:
+    tail = _read("summary.md").strip().splitlines()[-1]
+    assert tail.index(CAVEAT) < tail.index(DISCLAIMER)
