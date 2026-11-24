@@ -19,13 +19,13 @@ Project scope, in `.mcp.json` at the project root:
   "mcpServers": {
     "founder-vn": {
       "command": "uvx",
-      "args": ["founder-vn-mcp"]
+      "args": ["--from", "founder-vn", "founder-vn-mcp"]
     }
   }
 }
 ```
 
-Or: `claude mcp add --scope project founder-vn -- uvx founder-vn-mcp`.
+Or: `claude mcp add --scope project founder-vn -- uvx --from founder-vn founder-vn-mcp`.
 
 ## Environment
 

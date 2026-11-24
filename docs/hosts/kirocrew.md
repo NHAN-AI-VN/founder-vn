@@ -15,7 +15,7 @@ Copies the skills into `.kiro/skills/` of the current project (idempotent; `--pr
 KiroCrew does not read the workspace `.kiro/settings/mcp.json`, so the registration in [kiro.md](kiro.md) does not apply. Register through the dashboard:
 
 1. Open the KiroCrew dashboard, MCP Servers page, and add a server.
-2. Name `founder-vn`, command `uvx`, arguments `founder-vn-mcp`.
+2. Name `founder-vn`, command `uvx`, arguments `--from founder-vn founder-vn-mcp`.
 3. Trust the project in KiroCrew; skills and servers load only for a trusted project.
 
 ## Environment

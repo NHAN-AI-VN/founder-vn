@@ -33,12 +33,12 @@ def test_readme_names_purpose_audience_hosts_and_both_install_routes() -> None:
         "KiroCrew",
         "npx skills add NHAN-AI-VN/founder-vn",
         "founder-vn install --host",
-        "uvx founder-vn-mcp",
+        "uvx --from founder-vn founder-vn-mcp",
         "not yet released",
     ):
         assert needle in text, needle
     assert re.search(r"^## .*Tiếng Việt", text, re.MULTILINE)
-    assert "| Skill | Status |" in text
+    assert "| Skill | Ticket | Status |" in text
 
 
 def test_readme_credits_upstream_with_a_commit_hash() -> None:
@@ -131,3 +131,30 @@ def test_host_pages_carry_no_secret_values_or_dollar_amounts() -> None:
         text = page.read_text(encoding="utf-8")
         assert not re.search(r"(sk-|Bearer )\w", text), page.name
         assert not DOLLAR.search(text), page.name
+
+
+def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
+    text = _read("README.md")
+    english, vietnamese = re.split(r"^## .*Tiếng Việt", text, maxsplit=1, flags=re.MULTILINE)
+    assert "0.2.0 is the first PyPI release" in english
+    assert "v0.2.0" in english and "pending" in english
+    assert "0.1.0 is not published" not in text and "chưa lên PyPI" not in text
+    for skill, issue, artefact in (
+        ("founder-board", "#14", "board.md"),
+        ("founder-competitors", "#13", "competitors.md"),
+        ("founder-consumer", "#16", "consumer.md"),
+        ("founder-pricing", "#17", "pricing.md"),
+        ("founder-cfo", "#12", "cfo.md"),
+        ("founder-plan", "#18", "business-plan.md"),
+    ):
+        row = next(line for line in english.splitlines() if f"`{skill}`" in line and "|" in line)
+        assert issue in row and f"examples/barbershop/founder/{artefact}" in row, skill
+    for skill in ("founder-permits", "founder-ops", "founder-marketing", "founder-launch"):
+        row = next(line for line in english.splitlines() if f"`{skill}`" in line and "|" in line)
+        assert "not started" in row, skill
+    assert "full pipeline: pending walkthrough (#19)" in english
+    assert "not yet verified" in english
+    assert not re.search(r"\|\s*verified", english)
+    for needle in ("0.2.0", "v0.2.0", "#19", "chưa xác nhận", "chưa bắt đầu"):
+        assert needle in vietnamese, needle
+    assert not re.search(r"\|\s*(verified|đã xác nhận)", vietnamese)

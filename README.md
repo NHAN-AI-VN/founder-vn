@@ -22,14 +22,16 @@ is in [docs/hosts/](docs/hosts/README.md).
 
 ## Install
 
-Version 0.1.0 is not published yet. The PyPI package and the `founder-vn install` command below are
-**not yet released**; only the development route works today.
+Version 0.2.0 is the first PyPI release (0.1.0 was never published). It is pending the `v0.2.0`
+tag: until the tag is pushed and `release.yml` publishes through trusted publishing, the PyPI
+package and the `founder-vn install` command below are **not yet released**; only the development
+route works today.
 
 | Route | Command | State |
 |---|---|---|
 | Development (skills only) | `npx skills add NHAN-AI-VN/founder-vn` | works from the repository |
-| Facilitator | `founder-vn install --host kiro\|claude\|codex\|grok\|kirocrew` | not yet released |
-| MCP server | `uvx founder-vn-mcp` | not yet released |
+| Facilitator | `founder-vn install --host kiro\|claude\|codex\|grok\|kirocrew` | not yet released, pending the `v0.2.0` tag |
+| MCP server | `uvx --from founder-vn founder-vn-mcp` | not yet released, pending the `v0.2.0` tag |
 
 ## Model
 
@@ -44,14 +46,29 @@ this model; `founder/panel/results.json` records the model that answered. Per-ho
 
 ## Status
 
-| Skill | Status |
+| Skill | Ticket | Status | Golden artefact |
+|---|---|---|---|
+| `founder-board` | #14 | shipped (Wave A) | [`board.md`](examples/barbershop/founder/board.md) |
+| `founder-competitors` | #13 | shipped (Wave A) | [`competitors.md`](examples/barbershop/founder/competitors.md) |
+| `founder-consumer` | #16 | shipped (Wave A) | [`consumer.md`](examples/barbershop/founder/consumer.md) |
+| `founder-pricing` | #17 | shipped (Wave A) | [`pricing.md`](examples/barbershop/founder/pricing.md) |
+| `founder-cfo` | #12 | shipped (Wave A) | [`cfo.md`](examples/barbershop/founder/cfo.md) |
+| `founder-plan` | #18 | shipped (Wave A): writes `summary.md`, compiles `business-plan.md` | [`business-plan.md`](examples/barbershop/founder/business-plan.md) |
+| `founder-permits` | | not started (Wave B) | |
+| `founder-ops` | | not started (Wave B) | |
+| `founder-marketing` | | not started (Wave B) | |
+| `founder-launch` | | not started (Wave B) | |
+
+Golden artefacts are under `examples/barbershop/founder/`.
+
+| Host | State |
 |---|---|
-| `founder-board` | shipped (Wave A) |
-| `founder-competitors` | shipped (Wave A) |
-| `founder-consumer` | shipped (Wave A) |
-| `founder-pricing` | shipped (Wave A) |
-| `founder-cfo` | shipped (Wave A) |
-| `founder-plan` | shipped (Wave A): writes `summary.md`, compiles `business-plan.md` |
+| Kiro CLI | full pipeline: pending walkthrough (#19) |
+| Claude Code | not yet verified |
+| Codex | not yet verified |
+| Gemini / Antigravity CLI | not yet verified |
+| Grok Build | not yet verified |
+| KiroCrew | not yet verified |
 
 ## Golden case
 
@@ -91,7 +108,12 @@ số, nên không có số nào do mô hình tự nghĩ ra.
 - **Host hỗ trợ**: Kiro CLI, Claude Code, Codex, Gemini / Antigravity CLI (cần xác nhận khi cài),
   Grok Build, KiroCrew (thêm qua dashboard).
 - **Cách cài**: `npx skills add NHAN-AI-VN/founder-vn` (phát triển); `founder-vn install --host ...`
-  và `uvx founder-vn-mcp` (chưa phát hành, bản 0.1.0 chưa lên PyPI).
+  và `uvx --from founder-vn founder-vn-mcp` (chưa phát hành: 0.2.0 là bản PyPI đầu tiên, 0.1.0 chưa
+  bao giờ được phát hành, và 0.2.0 đang chờ tag `v0.2.0`).
+- **Trạng thái**: sáu skill đợt A (`founder-board` #14, `founder-competitors` #13, `founder-consumer`
+  #16, `founder-pricing` #17, `founder-cfo` #12, `founder-plan` #18) đã có, kèm sản phẩm mẫu trong
+  `examples/barbershop/founder/`; bốn skill đợt B (`permits`, `ops`, `marketing`, `launch`)
+  chưa bắt đầu. Kiro CLI: chạy trọn quy trình đang chờ walkthrough (#19); mọi host khác chưa xác nhận.
 - **Quy tắc cứng**: mọi khẳng định pháp lý cần link chính thức và ngày kiểm tra. Luật đổi thì mở
   issue "Law changed".
 - **Mô hình cho panel người mua**: đặt `FOUNDER_LLM_MODEL=gemini-3.5-flash-lite` (mô hình tham

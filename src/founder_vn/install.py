@@ -28,7 +28,7 @@ _JSON_SERVER = """{
   "mcpServers": {
     "founder-vn": {
       "command": "uvx",
-      "args": ["founder-vn-mcp"]
+      "args": ["--from", "founder-vn", "founder-vn-mcp"]
     }
   }
 }
@@ -36,7 +36,7 @@ _JSON_SERVER = """{
 
 _TOML_SERVER = """[mcp_servers.founder-vn]
 command = "uvx"
-args = ["founder-vn-mcp"]
+args = ["--from", "founder-vn", "founder-vn-mcp"]
 """
 
 SNIPPETS = {
@@ -47,7 +47,7 @@ SNIPPETS = {
     "claude": (
         "MCP registration: add to .mcp.json at the project root (project scope):\n\n"
         + _JSON_SERVER
-        + "\nor run: claude mcp add --scope project founder-vn -- uvx founder-vn-mcp\n"
+        + "\nor run: claude mcp add --scope project founder-vn -- uvx --from founder-vn founder-vn-mcp\n"
     ),
     "codex": (
         "MCP registration: add to ~/.codex/config.toml:\n\n"
@@ -60,7 +60,7 @@ SNIPPETS = {
     "kirocrew": (
         "MCP registration (dashboard, no file to edit):\n"
         "  1. Open the KiroCrew dashboard, MCP Servers page, and add a server.\n"
-        "  2. Name: founder-vn. Command: uvx. Arguments: founder-vn-mcp.\n"
+        "  2. Name: founder-vn. Command: uvx. Arguments: --from founder-vn founder-vn-mcp.\n"
         "  3. Trust the project in KiroCrew; it loads skills and servers only for a trusted project.\n"
         "KiroCrew does not read the workspace .kiro/settings/mcp.json.\n"
     ),

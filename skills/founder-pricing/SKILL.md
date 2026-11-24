@@ -6,7 +6,7 @@ description: >-
   nói "định giá", "giá bao nhiêu thì hợp lý", "bán giá bao nhiêu", "bậc giá", "giá khai trương".
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
   author: founder-vn author
   source: https://github.com/Jakeschincariol/founder-skill
   commit: fd9385b0cfe1b96bebce3898fbd506d73eff5a9d
