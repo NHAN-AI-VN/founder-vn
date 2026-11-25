@@ -39,9 +39,9 @@ Copies the skills into `.kiro/skills/` of the current project (idempotent; `--pr
 
 ## Clean-install walkthrough
 
-For ticket #19. The operator runs this on a real Kiro CLI and fills the record table in
-[docs/evidence/issue-19-wave-a-walkthrough.md](../evidence/issue-19-wave-a-walkthrough.md). Nothing
-on this page says the walkthrough has been run.
+For ticket #19. The operator ran this on a real Kiro CLI on 2026-11-25 against PyPI release 0.2.0
+and recorded it in [docs/evidence/issue-19-wave-a-walkthrough.md](../evidence/issue-19-wave-a-walkthrough.md)
+(commands, times, friction, the issues filed). The steps below are the script to repeat it.
 
 1. Start from an empty folder and open a shell in it:
 
@@ -63,7 +63,8 @@ on this page says the walkthrough has been run.
    uvx --from founder-vn founder-vn install --host kiro
    ```
 
-3. Register the MCP server with the `mcp.json` snippet above (`.kiro/settings/mcp.json`). Before the
+3. Register the MCP server with the `mcp.json` snippet above (`.kiro/settings/mcp.json`). The installer
+   prints the snippet and writes nothing (#94): create the folder and the file by hand. Before the
    tag, put the wheel path in `args` in place of the package name: `["--from", "./dist/founder_vn-0.2.0-py3-none-any.whl", "founder-vn-mcp"]`.
 4. Set the three model variables in the shell that starts Kiro CLI: `FOUNDER_LLM_BASE_URL`,
    `FOUNDER_LLM_API_KEY`, `FOUNDER_LLM_MODEL`. Check each is present with `test -n "$NAME"`; never
@@ -71,10 +72,10 @@ on this page says the walkthrough has been run.
 5. Start Kiro CLI in the folder and write the idea into `founder/idea.md` (the Owner's words).
 6. Run the six Wave A skills in this order, one per step, and wait for each to finish:
    1. `founder-board`
-   2. `founder-competitors`
+   2. `founder-competitors` (with no filled survey form in `founder/`, the skill prints the form and stops; fill it, then run again)
    3. `founder-consumer`
-   4. `founder-pricing`
-   5. `founder-cfo`
+   4. `founder-cfo`
+   5. `founder-pricing` (reads `cfo.md` and `numbers.json` for the break-even check, so it runs after `founder-cfo`)
    6. `founder-plan`
 7. Confirm `founder/business-plan.md` exists and `founder-vn plan --check` exits 0.
 8. Deliberate major-mismatch check. Open `.kiro/skills/founder-board/SKILL.md` and set

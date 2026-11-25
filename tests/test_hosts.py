@@ -98,9 +98,9 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
         assert needle in section, needle
     order = [
         section.index(f"founder-{name}")
-        for name in ("board", "competitors", "consumer", "pricing", "cfo", "plan")
+        for name in ("board", "competitors", "consumer", "cfo", "pricing", "plan")
     ]
-    assert order == sorted(order)
+    assert order == sorted(order), "founder-pricing reads cfo.md, so founder-cfo runs first"
     assert not re.search(r"(sk-|Bearer )\w|FOUNDER_LLM_\w+=\S", section)
 
 
