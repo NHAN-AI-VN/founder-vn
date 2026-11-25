@@ -15,6 +15,7 @@ Nguồn là Công báo điện tử nước CHXHCN Việt Nam (`congbao.chinhphu
 | 5 | Nghị định 68/2026/NĐ-CP (05/3/2026) về chính sách thuế và quản lý thuế đối với hộ kinh doanh, cá nhân kinh doanh | Điều 3 (GTGT), Điều 4 (TNCN), Điều 5 (doanh thu) | từ ngày ký (Điều 19) | https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-68-2026-nd-cp-469047.htm (Công báo 152, 19/03/2026) |
 | 6 | Nghị định 141/2026/NĐ-CP (29/4/2026) sửa Nghị định 68/2026 | Điều 1 khoản 1: "500 triệu đồng" thành "01 tỷ đồng" tại Điều 3, Điều 4, ... | 01/01/2026 (Điều 3) | https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-141-2026-nd-cp-469455.htm (Công báo 272, 14/05/2026) |
 | 7 | Nghị định 253/2026/NĐ-CP (30/6/2026) hướng dẫn Luật Thuế TNCN | Điều 45 khoản 2; Phụ lục mục 2 ("cắt tóc, làm đầu, gội đầu": 2%) | 01/7/2026; kinh doanh áp dụng từ kỳ tính thuế 2026 (Điều 69) | https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-253-2026-nd-cp-469959.htm (Công báo 402, 16/07/2026) |
+| 8 | Nghị định 296/2026/NĐ-CP (23/7/2026) sửa Nghị định 168/2025/NĐ-CP về đăng ký doanh nghiệp (phần đăng ký hộ kinh doanh) | Điều 5 (khoản 2 Điều 20: cơ quan đăng ký cấp xã); Điều 18 (Điều 113: đăng ký hộ kinh doanh qua mạng) | 23/7/2026 (Điều 22) | https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-296-2026-nd-cp-470177.htm (Công báo 464, 08/08/2026) |
 
 Rà soát Công báo ngày 23/11/2026: trong 360 nghị định năm 2026 đã đăng (danh mục `nghi-dinh-l1`, trang 1 đến 38), văn bản sửa Nghị định 68/2026 duy nhất là Nghị định 141/2026. Không rà thông tư của Bộ Tài chính. Hai ưu đãi tạm thời (Nghị định 174/2025/NĐ-CP; Nghị quyết 43/2026/QH16 cùng Nghị định 398/2026/NĐ-CP) chưa kiểm chứng và không đưa vào mô hình.
 
@@ -49,3 +50,41 @@ Rà soát Công báo ngày 23/11/2026: trong 360 nghị định năm 2026 đã �
 > Nghị định 141/2026/NĐ-CP, Điều 1 khoản 1: "Sửa đổi cụm từ "500 triệu đồng" thành "01 tỷ đồng" tại Điều 3, Điều 4, khoản 1 Điều 8, Điều 9, Điều 10, khoản 3 Điều 11, khoản 1 và khoản 2 Điều 12, khoản 4 Điều 17, khoản 3 Điều 18 Nghị định số 68/2026/NĐ-CP." Điều 3: "Nghị định này có hiệu lực thi hành từ ngày 01 tháng 01 năm 2026."
 
 - Xác nhận: kiểm chứng ngày 23/11/2026 bởi operator trên bản PDF Công báo
+
+## household_registration: đăng ký hộ kinh doanh (cơ quan và cách nộp)
+
+- Giá trị cho `permits.md`: nơi đăng ký là Cơ quan đăng ký kinh doanh cấp xã, tức phòng chuyên môn thuộc Ủy ban nhân dân cấp xã hoặc chính Ủy ban nhân dân cấp xã, tùy xã có lập phòng chuyên môn hay không; nộp qua mạng bằng tài khoản định danh điện tử trên Cổng dịch vụ công quốc gia hoặc Ứng dụng định danh quốc gia.
+- Căn cứ: Nghị định 296/2026/NĐ-CP, Điều 5 (thay khoản 2 Điều 20 Nghị định 168/2025/NĐ-CP) và Điều 18 (thay Điều 113 Nghị định 168/2025/NĐ-CP). Hiệu lực 23/7/2026 (Điều 22).
+- Link: https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-296-2026-nd-cp-470177.htm (Công báo 464, 08/08/2026).
+- Chưa có trong mục này: thành phần hồ sơ, thời hạn trả kết quả và lệ phí đăng ký. Chúng nằm ở Nghị định 168/2025/NĐ-CP (30/6/2025), chưa tìm được bản Công báo của nghị định gốc; khi chưa có mục kiểm chứng, skill ghi "chưa có nguồn đã kiểm chứng" cho ba nội dung này.
+- Trích đoạn:
+
+> Nghị định 296/2026/NĐ-CP, Điều 5: "Sửa đổi, bổ sung khoản 2 Điều 20 … 2. Ở cấp xã: a) Trường hợp đơn vị hành chính cấp xã thành lập phòng chuyên môn thì cơ quan đăng ký kinh doanh giải quyết thủ tục đăng ký hộ kinh doanh là phòng chuyên môn thuộc Ủy ban nhân dân cấp xã có chức năng, nhiệm vụ đăng ký hộ kinh doanh theo quyết định của Ủy ban nhân dân cấp tỉnh, thành phố trực thuộc trung ương; b) Trường hợp đơn vị hành chính cấp xã không thành lập phòng chuyên môn thì cơ quan đăng ký kinh doanh giải quyết thủ tục đăng ký hộ kinh doanh là Ủy ban nhân dân cấp xã; c) Cơ quan đăng ký kinh doanh giải quyết thủ tục đăng ký hộ kinh doanh quy định tại điểm a và điểm b khoản này (sau đây gọi là Cơ quan đăng ký kinh doanh cấp xã) có tài khoản và con dấu."
+
+> Nghị định 296/2026/NĐ-CP, Điều 18 (Điều 113 mới), khoản 1: "Người nộp hồ sơ đăng nhập Cổng dịch vụ công quốc gia hoặc Ứng dụng định danh quốc gia bằng tài khoản định danh điện tử để truy cập Hệ thống thông tin về đăng ký hộ kinh doanh. …" Khoản 2: "Các thông tin đăng ký hộ kinh doanh trên Hệ thống thông tin về đăng ký hộ kinh doanh được truyền sang Hệ thống ứng dụng đăng ký thuế để phối hợp, trao đổi thông tin giữa Cơ quan đăng ký kinh doanh cấp xã và cơ quan thuế."
+
+- Xác nhận: chưa kiểm chứng bởi operator
+
+## tax_registration_declaration: đăng ký thuế và cách kê khai của hộ kinh doanh
+
+- Giá trị cho `permits.md`: thông tin đăng ký hộ kinh doanh được truyền sang hệ thống đăng ký thuế (Nghị định 296/2026, Điều 18, Điều 113 khoản 2). Doanh thu năm từ 1 tỷ đồng trở xuống: thông báo doanh thu thực tế với cơ quan thuế chậm nhất ngày 31 tháng 01 năm sau; hộ mới bắt đầu trong 6 tháng đầu năm thông báo thêm hạn 31 tháng 7. Doanh thu năm trên 1 tỷ đồng (đến 50 tỷ đồng): khai thuế GTGT theo quý, hạn là ngày cuối cùng của tháng đầu quý sau; TNCN theo quý cùng hạn nếu chọn phương pháp thuế suất nhân doanh thu. Hồ sơ nộp bằng phương thức điện tử.
+- Căn cứ: Nghị định 68/2026/NĐ-CP, Điều 8 khoản 1, khoản 3 điểm a, khoản 4 điểm a; Điều 9 khoản 1; Điều 10 khoản 1 điểm a, khoản 2 điểm a; mức "500 triệu đồng" tại khoản 1 Điều 8, Điều 9, Điều 10 đọc là "01 tỷ đồng" theo Nghị định 141/2026/NĐ-CP, Điều 1 khoản 1 (hiệu lực 01/01/2026).
+- Link: https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-68-2026-nd-cp-469047.htm (Công báo 152, 19/03/2026); https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-141-2026-nd-cp-469455.htm (Công báo 272, 14/05/2026); https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-296-2026-nd-cp-470177.htm (Công báo 464, 08/08/2026).
+- Trích đoạn:
+
+> Nghị định 68/2026/NĐ-CP (đã sửa bởi Nghị định 141/2026/NĐ-CP, mức "500 triệu đồng" đọc là "01 tỷ đồng"), Điều 8 khoản 1 điểm a: "Trường hợp hộ kinh doanh, cá nhân kinh doanh tự xác định có mức doanh thu năm từ hoạt động sản xuất, kinh doanh hàng hóa, dịch vụ từ [01 tỷ đồng] trở xuống thì hộ kinh doanh, cá nhân kinh doanh thông báo doanh thu thực tế phát sinh trong năm với cơ quan thuế chậm nhất là ngày 31 tháng 01 của năm dương lịch tiếp theo. Trường hợp hộ kinh doanh, cá nhân kinh doanh phát sinh doanh thu thực tế trên [01 tỷ đồng] trong năm thì thực hiện khai thuế, nộp thuế kể từ quý phát sinh doanh thu trên [01 tỷ đồng]. …" Khoản 3 điểm a: "Trường hợp khai thuế theo quý thì thời hạn nộp hồ sơ khai thuế chậm nhất là ngày cuối cùng của tháng đầu tiên của quý tiếp theo;" Khoản 4 điểm a: "Hộ kinh doanh, cá nhân kinh doanh nộp hồ sơ khai thuế bằng phương thức điện tử. …"
+
+> Nghị định 68/2026/NĐ-CP, Điều 9 khoản 1: "Hộ kinh doanh, cá nhân kinh doanh bắt đầu hoạt động sản xuất, kinh doanh trong 06 tháng đầu năm nếu có doanh thu thực tế từ [01 tỷ đồng] trở xuống thì thực hiện thông báo doanh thu thực tế phát sinh kể từ khi bắt đầu hoạt động sản xuất, kinh doanh đến hết ngày 30 tháng 6 với cơ quan thuế quản lý trực tiếp chậm nhất là ngày 31 tháng 7 và thông báo doanh thu thực tế phát sinh trong 06 tháng cuối năm chậm nhất là ngày 31 tháng 01 của năm dương lịch tiếp theo." Điều 10 khoản 1 điểm a: "Trường hợp có doanh thu năm từ 50 tỷ đồng trở xuống thực hiện khai thuế, nộp thuế giá trị gia tăng theo quý;" khoản 2 điểm a: "Hộ kinh doanh, cá nhân kinh doanh lựa chọn nộp thuế thu nhập cá nhân theo phương pháp thuế suất nhân (x) doanh thu tính thuế thực hiện khai, nộp thuế thu nhập cá nhân theo quý cùng thời hạn khai, nộp thuế giá trị gia tăng;"
+
+- Xác nhận: chưa kiểm chứng bởi operator
+
+## einvoice_obligation: hóa đơn điện tử của hộ kinh doanh
+
+- Giá trị cho `permits.md`: doanh thu năm trên 1 tỷ đồng thì phải dùng hóa đơn điện tử có mã của cơ quan thuế hoặc hóa đơn điện tử khởi tạo từ máy tính tiền có kết nối dữ liệu với cơ quan thuế; từ 1 tỷ đồng trở xuống thì đăng ký dùng khi đáp ứng điều kiện và có nhu cầu; hộ vượt mốc trong năm đăng ký trong 30 ngày kể từ ngày cuối cùng của kỳ tính thuế có doanh thu lũy kế trên 1 tỷ đồng.
+- Căn cứ: Nghị định 141/2026/NĐ-CP, Điều 1 khoản 2 (thay khoản 5 Điều 8 Nghị định 68/2026/NĐ-CP), hiệu lực 01/01/2026 (Điều 3). Bản gốc khoản 5 Điều 8 của Nghị định 68/2026 (mốc 500 triệu và 1 tỷ đồng) không còn áp dụng.
+- Link: https://congbao.chinhphu.vn/van-ban/nghi-dinh-so-141-2026-nd-cp-469455.htm (Công báo 272, 14/05/2026).
+- Trích đoạn:
+
+> Nghị định 141/2026/NĐ-CP, Điều 1 khoản 2: "Sửa đổi, bổ sung khoản 5 Điều 8 Nghị định số 68/2026/NĐ-CP như sau: "5. Sử dụng hóa đơn điện tử a) Hộ kinh doanh, cá nhân kinh doanh có doanh thu năm trên 01 tỷ đồng thì phải áp dụng hóa đơn điện tử có mã của cơ quan thuế, hóa đơn điện tử khởi tạo từ máy tính tiền có kết nối dữ liệu với cơ quan thuế. Trường hợp hộ kinh doanh, cá nhân kinh doanh có nhiều địa điểm kinh doanh thì sử dụng mã số thuế của hộ kinh doanh, cá nhân kinh doanh cho tất cả các cửa hàng và phải ghi rõ mã địa điểm kinh doanh trên hóa đơn; b) Trường hợp hộ kinh doanh, cá nhân kinh doanh có doanh thu năm từ 01 tỷ đồng trở xuống đáp ứng điều kiện và có nhu cầu sử dụng hóa đơn điện tử thì đăng ký sử dụng hóa đơn điện tử có mã của cơ quan thuế hoặc hóa đơn điện tử khởi tạo từ máy tính tiền có kết nối dữ liệu với cơ quan thuế; c) … có doanh thu năm trước chưa trên 01 tỷ đồng (trừ trường hợp đã đăng ký sử dụng hóa đơn điện tử theo điểm b khoản này) nhưng trong năm tính thuế có doanh thu trên 01 tỷ đồng trở lên thì phải áp dụng hóa đơn điện tử có mã của cơ quan thuế, hóa đơn điện tử khởi tạo từ máy tính tiền có kết nối dữ liệu với cơ quan thuế. Hộ kinh doanh, cá nhân kinh doanh đăng ký sử dụng hóa đơn điện tử trong thời gian 30 ngày kể từ ngày cuối cùng của kỳ tính thuế có doanh thu lũy kế trên 01 tỷ đồng.""
+
+- Xác nhận: chưa kiểm chứng bởi operator
