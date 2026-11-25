@@ -27,8 +27,42 @@ Người hỗ trợ chạy sáu skill đợt A (board, competitors, consumer, pr
 
 1. Đi qua `business-plan.md` từng phần với Chủ hộ.
 2. Ghi phản ứng của Chủ hộ và quyết định dự định (không đẩy Chủ hộ theo hướng nào).
-3. Xuất PDF và gửi qua Zalo cho Chủ hộ.
+3. Xuất PDF theo mục "Xuất PDF" ngay dưới đây và gửi qua Zalo cho Chủ hộ.
 4. Báo cho người gửi câu hỏi (không phải Người hỗ trợ) ngày +14. Người gửi và người ghi bảng có thể là một người, miễn không phải Người hỗ trợ của Chủ hộ đó. Người hỗ trợ giao cho họ mã người tham gia và kênh Zalo của Chủ hộ qua một tờ liên hệ ngoài git (chỉ hai thứ đó, không tên, không dữ liệu dự án), chia sẻ riêng với người gửi; Chủ hộ đã được báo việc này ở `consent.md` mục 1. Tờ liên hệ bị hủy sau khi nhận câu trả lời.
+
+### Xuất PDF
+
+Cần `uv` và một trình duyệt họ Chromium (Google Chrome hoặc Chromium). Chạy từ thư mục dự án của Chủ hộ, tức thư mục chứa `founder/`.
+
+```bash
+cd <thư mục dự án của Chủ hộ>
+uvx --from markdown python -m markdown -x tables -x fenced_code -o html founder/business-plan.md > founder/business-plan.body.html
+printf '%s\n' '<!doctype html><html lang="vi"><head><meta charset="utf-8"><style>body{font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans",Arial,sans-serif;font-size:11pt;line-height:1.45;max-width:17cm;margin:1.5cm auto}table{border-collapse:collapse;width:100%}td,th{border:1px solid #999;padding:4px 6px;font-size:10pt}h1{font-size:18pt}h2{font-size:14pt;margin-top:1.4em}blockquote{color:#444;border-left:3px solid #ccc;margin:0;padding-left:.8em}</style></head><body>' > founder/business-plan.html
+cat founder/business-plan.body.html >> founder/business-plan.html && printf '</body></html>\n' >> founder/business-plan.html
+```
+
+Rồi in ra PDF bằng trình duyệt. macOS:
+
+```bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --disable-gpu --no-pdf-header-footer --print-to-pdf="`pwd`/founder/business-plan.pdf" "file://`pwd`/founder/business-plan.html"
+```
+
+Linux: dùng tên lệnh `google-chrome` hoặc `chromium` thay cho đường dẫn trên, giữ nguyên các cờ:
+
+```bash
+google-chrome --headless=new --disable-gpu --no-pdf-header-footer --print-to-pdf="`pwd`/founder/business-plan.pdf" "file://`pwd`/founder/business-plan.html"
+```
+
+Cuối cùng xóa hai file HTML trung gian:
+
+```bash
+rm founder/business-plan.body.html founder/business-plan.html
+```
+
+Mở `founder/business-plan.pdf` và xem lại: đủ dấu tiếng Việt, bảng và tiêu đề còn nguyên, dòng "không phải tư vấn tài chính, thuế hay pháp lý" có mặt, rồi mới gửi.
+
+- Công thức chỉ cần mạng ở lần `uvx` đầu tiên để tải gói `markdown`; công thức không gửi kế hoạch đi đâu.
+- PDF được gửi qua Zalo cho Chủ hộ, rồi xóa cùng thư mục dự án của người đó (xem "Sau 90 ngày: xóa").
 
 ## +14 ngày
 

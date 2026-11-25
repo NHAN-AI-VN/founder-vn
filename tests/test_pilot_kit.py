@@ -75,3 +75,23 @@ def test_pilot_kit_has_no_dollar_and_no_phone_numbers() -> None:
         text = path.read_text(encoding="utf-8")
         assert "$" not in text, path.name
         assert not re.search(r"\b0\d{9}\b", text), path.name
+
+
+def test_runbook_carries_pdf_export_recipe() -> None:
+    text = read("runbook.md")
+    assert "### Xuất PDF" in text
+    for needle in (
+        "uvx --from markdown python -m markdown",
+        "--print-to-pdf",
+        'charset="utf-8"',
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "google-chrome",
+        "chromium",
+        "founder/business-plan.pdf",
+        "chỉ cần mạng",
+        "không gửi kế hoạch đi đâu",
+    ):
+        assert needle in text, needle
+    after = text.split("### Xuất PDF", 1)[1]
+    assert "Zalo" in after
+    assert "xóa cùng thư mục dự án" in after
