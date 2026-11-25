@@ -202,11 +202,11 @@ dự phòng.
 ## 9. Để sau (đã nêu tên, chưa làm)
 
 UI/runtime tự xây; bot không filesystem (server sở hữu trạng thái theo `project_id`); đường fan-out
-bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; track startup và lens Monopoly;
+bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; đường F&B đầy đủ của `founder-permits` (Q56); track startup và lens Monopoly;
 Kiro Power / Claude Code plugin; máy tính web tĩnh dùng chung công thức; mô hình tài chính bền vững
 cho dự án OSS (chưa bàn, không cần cho v1).
 
-## Phụ lục: nhật ký quyết định (Q1–Q54)
+## Phụ lục: nhật ký quyết định (Q1–Q56)
 
 Vòng 1
 
@@ -287,7 +287,7 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   `docs/agents/kiro-harness.md`); chủ case là chính chủ dự án nên đồng thuận công bố ẩn danh không
   phụ thuộc người thứ ba; dữ liệu đủ cho đợt A. Hệ quả: (1) mục sổ nguồn đầu tiên của T11 là thuế
   suất theo doanh thu của ngành dịch vụ, không phải ăn uống; (2) đường F&B đầy đủ của `founder-permits`
-  (Q47) không được case mẫu chạy qua, đợt B cần một case F&B phụ hoặc đổi ưu tiên, quyết khi tới đợt B;
+  (Q47) không được case mẫu chạy qua, đợt B cần một case F&B phụ hoặc đổi ưu tiên, và Q56 chọn đổi ưu tiên;
   (3) ticket T13 nói "ảnh menu", với barbershop đọc là ảnh bảng giá; (4) tên gọi của case là tên tạm
   mô tả, không phải thương hiệu thật nào, kể cả thương hiệu tham chiếu của nghiên cứu; vị trí ghi tới
   cấp quận cũ. Spec #1 (user story 48) và ticket #5 sửa cùng ngày; ví dụ ở `examples/barbershop/`.
@@ -320,3 +320,19 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   bước duy nhất của cài đặt không phải dán một lệnh (#19). Sửa §5, `src/founder_vn/install.py`,
   `tests/golden/install_*.json` (kế hoạch nay liệt kê file đăng ký) và `docs/hosts/` cùng thay đổi; trang
   Codex và Grok trước đó ghi file ở thư mục home, nay ghi file của dự án.
+- Q55 (2026-11-25, quyết định của operator, sau hai lượt review độc lập bản chia đợt B, từ #111) Kế hoạch
+  kinh doanh có mục `Giấy phép và thuế`, lấy từ `founder/permits.md`, đặt ngay sau `Kinh tế đơn vị` (cfo)
+  và trước `Tiếp thị`, theo câu pipeline của spec #1 ("… unit economics → business plan (đợt A), rồi
+  permits, ops, marketing, launch") và §7 ("Đợt B: permits, ops, marketing, launch"). Phương án đặt sau
+  `Vận hành` như danh sách artefact của spec #1 (`ops.md, permits.md, launch.md`) đã được cân nhắc và
+  không chọn: Owner nên đọc luật yêu cầu gì trước khi đọc tiệm vận hành ra sao. Khoá `permits`, file
+  `permits.md` (hợp đồng trạng thái của spec #1: artefact giữ tên của upstream). `offer` và `brand` vẫn
+  nằm trong `plan.SECTIONS` (sau pilot, Q12), nên kế hoạch biên dịch khi chưa có hai skill ấy luôn còn hai
+  dòng "Chưa làm". Sửa `src/founder_vn/plan.py` (và chú thích trên `SECTIONS`, trước đó ghi sai "design §2"),
+  `skills/founder-plan/SKILL.md`, `examples/barbershop/founder/business-plan.md` và `tests/golden/plan_*.json`
+  cùng thay đổi.
+- Q56 (2026-11-25, quyết định của operator, từ #111) Đường F&B đầy đủ của `founder-permits` (chứng nhận an
+  toàn thực phẩm, thuế suất F&B; Q47) hoãn tới khi có người pilot F&B đã đồng thuận. Không thêm case mẫu F&B
+  phụ tổng hợp: user story 48 của spec #1 và §5 giữ một case mẫu ẩn danh duy nhất, và Q7 đòi kiểm chứng trên
+  một case thật. Việc này chốt mục còn mở ở hệ quả (2) của Q51 theo hướng "đổi ưu tiên": đường chung ra
+  trước. Sửa câu hệ quả của Q51 và danh sách "Để sau" ở §9 cùng thay đổi.
