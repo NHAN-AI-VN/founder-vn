@@ -64,3 +64,10 @@ def test_cli_refusal_exits_2(
         tmp_path_factory.mktemp("out"), target_is_directory=True
     )
     assert run_cli("install", "--host", "kiro").exit_code == 2
+
+
+def test_cli_install_writes_the_registration_file_on_a_clean_project(
+    project_root: Path, run_cli: RunCli
+) -> None:
+    assert run_cli("install", "--host", "kiro").exit_code == 0
+    assert (project_root / ".kiro/settings/mcp.json").is_file()
