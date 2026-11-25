@@ -26,7 +26,7 @@ DISCLAIMER = (
     "UBND cấp xã) trước khi quyết định bỏ vốn. Tín hiệu từ panel là mô phỏng, không phải "
     "khách hàng thật."
 )
-# Pipeline order (design §2): (skill, file under founder/ or None, section title).
+# Pipeline order (spec #1 pipeline sentence, design §7, Q55): (skill, file under founder/ or None, section title).
 SECTIONS = (
     ("board", "board.md", "Hội đồng cố vấn"),
     ("competitors", "competitors.md", "Đối thủ"),
@@ -34,6 +34,7 @@ SECTIONS = (
     ("pricing", "pricing.md", "Giá"),
     ("offer", "offer.md", "Đề xuất giá trị"),
     ("cfo", "cfo.md", "Kinh tế đơn vị"),
+    ("permits", "permits.md", "Giấy phép và thuế"),
     ("marketing", "marketing.md", "Tiếp thị"),
     ("brand", "brand.md", "Thương hiệu"),
     ("ops", "ops.md", "Vận hành"),

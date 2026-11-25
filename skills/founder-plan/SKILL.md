@@ -31,9 +31,24 @@ Hand the Owner `founder/business-plan.md` with a verdict the tool computed, and 
 
 ## Step 1: read what exists
 
-1. Read `founder/idea.md`, then every file the plan is compiled from that exists: `board.md`, `competitors.md`, `panel/results.md`, `consumer.md`, `pricing.md`, `offer.md`, `cfo.md`, `marketing.md`, `brand.md`, `ops.md`, `launch.md`.
+1. Read `founder/idea.md`, then every file the plan is compiled from that exists: `board.md`, `competitors.md`, `panel/results.md`, `consumer.md`, `pricing.md`, `offer.md`, `cfo.md`, `permits.md`, `marketing.md`, `brand.md`, `ops.md`, `launch.md`.
 2. Run `plan_compile` with `check` set (CLI: `founder-vn plan --check`) to see whether `business-plan.md` exists. Exit code 1 means it is missing or stale; that is not an error, Step 3 rewrites it.
 3. If `founder/numbers.json` does not exist, tell the Owner in Vietnamese to run `founder-cfo` first. The verdict is `Incomplete` without the numbers; you may still go on, but the summary says in its first line that the numbers are missing.
+4. A section that is missing from the plan (listed under "Chưa làm") maps to the skill that writes it:
+
+   | Mục thiếu | Skill viết mục đó |
+   | --- | --- |
+   | Hội đồng cố vấn | `founder-board` |
+   | Đối thủ | `founder-competitors` |
+   | Khách hàng (panel mô phỏng) | `founder-consumer` |
+   | Giá | `founder-pricing` |
+   | Đề xuất giá trị | `founder-offer` |
+   | Kinh tế đơn vị | `founder-cfo` |
+   | Giấy phép và thuế | `founder-permits` |
+   | Tiếp thị | `founder-marketing` |
+   | Thương hiệu | `founder-brand` |
+   | Vận hành | `founder-ops` |
+   | Khai trương | `founder-launch` |
 
 ## Step 2: compile the plan
 

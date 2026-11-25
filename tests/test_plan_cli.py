@@ -152,6 +152,27 @@ def test_sections_follow_pipeline_order_and_missing_ones_name_their_skill(
     assert plan.rstrip().endswith("không phải khách hàng thật.")
 
 
+def test_permits_section_follows_cfo_and_missing_one_is_listed_in_tuple_order(
+    project_root: Path, run_cli: RunCli
+) -> None:
+    _numbers(project_root)
+    missing = run_cli("plan").files["business-plan.md"]
+    line = "- Giấy phép và thuế: chạy skill `founder-permits` (tạo founder/permits.md)."
+    todo = missing[missing.index("## Chưa làm") :].splitlines()
+    marketing = "- Tiếp thị: chạy skill `founder-marketing` (tạo founder/marketing.md)."
+    assert todo.index(line) + 1 == todo.index(marketing)
+    assert todo[todo.index(line) - 1].startswith(
+        "- Đề xuất giá trị"
+    )  # cfo is not listed with numbers
+    (project_root / "founder" / "cfo.md").write_text("# Kinh tế\n\nSố.\n", encoding="utf-8")
+    (project_root / "founder" / "permits.md").write_text(
+        "# Thuế\n\nHộ kinh doanh.\n", encoding="utf-8"
+    )
+    plan = run_cli("plan").files["business-plan.md"]
+    assert "## Kinh tế đơn vị\n\n### Kinh tế\n\nSố.\n\n## Giấy phép và thuế\n\n### Thuế\n" in plan
+    assert line not in plan
+
+
 def test_plan_golden_full_state(
     project_root: Path, run_cli: RunCli, assert_golden: Callable[[str, CliRun], None]
 ) -> None:

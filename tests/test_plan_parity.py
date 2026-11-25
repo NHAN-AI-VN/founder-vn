@@ -62,3 +62,20 @@ def test_plan_check_cli_equals_mcp(
     text = mcp_call("plan_compile", {"check": True})
     assert text == cli.stdout
     assert _files(project_root) == before
+
+
+def test_plan_with_permits_section_cli_equals_mcp(
+    project_root: Path, run_cli: Callable[..., CliRun], mcp_call: McpCall
+) -> None:
+    permits = "# Thuế\n\nHộ kinh doanh.\n"
+
+    def prepare() -> None:
+        _state(project_root, panel=False)
+        (project_root / "founder" / "permits.md").write_text(permits, encoding="utf-8")
+
+    prepare()
+    cli = run_cli("plan")
+    assert "## Giấy phép và thuế\n\n### Thuế\n" in cli.files["business-plan.md"]
+    prepare()
+    assert mcp_call("plan_compile", None) == cli.stdout
+    assert _files(project_root) == cli.files
