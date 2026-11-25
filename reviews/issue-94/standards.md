@@ -28,7 +28,7 @@ Các mục đạt:
 ## Chưa xác minh
 
 - Lượt này không chạy lại Gate; kết quả CI `success` ở `bf4b9a3018ef` lấy từ tin nhắn giao việc.
-- `_write_registration` gọi `mkdir(parents=True, exist_ok=True)`: nếu `.kiro`, `.codex` hay `.grok` là file thường thì có thể ném `FileExistsError` thô, sau khi các file skill đã được chép. Chưa có test, chưa chạy thật; đây là nghi v���n về cách báo lỗi, không gắn mã.
+- `_write_registration` gọi `mkdir(parents=True, exist_ok=True)`: nếu `.kiro`, `.codex` hay `.grok` là file thường thì có thể ném `FileExistsError` thô, sau khi các file skill đã được chép. Chưa có test, chưa chạy thật; đây là nghi vấn về cách báo lỗi, không gắn mã.
 - Nội dung `.codex/config.toml` và `.grok/config.toml` được kiểm bằng parse TOML, không bằng host thật (evidence đã ghi ở `## Giới hạn`).
 
 <promise>CHANGES_REQUESTED</promise>
