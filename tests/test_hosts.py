@@ -104,12 +104,27 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
     assert not re.search(r"(sk-|Bearer )\w|FOUNDER_LLM_\w+=\S", section)
 
 
-def test_issue_19_template_has_unticked_boxes_and_claims_no_run() -> None:
+def test_issue_19_evidence_records_the_kiro_cli_run() -> None:
     text = (ROOT / "docs" / "evidence" / "issue-19-wave-a-walkthrough.md").read_text(
         encoding="utf-8"
     )
     boxes = re.findall(r"^- \[( |x)\] ", text, re.MULTILINE)
-    assert len(boxes) == 4 and set(boxes) == {" "}
+    assert len(boxes) >= 4 and set(boxes[:4]) == {"x"}, "the four #19 criteria are ticked"
     assert "| step | command | started | duration | friction | issue filed |" in text
-    assert "operator fills" in text and "real Kiro CLI" in text
-    assert not re.search(r"^\|\s*\d+\s*\|", text, re.MULTILINE)
+    rows = re.findall(r"^\|\s*(\d+(?:\.\d+)?)\s*\|", text, re.MULTILINE)
+    assert len(rows) >= 13, "steps 1 to 8, with one row per Wave A skill"
+    for needle in (
+        "uvx --from founder-vn founder-vn install --host kiro",
+        "founder-vn 0.2.0",
+        "founder/business-plan.md",
+        "plan --check",
+        'version: "1.0.0"',
+        "lệch số major",
+        "#93",
+        "#94",
+        "#95",
+        "## Giới hạn",
+    ):
+        assert needle in text, needle
+    assert "operator fills" not in text and "No walkthrough has been recorded" not in text
+    assert not re.search(r"(sk-|Bearer )\w|FOUNDER_LLM_\w+=\S", text)
