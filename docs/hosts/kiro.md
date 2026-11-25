@@ -1,6 +1,6 @@
 # Kiro: registering the founder-vn MCP server
 
-Add this to the Kiro `mcp.json` (workspace `.kiro/settings/mcp.json` or user level):
+`founder-vn install --host kiro` writes this to the workspace `.kiro/settings/mcp.json` when that file does not exist. When it exists, the installer prints the snippet and leaves the file as it is (never merged); add the entry by hand there, or at user level (`~/.kiro/settings/mcp.json`):
 
 ```json
 {
@@ -34,7 +34,7 @@ records the model that answered.
 founder-vn install --host kiro
 ```
 
-Copies the skills into `.kiro/skills/` of the current project (idempotent; `--print-only` shows the plan and the snippet without writing) and prints the `mcp.json` registration above.
+Copies the skills into `.kiro/skills/` of the current project (idempotent; `--print-only` shows the plan and the snippet without writing) and writes the `mcp.json` registration above when `.kiro/settings/mcp.json` is absent (otherwise it prints the snippet and leaves the file).
 
 ## Clean-install walkthrough
 
@@ -62,9 +62,9 @@ and recorded it in [docs/evidence/issue-19-wave-a-walkthrough.md](../evidence/is
    uvx --from founder-vn founder-vn install --host kiro
    ```
 
-3. Register the MCP server with the `mcp.json` snippet above (`.kiro/settings/mcp.json`). The installer
-   prints the snippet and writes nothing (#94): create the folder and the file by hand. For a local wheel,
-   put the wheel path in `args` in place of the package name: `["--from", "./dist/founder_vn-0.2.0-py3-none-any.whl", "founder-vn-mcp"]`.
+3. Check the MCP registration: on a clean project the installer of step 2 has already written
+   `.kiro/settings/mcp.json` with the snippet above (Q54, #94); if the file existed, it was left unchanged and the
+   snippet was printed, so add the entry by hand. For a local wheel, edit `args` and put the wheel path in `args` in place of the package name: `["--from", "./dist/founder_vn-0.2.0-py3-none-any.whl", "founder-vn-mcp"]`.
 4. Set the three model variables in the shell that starts Kiro CLI: `FOUNDER_LLM_BASE_URL`,
    `FOUNDER_LLM_API_KEY`, `FOUNDER_LLM_MODEL`. Check each is present with `test -n "$NAME"`; never
    print or write the values.

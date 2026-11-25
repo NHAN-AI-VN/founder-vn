@@ -1,6 +1,6 @@
 # founder-vn: instructions for agents
 
-The design is `docs/founder-vn-design.md` (what is being built, for whom, the decisions Q1–Q53 and their log); the tickets are the GitHub issues of this repository (#1 is the spec, T01–T19 its tracer bullets). When code and the design disagree, the design wins and the fix lands in the same change. Coding standards: `docs/agents/standards.md`.
+The design is `docs/founder-vn-design.md` (what is being built, for whom, the decisions Q1–Q54 and their log); the tickets are the GitHub issues of this repository (#1 is the spec, T01–T19 its tracer bullets). When code and the design disagree, the design wins and the fix lands in the same change. Coding standards: `docs/agents/standards.md`.
 
 ## Agent skills
 

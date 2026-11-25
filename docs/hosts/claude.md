@@ -12,7 +12,7 @@ Copies the skills into `.claude/skills/` of the current project (idempotent; `--
 
 ## MCP registration
 
-Project scope, in `.mcp.json` at the project root:
+`founder-vn install --host claude` writes `.mcp.json` at the project root when it does not exist; when it exists, the installer prints the snippet and leaves the file unchanged (add the entry by hand). Project scope:
 
 ```json
 {
