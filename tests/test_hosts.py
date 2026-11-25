@@ -102,6 +102,10 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
     ]
     assert order == sorted(order), "founder-pricing reads cfo.md, so founder-cfo runs first"
     assert not re.search(r"(sk-|Bearer )\w|FOUNDER_LLM_\w+=\S", section)
+    # v0.2.0 is on PyPI: the page must not say the release is still to come (S1).
+    assert not re.search(
+        r"(?i)before the\s+`?v?[\d.]*`?\s*tag|once the `v0\.2\.0`|after the tag", text
+    )
 
 
 def test_issue_19_evidence_records_the_kiro_cli_run() -> None:

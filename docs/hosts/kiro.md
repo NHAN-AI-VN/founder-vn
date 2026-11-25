@@ -26,8 +26,7 @@ chosen by the bake-off, [docs/bakeoff/README.md](../bakeoff/README.md)). Panel r
 comparable across hosts and across Owners only when every run uses this model; `results.json`
 records the model that answered.
 
-`uvx --from founder-vn founder-vn-mcp` resolves the package from PyPI, so it works once the `v0.2.0` release (the first on PyPI) is
-published (see `.github/workflows/release.yml`).
+`uvx --from founder-vn founder-vn-mcp` resolves the package from PyPI, and `v0.2.0` (the first release on PyPI, published 2026-11-24) is available there (see `.github/workflows/release.yml`).
 
 ## Installing the skills
 
@@ -51,21 +50,21 @@ and recorded it in [docs/evidence/issue-19-wave-a-walkthrough.md](../evidence/is
 
 2. Install the package and the skills. Pick one variant.
 
-   Before the `v0.2.0` tag (wheel built with `uv build` in the repository, copied to `./dist/`):
+   From a local wheel (development only: built with `uv build` in the repository, copied to `./dist/`):
 
    ```bash
    uvx --from ./dist/founder_vn-0.2.0-py3-none-any.whl founder-vn install --host kiro
    ```
 
-   After the tag and the PyPI release:
+   From PyPI (the released package):
 
    ```bash
    uvx --from founder-vn founder-vn install --host kiro
    ```
 
 3. Register the MCP server with the `mcp.json` snippet above (`.kiro/settings/mcp.json`). The installer
-   prints the snippet and writes nothing (#94): create the folder and the file by hand. Before the
-   tag, put the wheel path in `args` in place of the package name: `["--from", "./dist/founder_vn-0.2.0-py3-none-any.whl", "founder-vn-mcp"]`.
+   prints the snippet and writes nothing (#94): create the folder and the file by hand. For a local wheel,
+   put the wheel path in `args` in place of the package name: `["--from", "./dist/founder_vn-0.2.0-py3-none-any.whl", "founder-vn-mcp"]`.
 4. Set the three model variables in the shell that starts Kiro CLI: `FOUNDER_LLM_BASE_URL`,
    `FOUNDER_LLM_API_KEY`, `FOUNDER_LLM_MODEL`. Check each is present with `test -n "$NAME"`; never
    print or write the values.
