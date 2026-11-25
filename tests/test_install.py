@@ -1,6 +1,7 @@
 """`founder-vn install`: copy packaged skills into the host folder, idempotently."""
 
 import json
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -129,3 +130,26 @@ def test_registration_file_through_an_escaping_symlink_is_refused(
     with pytest.raises(install.InstallRefused):
         install.run(project_root, "kiro", print_only=False, skills_dir=SRC)
     assert list(outside.iterdir()) == []
+
+
+@pytest.mark.parametrize(
+    ("host", "rel"),
+    [("claude", ".mcp.json"), ("codex", ".codex/config.toml"), ("grok", ".grok/config.toml")],
+)
+def test_project_file_hosts_write_when_absent_and_print_when_present(
+    host: str, rel: str, project_root: Path
+) -> None:
+    text = install.run(project_root, host, print_only=False, skills_dir=SRC)
+    target = project_root / rel
+    assert f"create     {rel}" in text
+    body = target.read_text(encoding="utf-8")
+    parsed = json.loads(body) if rel.endswith(".json") else tomllib.loads(body)
+    servers = parsed["mcpServers" if rel.endswith(".json") else "mcp_servers"]
+    assert servers["founder-vn"]["args"] == ["--from", "founder-vn", "founder-vn-mcp"]
+    if host == "codex":
+        assert servers["founder-vn"]["tool_timeout_sec"] == 300
+    target.write_bytes(b"mine")
+    again = install.run(project_root, host, print_only=False, skills_dir=SRC)
+    assert target.read_bytes() == b"mine"
+    assert f"exists     {rel} (not modified)" in again and "founder-vn" in again
+    assert "~/" not in again.split("MCP registration", 1)[1].splitlines()[0]

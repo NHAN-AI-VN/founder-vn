@@ -44,26 +44,29 @@ args = ["--from", "founder-vn", "founder-vn-mcp"]
 
 REGISTRATION_FILES = {
     "kiro": (".kiro/settings/mcp.json", _JSON_SERVER),
+    "claude": (".mcp.json", _JSON_SERVER),
+    "codex": (".codex/config.toml", _TOML_SERVER + "tool_timeout_sec = 300\n"),
+    "grok": (".grok/config.toml", _TOML_SERVER),
 }
 
 SNIPPETS = {
     "kiro": (
-        "MCP registration: add to .kiro/settings/mcp.json (workspace) or ~/.kiro/settings/mcp.json:\n\n"
+        "MCP registration: .kiro/settings/mcp.json (workspace; written when absent, never merged):\n\n"
         + _JSON_SERVER
     ),
     "claude": (
-        "MCP registration: add to .mcp.json at the project root (project scope):\n\n"
+        "MCP registration: .mcp.json at the project root (written when absent, never merged):\n\n"
         + _JSON_SERVER
         + "\nor run: claude mcp add --scope project founder-vn -- uvx --from founder-vn founder-vn-mcp\n"
     ),
     "codex": (
-        "MCP registration: add to ~/.codex/config.toml:\n\n"
+        "MCP registration: .codex/config.toml at the project root (Codex loads it for a trusted project):\n\n"
         + _TOML_SERVER
         + "tool_timeout_sec = 300\n\n"
         "Codex stops a tool call after 60 seconds by default; tool_timeout_sec raises that limit\n"
         "for long panel jobs.\n"
     ),
-    "grok": ("MCP registration: add to ~/.grok/config.toml:\n\n" + _TOML_SERVER),
+    "grok": ("MCP registration: .grok/config.toml at the project root:\n\n" + _TOML_SERVER),
     "kirocrew": (
         "MCP registration (dashboard, no file to edit):\n"
         "  1. Open the KiroCrew dashboard, MCP Servers page, and add a server.\n"
