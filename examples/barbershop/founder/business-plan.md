@@ -396,6 +396,7 @@ Báo cáo này là mô hình tính toán từ các con số anh/chị nhập, kh
 ## Chưa làm
 
 - Đề xuất giá trị: chạy skill `founder-offer` (tạo founder/offer.md).
+- Giấy phép và thuế: chạy skill `founder-permits` (tạo founder/permits.md).
 - Tiếp thị: chạy skill `founder-marketing` (tạo founder/marketing.md).
 - Thương hiệu: chạy skill `founder-brand` (tạo founder/brand.md).
 - Vận hành: chạy skill `founder-ops` (tạo founder/ops.md).
