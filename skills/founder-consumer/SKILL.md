@@ -57,7 +57,7 @@ Write `founder/pitch.md` in Vietnamese: three to six plain lines, in the words a
 
 ## Step 4: read it back
 
-Read `founder/panel/results.md` and `results.json`, then tell the Owner in Vietnamese, in these five points, in this order:
+Read `founder/panel/results.md` and `results.json`, then write the reading to `founder/consumer.md` in Vietnamese: a short opening paragraph (the panel size, the model, the seed, how many buyers were excluded), the five points below in this order, the caveat once, then the disclaimer, so the file holds the five points, then the caveat once, then the disclaimer. Tell the Owner the same reading in the chat reply and name the file; the chat reply stays as it is. The five points:
 
 1. **Headline**: how many buy and how many pass, and the buy rate, as the tool gives them. Say how many buyers were excluded (with their ids) when there are any.
 2. **Where it differs**: the segments and the behaviours whose buy rates differ most. A group the tool marks "(mỏng)" is thin: say so and draw no conclusion from it.
@@ -67,7 +67,7 @@ Read `founder/panel/results.md` and `results.json`, then tell the Owner in Vietn
 
 Print the caveat once, after the five points, not on every line: "Panel là mô phỏng, cận trên, không phải khách hàng thật. Dùng nó để tìm phản đối và điểm yếu, rồi xác nhận với khách thật (bán trước, danh sách chờ) trước khi chi tiền." Say which model ran the panel (`model` in `results.json`). Never present a quote as a testimonial.
 
-End with the disclaimer: "Kết quả này không phải tư vấn tài chính, thuế hay pháp lý."
+End with the disclaimer, in the file and in the chat reply: "Kết quả này không phải tư vấn tài chính, thuế hay pháp lý."
 
 ## Rules
 
