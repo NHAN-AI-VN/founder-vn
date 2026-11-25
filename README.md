@@ -22,16 +22,15 @@ is in [docs/hosts/](docs/hosts/README.md).
 
 ## Install
 
-Version 0.2.0 is the first PyPI release (0.1.0 was never published). It is pending the `v0.2.0`
-tag: until the tag is pushed and `release.yml` publishes through trusted publishing, the PyPI
-package and the `founder-vn install` command below are **not yet released**; only the development
-route works today.
+Version 0.2.0 is the first PyPI release (0.1.0 was never published). `v0.2.0` was tagged on
+2026-11-24 and published by `release.yml` through trusted publishing; the clean-install walkthrough
+on Kiro CLI is recorded in [docs/evidence/issue-19-wave-a-walkthrough.md](docs/evidence/issue-19-wave-a-walkthrough.md).
 
 | Route | Command | State |
 |---|---|---|
 | Development (skills only) | `npx skills add NHAN-AI-VN/founder-vn` | works from the repository |
-| Facilitator | `founder-vn install --host kiro\|claude\|codex\|grok\|kirocrew` | not yet released, pending the `v0.2.0` tag |
-| MCP server | `uvx --from founder-vn founder-vn-mcp` | not yet released, pending the `v0.2.0` tag |
+| Facilitator | `uvx --from founder-vn founder-vn install --host kiro\|claude\|codex\|grok\|kirocrew` | released, 0.2.0 on PyPI |
+| MCP server | `uvx --from founder-vn founder-vn-mcp` | released, 0.2.0 on PyPI |
 
 ## Model
 
@@ -63,7 +62,7 @@ Golden artefacts are under `examples/barbershop/founder/`.
 
 | Host | State |
 |---|---|
-| Kiro CLI | full pipeline: pending walkthrough (#19) |
+| Kiro CLI | full pipeline verified on 0.2.0: clean install from PyPI, six Wave A skills to `business-plan.md`, major-mismatch stop (walkthrough 2026-11-25, #19) |
 | Claude Code | not yet verified |
 | Codex | not yet verified |
 | Gemini / Antigravity CLI | not yet verified |
@@ -107,13 +106,14 @@ số, nên không có số nào do mô hình tự nghĩ ra.
 
 - **Host hỗ trợ**: Kiro CLI, Claude Code, Codex, Gemini / Antigravity CLI (cần xác nhận khi cài),
   Grok Build, KiroCrew (thêm qua dashboard).
-- **Cách cài**: `npx skills add NHAN-AI-VN/founder-vn` (phát triển); `founder-vn install --host ...`
-  và `uvx --from founder-vn founder-vn-mcp` (chưa phát hành: 0.2.0 là bản PyPI đầu tiên, 0.1.0 chưa
-  bao giờ được phát hành, và 0.2.0 đang chờ tag `v0.2.0`).
+- **Cách cài**: `npx skills add NHAN-AI-VN/founder-vn` (phát triển); `uvx --from founder-vn founder-vn install --host ...`
+  và `uvx --from founder-vn founder-vn-mcp` (0.2.0 là bản PyPI đầu tiên, phát hành 24/11/2026 qua tag
+  `v0.2.0`; 0.1.0 chưa bao giờ được phát hành).
 - **Trạng thái**: sáu skill đợt A (`founder-board` #14, `founder-competitors` #13, `founder-consumer`
   #16, `founder-pricing` #17, `founder-cfo` #12, `founder-plan` #18) đã có, kèm sản phẩm mẫu trong
   `examples/barbershop/founder/`; bốn skill đợt B (`permits`, `ops`, `marketing`, `launch`)
-  chưa bắt đầu. Kiro CLI: chạy trọn quy trình đang chờ walkthrough (#19); mọi host khác chưa xác nhận.
+  chưa bắt đầu. Kiro CLI: chạy trọn quy trình đã xác nhận trên 0.2.0 (walkthrough 25/11/2026, #19);
+  mọi host khác chưa xác nhận.
 - **Quy tắc cứng**: mọi khẳng định pháp lý cần link chính thức và ngày kiểm tra. Luật đổi thì mở
   issue "Law changed".
 - **Mô hình cho panel người mua**: đặt `FOUNDER_LLM_MODEL=gemini-3.5-flash-lite` (mô hình tham
