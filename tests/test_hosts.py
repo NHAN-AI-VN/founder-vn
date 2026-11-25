@@ -132,3 +132,11 @@ def test_issue_19_evidence_records_the_kiro_cli_run() -> None:
         assert needle in text, needle
     assert "operator fills" not in text and "No walkthrough has been recorded" not in text
     assert not re.search(r"(sk-|Bearer )\w|FOUNDER_LLM_\w+=\S", text)
+
+
+def test_host_pages_name_the_project_registration_file_the_installer_writes() -> None:
+    from founder_vn import install
+
+    for host, (rel, _content) in install.REGISTRATION_FILES.items():
+        assert rel in _page(host), host
+    assert "kirocrew" not in install.REGISTRATION_FILES

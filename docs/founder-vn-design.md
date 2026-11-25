@@ -128,7 +128,9 @@ cho chủ hộ; chủ hộ tự chạy CLI không phải đối tượng v1.
 
 - Cài skill: `npx skills add <owner>/founder-vn` (dev) hoặc `founder-vn install --host
   kiro|claude|codex|grok|kirocrew` (người hỗ trợ chỉ cần Python/uv): sao chép skill vào đúng thư mục
-  và in đoạn cấu hình MCP. Server trên PyPI, chạy `uvx --from founder-vn founder-vn-mcp` (`uvx <lệnh>` cài gói tên `<lệnh>`
+  và đăng ký MCP (Q54): host có file đăng ký trong dự án (Kiro `.kiro/settings/mcp.json`, Claude Code
+  `.mcp.json`, Codex `.codex/config.toml`, Grok `.grok/config.toml`) thì ghi file đó khi chưa có và chỉ in đoạn
+  cấu hình khi đã có; KiroCrew chỉ in. Server trên PyPI, chạy `uvx --from founder-vn founder-vn-mcp` (`uvx <lệnh>` cài gói tên `<lệnh>`
   nếu không có `--from`, Q53). `docs/hosts/<host>.md` có
   đoạn cấu hình cho từng host; KiroCrew thêm qua dashboard; "Gemini CLI / Antigravity CLI" cần xác
   nhận khi cài. Kiro Power / Claude Code plugin để sau pilot.
@@ -204,7 +206,7 @@ bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; track star
 Kiro Power / Claude Code plugin; máy tính web tĩnh dùng chung công thức; mô hình tài chính bền vững
 cho dự án OSS (chưa bàn, không cần cho v1).
 
-## Phụ lục: nhật ký quyết định (Q1–Q53)
+## Phụ lục: nhật ký quyết định (Q1–Q54)
 
 Vòng 1
 
@@ -307,3 +309,14 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   `uvx --from ./dist/founder_vn-0.1.0-py3-none-any.whl founder-vn --version` in `founder-vn 0.1.0`.
   Bản 0.1.0 chưa bao giờ lên PyPI; 0.2.0 là bản PyPI đầu tiên. Sửa §5, `src/founder_vn/install.py`,
   `docs/hosts/` và README cùng thay đổi.
+- Q54 (2026-11-25, quyết định của operator, từ #94) Với host Kiro, `founder-vn install` ghi
+  `.kiro/settings/mcp.json` kèm mục server `founder-vn` khi file chưa tồn tại; khi file đã có, chỉ in đoạn
+  cấu hình và không ghi (không bao giờ gộp vào file có sẵn, không bao giờ xoá). Cùng quy tắc cho các host có
+  file đăng ký nằm trong dự án: Claude Code `.mcp.json`, Codex `.codex/config.toml`, Grok `.grok/config.toml`
+  (đối chiếu tài liệu chính thức 2026-11-25: Codex đọc `.codex/config.toml` của dự án tin cậy; Grok Build đọc
+  `[mcp_servers]` từ `.grok/config.toml` của repo). KiroCrew giữ chế độ chỉ in (đăng ký qua dashboard).
+  `--print-only` vẫn không ghi gì. File ghi ra bị khoá trong gốc dự án như mọi lần ghi khác (§2): đích
+  thoát khỏi dự án qua `..` hay symlink thì từ chối trước khi chép bất cứ gì. Lý do: trên máy sạch, đây là
+  bước duy nhất của cài đặt không phải dán một lệnh (#19). Sửa §5, `src/founder_vn/install.py`,
+  `tests/golden/install_*.json` (kế hoạch nay liệt kê file đăng ký) và `docs/hosts/` cùng thay đổi; trang
+  Codex và Grok trước đó ghi file ở thư mục home, nay ghi file của dự án.

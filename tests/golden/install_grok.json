@@ -1,4 +1,4 @@
 {
-  "stdout": "founder-vn install: host grok\ncreate     .grok/skills/founder-demo/SKILL.md\ncreate     .grok/skills/founder-demo/refs/a.md\n\nMCP registration: add to ~/.grok/config.toml:\n\n[mcp_servers.founder-vn]\ncommand = \"uvx\"\nargs = [\"--from\", \"founder-vn\", \"founder-vn-mcp\"]\n\nModel calls read FOUNDER_LLM_BASE_URL, FOUNDER_LLM_API_KEY and FOUNDER_LLM_MODEL from the\nhost environment. Set them there; never write their values into a config file or the repository.\n",
+  "stdout": "founder-vn install: host grok\ncreate     .grok/skills/founder-demo/SKILL.md\ncreate     .grok/skills/founder-demo/refs/a.md\ncreate     .grok/config.toml\n\nMCP registration: .grok/config.toml at the project root:\n\n[mcp_servers.founder-vn]\ncommand = \"uvx\"\nargs = [\"--from\", \"founder-vn\", \"founder-vn-mcp\"]\n\nModel calls read FOUNDER_LLM_BASE_URL, FOUNDER_LLM_API_KEY and FOUNDER_LLM_MODEL from the\nhost environment. Set them there; never write their values into a config file or the repository.\n",
   "files": {}
 }

@@ -1,8 +1,11 @@
 """Installer: copy the packaged skills into a host's project-level skills folder.
 
-Writes only under the host's skills folder inside the project; never deletes.
+Writes only inside the project: the host's skills folder and, for hosts whose MCP
+registration is a project file, that file when it is absent (Q54). Never merges into an
+existing file; never deletes.
 """
 
+import os
 from pathlib import Path
 
 SKILL_FOLDERS = {
@@ -39,24 +42,31 @@ command = "uvx"
 args = ["--from", "founder-vn", "founder-vn-mcp"]
 """
 
+REGISTRATION_FILES = {
+    "kiro": (".kiro/settings/mcp.json", _JSON_SERVER),
+    "claude": (".mcp.json", _JSON_SERVER),
+    "codex": (".codex/config.toml", _TOML_SERVER + "tool_timeout_sec = 300\n"),
+    "grok": (".grok/config.toml", _TOML_SERVER),
+}
+
 SNIPPETS = {
     "kiro": (
-        "MCP registration: add to .kiro/settings/mcp.json (workspace) or ~/.kiro/settings/mcp.json:\n\n"
+        "MCP registration: .kiro/settings/mcp.json (workspace; written when absent, never merged):\n\n"
         + _JSON_SERVER
     ),
     "claude": (
-        "MCP registration: add to .mcp.json at the project root (project scope):\n\n"
+        "MCP registration: .mcp.json at the project root (written when absent, never merged):\n\n"
         + _JSON_SERVER
         + "\nor run: claude mcp add --scope project founder-vn -- uvx --from founder-vn founder-vn-mcp\n"
     ),
     "codex": (
-        "MCP registration: add to ~/.codex/config.toml:\n\n"
+        "MCP registration: .codex/config.toml at the project root (Codex loads it for a trusted project):\n\n"
         + _TOML_SERVER
         + "tool_timeout_sec = 300\n\n"
         "Codex stops a tool call after 60 seconds by default; tool_timeout_sec raises that limit\n"
         "for long panel jobs.\n"
     ),
-    "grok": ("MCP registration: add to ~/.grok/config.toml:\n\n" + _TOML_SERVER),
+    "grok": ("MCP registration: .grok/config.toml at the project root:\n\n" + _TOML_SERVER),
     "kirocrew": (
         "MCP registration (dashboard, no file to edit):\n"
         "  1. Open the KiroCrew dashboard, MCP Servers page, and add a server.\n"
@@ -85,8 +95,10 @@ def _skill_files(skills_dir: Path) -> list[Path]:
 
 def run(project: Path, host: str, print_only: bool, skills_dir: Path | None = None) -> str:
     """Install (or plan) the skills for ``host``; return the text for the Facilitator."""
+    registration = _plan_registration(project, host)
     return (
         _copy_skills(project, host, print_only, skills_dir)
+        + _write_registration(project, registration, print_only)
         + "\n"
         + SNIPPETS[host]
         + "\n"
@@ -120,3 +132,30 @@ def _copy_skills(project: Path, host: str, print_only: bool, skills_dir: Path | 
             target.write_bytes(data)
         lines.append(f"{state:<10} {folder}/{rel.as_posix()}")
     return "\n".join(lines) + "\n"
+
+
+def _plan_registration(project: Path, host: str) -> tuple[str, str] | None:
+    """Return (relative path, content) when ``host`` registers through a project file."""
+    entry = REGISTRATION_FILES.get(host)
+    if entry is None:
+        return None
+    rel, _content = entry
+    if not (Path(project) / rel).resolve().is_relative_to(Path(project).resolve()):
+        raise InstallRefused(f"refused: {rel} resolves outside the project")
+    return entry
+
+
+def _write_registration(
+    project: Path, registration: tuple[str, str] | None, print_only: bool
+) -> str:
+    """Write the registration file when absent; leave an existing one untouched."""
+    if registration is None:
+        return ""
+    rel, content = registration
+    target = Path(project) / rel
+    if os.path.lexists(target):
+        return f"{'exists':<10} {rel} (not modified)\n"
+    if not print_only:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+    return f"{'create':<10} {rel}\n"

@@ -12,7 +12,7 @@ Copies the skills into `.grok/skills/` of the current project (idempotent; `--pr
 
 ## MCP registration
 
-In `~/.grok/config.toml`:
+`founder-vn install --host grok` writes `.grok/config.toml` at the project root when it does not exist; when it exists, the installer prints the snippet and leaves the file unchanged (add the entry by hand). Grok Build reads `[mcp_servers]` from the project `.grok/config.toml` (other sections belong in `~/.grok/config.toml`, which the installer never writes). The entry:
 
 ```toml
 [mcp_servers.founder-vn]

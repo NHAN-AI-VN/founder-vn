@@ -8,7 +8,7 @@ Status: written from the installer's output; the dashboard steps and a golden-ca
 founder-vn install --host kirocrew
 ```
 
-Copies the skills into `.kiro/skills/` of the current project (idempotent; `--print-only` shows the plan and the snippet without writing). KiroCrew reads `<project>/.kiro/skills/` once the project is trusted.
+Copies the skills into `.kiro/skills/` of the current project (idempotent; `--print-only` shows the plan and the snippet without writing). It writes no registration file (print-only, Q54). KiroCrew reads `<project>/.kiro/skills/` once the project is trusted.
 
 ## MCP registration
 

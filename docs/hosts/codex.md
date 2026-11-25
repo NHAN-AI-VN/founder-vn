@@ -12,7 +12,7 @@ Copies the skills into `.agents/skills/` of the current project (idempotent; `--
 
 ## MCP registration
 
-In `~/.codex/config.toml`:
+`founder-vn install --host codex` writes `.codex/config.toml` at the project root when it does not exist; when it exists, the installer prints the snippet and leaves the file unchanged (add the entry by hand). Codex loads project `.codex/` config only for a trusted project; the user-level `~/.codex/config.toml` also works and is never written by the installer. The entry:
 
 ```toml
 [mcp_servers.founder-vn]
