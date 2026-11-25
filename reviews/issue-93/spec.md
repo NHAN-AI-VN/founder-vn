@@ -18,3 +18,5 @@ Phán quyết: PASS. Không có finding chặn.
 - Quyết định nói golden được "tạo lại bằng cách theo skill" và commit message giải thích vì sao đổi. Lane giữ golden nguyên và ghi trong `docs/evidence/issue-93-consumer-md.md` rằng nó chỉ được đối chiếu bằng cách đọc với skill đã sửa, vì skill mới không đòi hình dạng khác. Điều này nhất quán với "giữ cùng hình dạng năm điểm" và không có thay đổi golden nào bị lặng lẽ, nên tôi không coi là thiếu.
 - Không có bằng chứng một agent chạy skill thật sự ghi ra `consumer.md`; test chỉ đọc văn bản skill. Evidence của lane đã nêu giới hạn này. Cần một lần chạy walkthrough (#19) để xác nhận hành vi.
 - Câu "so the file holds the five points, then the caveat once, then the disclaimer" trong Step 4 lặp ý câu trước, có vẻ chỉ để test bám vào. Đây là chuyện văn phong (trục Standards), không xét ở đây.
+
+<promise>PASS</promise>
