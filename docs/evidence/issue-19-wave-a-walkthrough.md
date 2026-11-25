@@ -81,6 +81,17 @@ Run by this lane on 2026-11-25 in the walkthrough folder (outside git; nothing f
 | `test_kiro_page_has_the_clean_install_walkthrough_for_19` (order `board, competitors, consumer, cfo, pricing, plan`) | `AssertionError: founder-pricing reads cfo.md, so founder-cfo runs first` / `assert [1398, 1420, …] == [1398, 1420, …]` with the page stashed to its previous text | `uv run pytest tests/test_hosts.py -q -k clean_install_walkthrough`: 1 passed (commit `43c6553`) |
 | `test_issue_19_evidence_records_the_kiro_cli_run` (replaces `test_issue_19_template_has_unticked_boxes_and_claims_no_run`) | `AssertionError: the four #19 criteria are ticked` / `assert (0 >= 4)` | `uv run pytest tests/test_hosts.py -q -k evidence_records` |
 
+## Cổng ba đoạn
+
+Run at the last code commit `c8cfaf8` (the README slice); the commits after it touch only this evidence file. Each segment ran once for the block; counts read from `.harness/gate-*.log`. The `unit` segment first ran red at the same HEAD with `tests/test_package.py::test_package_has_single_source_version` (`assert '0.1.0' == '0.2.0'`): the operator's `.venv` still carried the editable install's metadata from before #89 and `uv sync --frozen` does not rebuild it; `uv sync --frozen --reinstall-package founder-vn` brought the metadata to 0.2.0 and the segment was rerun once. Not a code defect; CI builds a fresh environment.
+
+```
+static 0 c8cfaf82a43565f9d35adec05a7cbcdae5d77ea8 2026-11-25T06:06:21Z (ruff check: All checks passed!; ruff format --check: 251 files already formatted; skill-lint: 6 skills checked, 15 example file(s), 0 finding(s) (package version 0.2.0))
+unit   0 c8cfaf82a43565f9d35adec05a7cbcdae5d77ea8 2026-11-25T06:08:08Z (351 passed in 21.67s)
+build  0 c8cfaf82a43565f9d35adec05a7cbcdae5d77ea8 2026-11-25T06:08:20Z (Successfully built dist/founder_vn-0.2.0.tar.gz and dist/founder_vn-0.2.0-py3-none-any.whl)
+gate-segment verify: GREEN on c8cfaf82a43565f9d35adec05a7cbcdae5d77ea8
+```
+
 ## Giới hạn
 
 - Times are reconstructed from file modification times, not measured with a stopwatch; steps 1 and 4 leave no file and have no time; the 18 minutes between the install (09:22) and `mcp.json` (09:40) cover steps 3 and 4 and reading the printed snippet.
