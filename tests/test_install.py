@@ -1,5 +1,6 @@
 """`founder-vn install`: copy packaged skills into the host folder, idempotently."""
 
+import json
 from pathlib import Path
 
 import pytest
@@ -87,3 +88,44 @@ def test_pyproject_ships_skills_in_the_wheel() -> None:
         "build"
     ]["targets"]["wheel"]
     assert wheel["force-include"]["skills"] == "founder_vn/skills"
+
+
+def test_kiro_writes_the_registration_file_when_absent(project_root: Path) -> None:
+    text = install.run(project_root, "kiro", print_only=False, skills_dir=SRC)
+    written = project_root / ".kiro/settings/mcp.json"
+    entry = json.loads(written.read_text(encoding="utf-8"))["mcpServers"]["founder-vn"]
+    assert entry == {"command": "uvx", "args": ["--from", "founder-vn", "founder-vn-mcp"]}
+    assert "create     .kiro/settings/mcp.json" in text
+
+
+def test_kiro_leaves_an_existing_registration_file_byte_unchanged(project_root: Path) -> None:
+    existing = project_root / ".kiro/settings/mcp.json"
+    existing.parent.mkdir(parents=True)
+    existing.write_bytes(b'{"mcpServers": {"mine": {}}}')
+    text = install.run(project_root, "kiro", print_only=False, skills_dir=SRC)
+    assert existing.read_bytes() == b'{"mcpServers": {"mine": {}}}'
+    assert "exists     .kiro/settings/mcp.json (not modified)" in text
+    assert '"founder-vn"' in text
+
+
+def test_print_only_writes_no_registration_file(project_root: Path) -> None:
+    text = install.run(project_root, "kiro", print_only=True, skills_dir=SRC)
+    assert "create     .kiro/settings/mcp.json" in text
+    assert list(project_root.iterdir()) == []
+
+
+def test_kirocrew_has_no_registration_file(project_root: Path) -> None:
+    text = install.run(project_root, "kirocrew", print_only=False, skills_dir=SRC)
+    assert not (project_root / ".kiro/settings").exists()
+    assert "mcp.json (" not in text and "create     .kiro/settings" not in text
+
+
+def test_registration_file_through_an_escaping_symlink_is_refused(
+    project_root: Path, tmp_path_factory: pytest.TempPathFactory
+) -> None:
+    outside = tmp_path_factory.mktemp("outside")
+    (project_root / ".kiro").mkdir()
+    (project_root / ".kiro" / "settings").symlink_to(outside, target_is_directory=True)
+    with pytest.raises(install.InstallRefused):
+        install.run(project_root, "kiro", print_only=False, skills_dir=SRC)
+    assert list(outside.iterdir()) == []
