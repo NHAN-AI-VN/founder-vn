@@ -130,3 +130,9 @@ def test_incomplete_verdict_names_the_missing_file_and_its_skill(tmp_path: Path)
     assert "## Chưa làm" in text
     assert "chạy skill `founder-cfo`" in text or "Chưa có số của CFO" in text
     assert "Chưa làm" in _skill()
+
+
+def test_names_permits_in_the_file_list_and_the_missing_section_mapping() -> None:
+    text = _skill()
+    assert "`ops.md`" in text and "`cfo.md`, `permits.md`, `marketing.md`" in text
+    assert "| Giấy phép và thuế | `founder-permits` |" in text
