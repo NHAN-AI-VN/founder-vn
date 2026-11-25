@@ -31,7 +31,7 @@ Hand the Owner `founder/business-plan.md` with a verdict the tool computed, and 
 
 ## Step 1: read what exists
 
-1. Read `founder/idea.md`, then every file the plan is compiled from that exists: `board.md`, `competitors.md`, `panel/results.md`, `pricing.md`, `offer.md`, `cfo.md`, `marketing.md`, `brand.md`, `ops.md`, `launch.md`.
+1. Read `founder/idea.md`, then every file the plan is compiled from that exists: `board.md`, `competitors.md`, `panel/results.md`, `consumer.md`, `pricing.md`, `offer.md`, `cfo.md`, `marketing.md`, `brand.md`, `ops.md`, `launch.md`.
 2. Run `plan_compile` with `check` set (CLI: `founder-vn plan --check`) to see whether `business-plan.md` exists. Exit code 1 means it is missing or stale; that is not an error, Step 3 rewrites it.
 3. If `founder/numbers.json` does not exist, tell the Owner in Vietnamese to run `founder-cfo` first. The verdict is `Incomplete` without the numbers; you may still go on, but the summary says in its first line that the numbers are missing.
 
@@ -57,7 +57,7 @@ If all three say "Đạt", say so and still remind the Owner that the verdict on
 
 Write it in Vietnamese with these two parts, in this order. Quote every figure exactly as it appears in `founder/business-plan.md` or the files it is compiled from; compute nothing, round nothing, make up no benchmark.
 
-1. **Tóm tắt điều hành**: what the business is and for whom (from `idea.md`), the verdict line exactly as the tool printed it, the key numbers (price, contribution per unit, break-even per day against the plan and the capacity, year-1 revenue and profit after tax, starting capital and the cash needed), what the panel signal says with its caveat, the two or three main risks from the flags in `cfo.md` and from `board.md`, and what to do next with the fixing skill named for each failing check.
+1. **Tóm tắt điều hành**: what the business is and for whom (from `idea.md`), the verdict line exactly as the tool printed it, the key numbers (price, contribution per unit, break-even per day against the plan and the capacity, year-1 revenue and profit after tax, starting capital and the cash needed), what the panel signal says with its caveat (quote the Owner-facing reading from `consumer.md` when it exists; `plan_compile` keeps reading `panel/results.md` for the plan's own panel section, so the figures match), the two or three main risks from the flags in `cfo.md` and from `board.md`, and what to do next with the fixing skill named for each failing check.
 2. **Bản một trang cho đối tác hoặc bên cho vay**: at most one page: the business in two sentences, the ask (the cash needed, as the tool printed it), the unit economics in three lines, the verdict as printed, the main risk, and the next test with real customers. The page must stand on its own, and must carry the same caveat and disclaimer as part 1.
 
 Legal and numeric claims in the summary (tax rate, tax-free threshold, competitor prices, panel result) are copied with their link and verification date from the file that holds them (`cfo.md`, `competitors.md`, `panel/results.md`), or from `permits/sources.md`; never from memory. If a claim has no link and no date in those files, leave it out and say so.

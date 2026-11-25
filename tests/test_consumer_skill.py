@@ -166,3 +166,10 @@ def test_golden_readback_order_is_five_points_then_caveat_then_disclaimer() -> N
     disclaimer = text.index("không phải tư vấn tài chính, thuế hay pháp lý")
     assert last_point < caveat < disclaimer
     assert text.rstrip().endswith("thuế hay pháp lý.")
+
+
+def test_plan_skill_quotes_consumer_md_and_plan_compile_still_reads_results() -> None:
+    text = (ROOT / "skills" / "founder-plan" / "SKILL.md").read_text(encoding="utf-8")
+    assert "`consumer.md`" in text
+    assert "panel/results.md" in text
+    assert "`plan_compile` keeps reading `panel/results.md`" in text
