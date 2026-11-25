@@ -68,6 +68,24 @@ def test_five_point_read_back_and_caveat_once() -> None:
     assert "once" in text
 
 
+def test_read_back_is_written_to_consumer_md_in_order() -> None:
+    step = _skill().split("## Step 4")[1].split("## Rules")[0]
+    assert "founder/consumer.md" in step
+    assert "the chat reply" in step
+    order = [
+        step.index(t)
+        for t in (
+            "**Headline**",
+            "**What to change**",
+            "Print the caveat once",
+            "End with the disclaimer",
+        )
+    ]
+    assert order == sorted(order)
+    assert step.index("founder/consumer.md") < step.index("**Headline**")
+    assert "the five points, then the caveat once, then the disclaimer" in step
+
+
 def test_names_carry_no_gender_so_segments_name_it() -> None:
     text = _skill()
     assert "gender" in text
@@ -139,3 +157,12 @@ def test_golden_readback_has_five_points_and_the_caveat_once() -> None:
     assert "anh/chị" in text
     assert "không phải tư vấn tài chính, thuế hay pháp lý" in text
     assert not DOLLAR.search(text)
+
+
+def test_golden_readback_order_is_five_points_then_caveat_then_disclaimer() -> None:
+    text = (EXAMPLE_DIR / "consumer.md").read_text(encoding="utf-8")
+    last_point = text.index("5. **")
+    caveat = text.index("mô phỏng, cận trên, không phải khách hàng thật")
+    disclaimer = text.index("không phải tư vấn tài chính, thuế hay pháp lý")
+    assert last_point < caveat < disclaimer
+    assert text.rstrip().endswith("thuế hay pháp lý.")
