@@ -179,6 +179,8 @@ Chế độ chạy: model; mô hình: gemini-3.5-flash-lite.
 
 Panel là mô phỏng, không phải khách hàng thật. Dùng nó để tìm ra các phản đối và điểm yếu, rồi xác nhận điều quan trọng với khách thật (bán trước, danh sách chờ, trang giới thiệu có ghi giá) trước khi anh/chị chi tiền. Kết quả này không quyết định việc lãi hay lỗ.
 
+Đây không phải tư vấn tài chính, thuế hay pháp lý.
+
 #### Theo nhóm khách
 
 | nhóm | số người | tỷ lệ mua |

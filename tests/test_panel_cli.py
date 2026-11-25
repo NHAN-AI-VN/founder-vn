@@ -314,6 +314,7 @@ def test_results_md_is_vietnamese_with_caveat_and_no_dollar(tallied: CliRun) -> 
     md = tallied.files["panel/results.md"]
     assert "Panel là mô phỏng, không phải khách hàng thật" in md
     assert "Tín hiệu cầu (mô phỏng, cận trên)" in md
+    assert "Đây không phải tư vấn tài chính, thuế hay pháp lý." in md
     assert "anh/chị" in md
     assert "$" not in md
     assert "Giá cao hơn quán quen / mười nghìn." in md

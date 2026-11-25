@@ -488,6 +488,8 @@ def results_md(res: dict[str, Any]) -> str:
         "Panel là mô phỏng, không phải khách hàng thật. Dùng nó để tìm ra các phản đối và điểm "
         "yếu, rồi xác nhận điều quan trọng với khách thật (bán trước, danh sách chờ, trang giới "
         "thiệu có ghi giá) trước khi anh/chị chi tiền. Kết quả này không quyết định việc lãi hay lỗ.",
+        "",
+        "Đây không phải tư vấn tài chính, thuế hay pháp lý.",
     ]
     for title, key in (("Theo nhóm khách", "by_segment"), ("Theo cách mua", "by_behaviour")):
         lines += ["", f"## {title}", "", "| nhóm | số người | tỷ lệ mua |", "| --- | ---: | ---: |"]
