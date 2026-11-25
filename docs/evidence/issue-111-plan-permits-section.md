@@ -30,7 +30,19 @@ Every test runs with no network and no model.
 
 ## Cổng ba đoạn
 
-Segments ran at the HEAD of the last code and docs commit (`4c8457c`); counts from `.harness/gate-*.log`: ruff `All checks passed!`, skill-lint 0 findings, 368 passed, `uv build` built sdist and wheel 0.2.0. The `verify` output is in the PR.
+Last code commit: `357f881` (`tests/`; `src/` last changed in `c42749e`). Run at `9d7c795a4c1d`, a descendant of both, after `uv sync --frozen` and `bash scripts/harness/install-hooks.sh`.
+
+```
+bash scripts/harness/gate-segment.sh static   # ruff check All checks passed!, ruff format 220 files already formatted, skill-lint 0 finding(s); exit 0
+bash scripts/harness/gate-segment.sh unit     # 368 passed in 31.96s; exit 0
+bash scripts/harness/gate-segment.sh build    # built founder_vn-0.2.0 sdist and wheel; exit 0
+bash scripts/harness/gate-segment.sh verify
+gate-segment verify: latest line per segment (.harness/gate-segments.txt)
+  static 0 9d7c795a4c1d0b822f2b522e1d1ae2180fb1010d 2026-11-25T09:01:36Z
+  unit 0 9d7c795a4c1d0b822f2b522e1d1ae2180fb1010d 2026-11-25T09:02:10Z
+  build 0 9d7c795a4c1d0b822f2b522e1d1ae2180fb1010d 2026-11-25T09:02:11Z
+gate-segment verify: GREEN on 9d7c795a4c1d0b822f2b522e1d1ae2180fb1010d
+```
 
 ## Giới hạn
 
