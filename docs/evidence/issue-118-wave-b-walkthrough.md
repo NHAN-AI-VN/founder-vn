@@ -30,3 +30,9 @@ Done on 2026-11-26 from the operator's machine (macOS, uv 0.11.24); times UTC. T
 | Approval (07:34:54Z) | `gh api --method POST repos/NHAN-AI-VN/founder-vn/actions/runs/45776129259/pending_deployments` with `state=approved`, run by the lane with the operator's `gh` account on the operator's instruction in the session ("approve theo đề xuất") | `Publish to PyPI` success, 07:34:55Z to 07:35:12Z |
 | On PyPI | `curl -s https://pypi.org/pypi/founder-vn/0.3.0/json` | `founder_vn-0.3.0-py3-none-any.whl` sha256 `6c9628c9623cae47…` uploaded 07:35:08Z and `founder_vn-0.3.0.tar.gz` sha256 `6ab79f449993adf7…` uploaded 07:35:09Z: byte-identical to the build of the dry run; the project JSON gave `version 0.3.0` at 07:35:53Z |
 | From PyPI, empty folder (07:36:00Z) | `uvx --no-cache --from founder-vn founder-vn --version`; `uvx --no-cache --from founder-vn founder-vn install --host kiro`; MCP `initialize` to `uvx --no-cache --from founder-vn founder-vn-mcp` | `founder-vn 0.3.0`; the same 13 `create` lines; `10   version: "0.3.0"`; `serverInfo {"name": "founder-vn", "version": "0.3.0"}`, protocol `2025-06-18`, stderr empty, exit 0 |
+
+## Lát
+
+| Test | Assertion line while red | Green rerun |
+| --- | --- | --- |
+| `test_readme_truth_table_is_honest_about_release_status_and_hosts` and `test_readme_names_purpose_audience_hosts_and_both_install_routes` (Install: 0.3.0 is the current PyPI release, `v0.3.0` tagged 2026-11-26; 0.2.0 was the first; both routes "released, 0.3.0 on PyPI"; no "pending the `v0…` tag"; still no "verified on 0.3.0"; Vietnamese "Bản hiện hành trên PyPI là 0.3.0", `v0.3.0`, 26/11/2026, no "đang chờ tag") | `AssertionError: released, 0.3.0 on PyPI` and `assert '0.3.0 (Wave B, ten skills) is the current PyPI release' in '# founder-vn…'` (2 failed, 10 passed) | `uv run pytest tests/test_front_door.py -q`: 12 passed (commit `eb4e2ed`) |
