@@ -149,10 +149,11 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
         ("founder-plan", "#18", "business-plan.md"),
         ("founder-permits", "#112", "permits.md"),
         ("founder-ops", "#114", "ops.md"),
+        ("founder-marketing", "#115", "marketing.md"),
     ):
         row = next(line for line in english.splitlines() if f"`{skill}`" in line and "|" in line)
         assert issue in row and f"examples/barbershop/founder/{artefact}" in row, skill
-    for skill in ("founder-marketing", "founder-launch"):
+    for skill in ("founder-launch",):
         row = next(line for line in english.splitlines() if f"`{skill}`" in line and "|" in line)
         assert "not started" in row, skill
     kiro_row = next(line for line in english.splitlines() if line.startswith("| Kiro CLI"))
