@@ -173,7 +173,7 @@ def test_golden_budget_quotes_the_percentage_and_states_no_amount() -> None:
 
 def test_golden_panel_caveat_once_and_disclaimers() -> None:
     text = _golden()
-    assert text.count("Panel là mô phỏng, không phải khách hàng thật") == 1
+    assert text.count("Panel là mô phỏng, cận trên, không phải khách hàng thật") == 1
     assert "founder-permits" in _section(text, "## 7. Lưu ý")
     assert not re.search(r"Điều|Nghị định|Luật", _section(text, "## 7. Lưu ý"))
     assert text.rstrip().splitlines()[-1].endswith("không phải tư vấn tài chính, thuế hay pháp lý.")

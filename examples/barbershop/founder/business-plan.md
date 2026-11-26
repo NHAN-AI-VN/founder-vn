@@ -461,7 +461,7 @@ Tài liệu này lấy từ `founder/idea.md`, `founder/panel/results.md`, `foun
 
 **Tiệm cắt tóc nam ở Quận 7 cũ, giá trọn gói 199.000 đ đã gồm gội, khăn nóng, tạo kiểu và đồ uống, mở đến 21:00, anh chọn thợ và hẹn đúng giờ, không ai mời mua thêm khi anh ngồi ghế.**
 
-Trong panel, 12 trên 20 người mua mô phỏng nói không mua. Panel là mô phỏng, không phải khách hàng thật; cần xác nhận với khách thật trước khi chi tiền. Mỗi mệnh đề của câu định vị trả lời một phản đối hoặc một khoảng trống:
+Trong panel, 12 trên 20 người mua mô phỏng nói không mua. Panel là mô phỏng, cận trên, không phải khách hàng thật; cần xác nhận với khách thật trước khi chi tiền. Mỗi mệnh đề của câu định vị trả lời một phản đối hoặc một khoảng trống:
 
 | Mã | Mệnh đề | Phản đối hoặc khoảng trống | Nguồn |
 |---|---|---|---|

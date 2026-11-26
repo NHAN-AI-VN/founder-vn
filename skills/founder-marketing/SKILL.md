@@ -51,7 +51,7 @@ Start with a title and one sentence naming the source files. Then these sections
 
 ## 1. Định vị
 
-Write one statement (one statement of one or two sentences, not a list of slogans), then a table of its clauses: clause, objection or gap it answers, source. Each clause traces to an objection in `panel/results.md` or `consumer.md`, or to a competitor gap in `competitors.md`, quoted with its source (file and buyer id, or the competitor row). A clause with no source is deleted. Put the panel caveat once, in this section, where the panel results are first quoted: "Panel là mô phỏng, không phải khách hàng thật; cần xác nhận với khách thật trước khi chi tiền."
+Write one statement (one statement of one or two sentences, not a list of slogans), then a table of its clauses: clause, objection or gap it answers, source. Each clause traces to an objection in `panel/results.md` or `consumer.md`, or to a competitor gap in `competitors.md`, quoted with its source (file and buyer id, or the competitor row). A clause with no source is deleted. Put the panel caveat once, in this section, where the panel results are first quoted: "Panel là mô phỏng, cận trên, không phải khách hàng thật; cần xác nhận với khách thật trước khi chi tiền."
 
 ## 2. Kênh
 
