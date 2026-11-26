@@ -6,7 +6,7 @@ description: >-
   nói "ngày đầu vận hành thế nào", "nhà cung cấp", "ca làm", "quy trình mở cửa", "sổ rủi ro".
 license: MIT
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   author: founder-vn author
   source: https://github.com/Jakeschincariol/founder-skill
   commit: fd9385b0cfe1b96bebce3898fbd506d73eff5a9d
