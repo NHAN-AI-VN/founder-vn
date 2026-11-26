@@ -42,16 +42,19 @@ Produce `founder/permits.md`: a static checklist the Owner can follow, one row p
 
 Open `permits/sources.md`. The entries this skill uses are:
 
-- `household_registration`: registering a household business (authority, documents, time, fee).
+- `household_registration`: registering a household business (authority, documents, time, how to file, what the certificate is, fee procedure).
 - `tax_registration_declaration`: tax registration and the declaration method for a household business.
 - `einvoice_obligation`: e-invoice obligations for a household business.
+- `conditional_sectors`: the pointer for conditional sectors (law, annex, portal); no fee or condition figure.
 - `tax_rate_on_revenue` and `tax_free_threshold`: the two entries `founder-cfo` already uses (Q52). Copy them as `founder-cfo` does, with the same limits in plain words.
+
+The ledger holds no amount for the registration fee. Write it as "mức lệ phí: chưa có nguồn đã kiểm chứng; hỏi Cơ quan đăng ký kinh doanh cấp xã khi nộp" and cite only the ledger's fee procedure (when and where the fee is paid, not refunded when refused).
 
 For each entry, copy the value, the legal document and article, the Công báo link and the "Xác nhận" line exactly as the ledger writes them. If an entry is absent, has no link, or has no verified "Xác nhận" line, the figure is "chưa có nguồn đã kiểm chứng": write that, name what is missing, and do not fill it from memory or from a website.
 
 ## Step 3: re-check at run time
 
-For each source link you will cite, try to fetch it again and compare it with the ledger excerpt. When the fetch works and agrees, say so. When the fetch fails or the page differs, use the ledger copy and write "kiểm chứng ngày X, chưa xác nhận lại hôm nay" next to the figure, with X the verification date of the entry. Never drop a figure because the fetch failed, and never replace it with a figure from an unofficial site (a law firm, an accountant's blog, a news article). If the page differs from the ledger, keep the ledger figure, say the source may have changed and tell the Owner to open an issue "Law changed".
+For each source link you will cite, try to fetch it again. The Công báo search page loads by script, so use the endpoint it calls: `POST https://api-searchcongbao.chinhphu.vn/search/all` with the body `{"filters":{},"page":1,"page_size":10,"query":"<số ký hiệu>"}`. The JSON answer has `id_van_ban`, which builds the page address `/van-ban/<slug>-<id>.htm`, and the PDF link. Send a browser-like `User-Agent`. Then compare the PDF text with the ledger excerpt. When the fetch works and agrees, say so. When the fetch fails or the page differs, use the ledger copy and write "kiểm chứng ngày X, chưa xác nhận lại hôm nay" next to the figure, with X the verification date of the entry. Never drop a figure because the fetch failed, and never replace it with a figure from an unofficial site (a law firm, an accountant's blog, a news article). If the page differs from the ledger, keep the ledger figure, say the source may have changed and tell the Owner to open an issue "Law changed".
 
 ## Step 4: write `founder/permits.md`
 
@@ -72,7 +75,7 @@ The tax registration step and the declaration method for a household business, f
 
 ## 4. Ngành có điều kiện
 
-Exactly one line: "ngành có điều kiện: tra tại đây" followed by the official link of the authority that lists conditional sectors, with its verification date. Give no fee or figure for those sectors.
+Exactly one line: "ngành có điều kiện: tra tại đây" followed by the Công báo link of Luật Đầu tư 143/2025/QH15 (https://congbao.chinhphu.vn/van-ban/luat-so-143-2025-qh15-468703.htm, Phụ lục IV lists the conditional sectors) and the name of the authority that publishes their conditions, Cổng thông tin quốc gia về đăng ký doanh nghiệp (www.dangkykinhdoanh.gov.vn), with the verification date of `conditional_sectors`. Give no fee or figure for those sectors.
 
 ## 5. Nguồn và ngày kiểm chứng
 

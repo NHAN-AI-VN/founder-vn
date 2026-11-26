@@ -76,6 +76,29 @@ def test_run_time_recheck_falls_back_to_the_ledger_copy_with_dated_wording() -> 
     assert "unofficial" in text.lower()
 
 
+def test_fee_amount_is_written_as_unsourced_with_the_ask_the_office_wording() -> None:
+    text = _skill()
+    assert (
+        "mức lệ phí: chưa có nguồn đã kiểm chứng; hỏi Cơ quan đăng ký kinh doanh cấp xã khi nộp"
+    ) in text
+
+
+def test_conditional_sectors_line_points_to_the_investment_law_and_the_portal() -> None:
+    text = _skill()
+    assert "https://congbao.chinhphu.vn/van-ban/luat-so-143-2025-qh15-468703.htm" in text
+    assert "Cổng thông tin quốc gia về đăng ký doanh nghiệp" in text
+    assert "conditional_sectors" in text
+    assert "household_registration" in text
+
+
+def test_run_time_recheck_names_the_congbao_search_endpoint() -> None:
+    text = _skill()
+    assert "POST https://api-searchcongbao.chinhphu.vn/search/all" in text
+    assert '{"filters":{},"page":1,"page_size":10,"query":"<số ký hiệu>"}' in text
+    assert "id_van_ban" in text and "/van-ban/<slug>-<id>.htm" in text
+    assert "User-Agent" in text
+
+
 def test_names_the_missing_fb_path_in_one_sentence() -> None:
     text = _skill()
     assert "Q56" in text
