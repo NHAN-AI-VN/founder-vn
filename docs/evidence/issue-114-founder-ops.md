@@ -37,3 +37,25 @@ bash scripts/harness/gate-segment.sh verify    # see the PR body for the HEAD it
 - No real quotes: every supplier, quote and source cell is "chưa chọn", "chưa có báo giá" or "chưa có". The golden proves the empty path only.
 - The cost feedback loop is described to the Owner (update `numbers.json` through `founder-cfo`, then re-run `founder-pricing` and `founder-plan`), not exercised on the golden.
 - The rota and the ten risks are proposals from `idea.md`, not measured; tests check structure and forbidden content, not whether the routines suit a real shop.
+
+## Giải quyết review nội bộ
+
+Sources: `.agents/tasks/task-founder-ops-skill/2026-11-26-050000-review.md` (four issues) and `reviews/issue-114/spec.md` round 1 (SPEC-1, the same rota defect as review issue 2, counted as 41 thợ slots against 25).
+
+| Issue | Decision | Where |
+|---|---|---|
+| 1. Closing routine assigns the manager, rota had the manager only in the morning | Fixed: the rota now has "quản lý cả ngày" on every open day, plus the part-time lễ tân on the afternoon | `ops.md` section 2 |
+| 2. Rota did not reconcile with headcount (also SPEC-1) | Fixed: one ca is defined as one working day of at most 8 hours; the rota lists thợ per day (3, 3, 3, 4, 4, 4 = 21 ca a week), which fits 5 thợ at 5 ca (25) and leaves each thợ a day off besides Monday | `ops.md` section 2 |
+| 3. Weekdays show 3 thợ against 4 chairs | Fixed by stating it: the text says Tuesday to Thursday run below the planned capacity of 4 chairs and that full staffing would need 24 ca, still within 25 | `ops.md` section 2 |
+| 4. No test relates the routines to the rota | Fixed: two tests in `tests/test_ops_skill.py` | see below |
+
+Red then green:
+
+- `test_golden_rota_covers_every_role_the_routines_name`: red on the old `ops.md` with `IndexError: list index out of range` (the old table had no per-role columns); green on the new one.
+- `test_golden_rota_thợ_slots_fit_the_headcount`: red with `assert '20 ca thợ một tuần' in ...` against the old staffing text (summing to 41 slots would also have failed the `<= 25` bound); green now.
+- `test_skill_requires_a_feasible_rota`: red with `assert 'The rota must be feasible' in ...` before the skill sentence existed; green after. The skill now tells the model to make the rota add up, name who holds each opening and closing duty, and say where a day runs below capacity (the SPEC-1 suggestion to tighten the skill).
+- Rerun: `uv run pytest tests/test_ops_skill.py tests/test_plan_example.py -q`.
+
+`business-plan.md` was regenerated with `founder-vn plan` in its own commit, because the compiler embeds `ops.md` and section 2 changed. `numbers.json`, `cfo.md`, `pricing.md` and `summary.md` are unchanged.
+
+Not fixed: the rota is still a proposal. The tests check that it adds up and names every role; they do not show it suits a real shop. The golden is still written by the lane, not by a model run.
