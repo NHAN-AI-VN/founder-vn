@@ -53,7 +53,7 @@ this model; `founder/panel/results.json` records the model that answered. Per-ho
 | `founder-pricing` | #17 | shipped (Wave A) | [`pricing.md`](examples/barbershop/founder/pricing.md) |
 | `founder-cfo` | #12 | shipped (Wave A) | [`cfo.md`](examples/barbershop/founder/cfo.md) |
 | `founder-plan` | #18 | shipped (Wave A): writes `summary.md`, compiles `business-plan.md` | [`business-plan.md`](examples/barbershop/founder/business-plan.md) |
-| `founder-permits` | | not started (Wave B) | |
+| `founder-permits` | #112 | shipped (Wave B): common path, household business; F&B path deferred | [`permits.md`](examples/barbershop/founder/permits.md) |
 | `founder-ops` | | not started (Wave B) | |
 | `founder-marketing` | | not started (Wave B) | |
 | `founder-launch` | | not started (Wave B) | |
@@ -111,8 +111,8 @@ số, nên không có số nào do mô hình tự nghĩ ra.
   `v0.2.0`; 0.1.0 chưa bao giờ được phát hành).
 - **Trạng thái**: sáu skill đợt A (`founder-board` #14, `founder-competitors` #13, `founder-consumer`
   #16, `founder-pricing` #17, `founder-cfo` #12, `founder-plan` #18) đã có, kèm sản phẩm mẫu trong
-  `examples/barbershop/founder/`; bốn skill đợt B (`permits`, `ops`, `marketing`, `launch`)
-  chưa bắt đầu. Kiro CLI: chạy trọn quy trình đã xác nhận trên 0.2.0 (walkthrough 25/11/2026, #19);
+  `examples/barbershop/founder/`; `founder-permits` (đợt B, #112, đường chung của hộ kinh doanh; ngành F&B chưa làm) đã có,
+  kèm `permits.md` mẫu; ba skill đợt B còn lại (`ops`, `marketing`, `launch`) chưa bắt đầu. Kiro CLI: chạy trọn quy trình đã xác nhận trên 0.2.0 (walkthrough 25/11/2026, #19);
   mọi host khác chưa xác nhận.
 - **Quy tắc cứng**: mọi khẳng định pháp lý cần link chính thức và ngày kiểm tra. Luật đổi thì mở
   issue "Law changed".
