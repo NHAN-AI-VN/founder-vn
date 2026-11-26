@@ -40,7 +40,10 @@ Copies the skills into `.kiro/skills/` of the current project (idempotent; `--pr
 
 For ticket #19. The operator ran this on a real Kiro CLI on 2026-11-25 against PyPI release 0.2.0
 and recorded it in [docs/evidence/issue-19-wave-a-walkthrough.md](../evidence/issue-19-wave-a-walkthrough.md)
-(commands, times, friction, the issues filed). The steps below are the script to repeat it.
+(commands, times, friction, the issues filed). The steps below are the script to repeat it. Steps 1 to 6
+are Wave A; step 7 adds the four Wave B skills for the walkthrough of #118, which is pending: its record is
+the template [docs/evidence/issue-#118-wave-b-walkthrough.md](../evidence/issue-#118-wave-b-walkthrough.md)
+(the `#` is part of the file name).
 
 1. Start from an empty folder and open a shell in it:
 
@@ -53,7 +56,7 @@ and recorded it in [docs/evidence/issue-19-wave-a-walkthrough.md](../evidence/is
    From a local wheel (development only: built with `uv build` in the repository, copied to `./dist/`):
 
    ```bash
-   uvx --from ./dist/founder_vn-0.2.0-py3-none-any.whl founder-vn install --host kiro
+   uvx --from ./dist/founder_vn-0.3.0-py3-none-any.whl founder-vn install --host kiro
    ```
 
    From PyPI (the released package):
@@ -64,7 +67,7 @@ and recorded it in [docs/evidence/issue-19-wave-a-walkthrough.md](../evidence/is
 
 3. Check the MCP registration: on a clean project the installer of step 2 has already written
    `.kiro/settings/mcp.json` with the snippet above (Q54, #94); if the file existed, it was left unchanged and the
-   snippet was printed, so add the entry by hand. For a local wheel, edit `args` and put the wheel path in `args` in place of the package name: `["--from", "./dist/founder_vn-0.2.0-py3-none-any.whl", "founder-vn-mcp"]`.
+   snippet was printed, so add the entry by hand. For a local wheel, edit `args` and put the wheel path in `args` in place of the package name: `["--from", "./dist/founder_vn-0.3.0-py3-none-any.whl", "founder-vn-mcp"]`.
 4. Set the three model variables in the shell that starts Kiro CLI: `FOUNDER_LLM_BASE_URL`,
    `FOUNDER_LLM_API_KEY`, `FOUNDER_LLM_MODEL`. Check each is present with `test -n "$NAME"`; never
    print or write the values.
@@ -76,9 +79,16 @@ and recorded it in [docs/evidence/issue-19-wave-a-walkthrough.md](../evidence/is
    4. `founder-cfo`
    5. `founder-pricing` (reads `cfo.md` and `numbers.json` for the break-even check, so it runs after `founder-cfo`)
    6. `founder-plan`
-7. Confirm `founder/business-plan.md` exists and `founder-vn plan --check` exits 0.
-8. Deliberate major-mismatch check. Open `.kiro/skills/founder-board/SKILL.md` and set
-   `metadata.version` to `1.0.0` (`version: "1.0.0"`). Run `founder-board` again. Expect the stop message of Protocol step 1: "On a major mismatch, stop and tell the Facilitator to update the package or the skill". Then restore the file (set the version back to `0.2.0`, or run the install command of step 2 again) and confirm the skill runs again.
+7. Run the four Wave B skills in this order, one per step, and wait for each to finish (ticket #118):
+   1. `founder-permits`
+   2. `founder-ops`
+   3. `founder-marketing`
+   4. `founder-launch`
+   5. `founder-plan` again, to recompile `business-plan.md` with the Wave B sections
+   6. `founder-vn plan --check`
+8. Confirm `founder/business-plan.md` exists and `founder-vn plan --check` exits 0.
+9. Deliberate major-mismatch check. Open `.kiro/skills/founder-board/SKILL.md` and set
+   `metadata.version` to `1.0.0` (`version: "1.0.0"`). Run `founder-board` again. Expect the stop message of Protocol step 1: "On a major mismatch, stop and tell the Facilitator to update the package or the skill". Then restore the file (set the version back to `0.3.0`, the version of the installed package, or run the install command of step 2 again) and confirm the skill runs again.
 
 Record each step in this table (copy it into the evidence file):
 

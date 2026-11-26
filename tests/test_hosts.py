@@ -85,7 +85,7 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
     assert "## Clean-install walkthrough" in text
     section = text.split("## Clean-install walkthrough", 1)[1]
     for needle in (
-        "uvx --from ./dist/founder_vn-0.2.0-py3-none-any.whl founder-vn install --host kiro",
+        "uvx --from ./dist/founder_vn-0.3.0-py3-none-any.whl founder-vn install --host kiro",
         "uvx --from founder-vn founder-vn install --host kiro",
         "FOUNDER_LLM_BASE_URL",
         "FOUNDER_LLM_API_KEY",
@@ -101,11 +101,32 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
         for name in ("board", "competitors", "consumer", "cfo", "pricing", "plan")
     ]
     assert order == sorted(order), "founder-pricing reads cfo.md, so founder-cfo runs first"
+    wave_b = [
+        section.index(f"founder-{name}`") for name in ("permits", "ops", "marketing", "launch")
+    ]
+    plan_again = section.index("`founder-plan` again", wave_b[-1])
+    check = section.index("`founder-vn plan --check`", plan_again)
+    assert wave_b == sorted(wave_b) and order[-1] < wave_b[0] < wave_b[-1] < plan_again < check
+    assert section.index("Deliberate major-mismatch check") > check
+    assert "founder_vn-0.2.0" not in section
     assert not re.search(r"(sk-|Bearer )\w|FOUNDER_LLM_\w+=\S", section)
     # v0.2.0 is on PyPI: the page must not say the release is still to come (S1).
     assert not re.search(
         r"(?i)before the\s+`?v?[\d.]*`?\s*tag|once the `v0\.2\.0`|after the tag", text
     )
+
+
+def test_issue_118_template_has_unticked_boxes_and_claims_no_run() -> None:
+    path = ROOT / "docs" / "evidence" / "issue-#118-wave-b-walkthrough.md"
+    text = path.read_text(encoding="utf-8")
+    boxes = re.findall(r"^- \[( |x)\] ", text, re.MULTILINE)
+    assert len(boxes) == 7 and set(boxes) == {" "}
+    assert "| step | command | started | duration | friction | issue filed |" in text
+    assert "operator fills" in text and "real Kiro CLI" in text
+    assert "docs/hosts/kiro.md" in text
+    assert not re.search(r"^\|\s*\d+(\.\d+)?\s*\|", text, re.MULTILINE)
+    assert not re.search(r"(?i)\b(ran|executed|recorded on)\b", text.split("## Record")[0])
+    assert not re.search(r"(sk-|Bearer )\w|FOUNDER_LLM_\w+=\S", text)
 
 
 def test_issue_19_evidence_records_the_kiro_cli_run() -> None:
