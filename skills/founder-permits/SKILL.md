@@ -7,7 +7,7 @@ description: >-
   "hóa đơn điện tử", "đăng ký ở đâu", "kê khai thuế".
 license: MIT
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   author: founder-vn author
   source: https://github.com/Jakeschincariol/founder-skill
   commit: fd9385b0cfe1b96bebce3898fbd506d73eff5a9d

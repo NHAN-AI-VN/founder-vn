@@ -7,7 +7,7 @@ everywhere: `uvx --from founder-vn founder-vn-mcp` (it resolves from PyPI since 
 
 | Host | Page | State |
 |---|---|---|
-| Kiro CLI | [kiro.md](kiro.md) | verified end to end on 0.2.0 (walkthrough 2026-11-25, #19) |
+| Kiro CLI | [kiro.md](kiro.md) | verified end to end on 0.2.0 (walkthrough 2026-11-25, #19); Wave B: pending walkthrough (#118) |
 | Claude Code | [claude.md](claude.md) | written, not witnessed on host |
 | Codex | [codex.md](codex.md) | written, not witnessed on host |
 | Gemini / Antigravity CLI | [gemini.md](gemini.md) | pending confirmation |

@@ -25,6 +25,8 @@ is in [docs/hosts/](docs/hosts/README.md).
 Version 0.2.0 is the first PyPI release (0.1.0 was never published). `v0.2.0` was tagged on
 2026-11-24 and published by `release.yml` through trusted publishing; the clean-install walkthrough
 on Kiro CLI is recorded in [docs/evidence/issue-19-wave-a-walkthrough.md](docs/evidence/issue-19-wave-a-walkthrough.md).
+Version 0.3.0 (Wave B, ten skills) is pending the `v0.3.0` tag: until it is tagged and published,
+0.2.0 stays the released version, and nothing here says 0.3.0 is on PyPI or verified on a host.
 
 | Route | Command | State |
 |---|---|---|
@@ -62,7 +64,7 @@ Golden artefacts are under `examples/barbershop/founder/`.
 
 | Host | State |
 |---|---|
-| Kiro CLI | full pipeline verified on 0.2.0: clean install from PyPI, six Wave A skills to `business-plan.md`, major-mismatch stop (walkthrough 2026-11-25, #19) |
+| Kiro CLI | full pipeline verified on 0.2.0 (walkthrough 2026-11-25, #19): clean install from PyPI, six Wave A skills to `business-plan.md`, major-mismatch stop. Wave B: pending walkthrough (#118) |
 | Claude Code | not yet verified |
 | Codex | not yet verified |
 | Gemini / Antigravity CLI | not yet verified |
@@ -108,11 +110,11 @@ số, nên không có số nào do mô hình tự nghĩ ra.
   Grok Build, KiroCrew (thêm qua dashboard).
 - **Cách cài**: `npx skills add NHAN-AI-VN/founder-vn` (phát triển); `uvx --from founder-vn founder-vn install --host ...`
   và `uvx --from founder-vn founder-vn-mcp` (0.2.0 là bản PyPI đầu tiên, phát hành 24/11/2026 qua tag
-  `v0.2.0`; 0.1.0 chưa bao giờ được phát hành).
+  `v0.2.0`; 0.1.0 chưa bao giờ được phát hành). Bản 0.3.0 (đợt B, mười skill) đang chờ tag `v0.3.0`; cho đến khi đó 0.2.0 vẫn là bản đã phát hành.
 - **Trạng thái**: sáu skill đợt A (`founder-board` #14, `founder-competitors` #13, `founder-consumer`
   #16, `founder-pricing` #17, `founder-cfo` #12, `founder-plan` #18) đã có, kèm sản phẩm mẫu trong
   `examples/barbershop/founder/`; `founder-permits` (đợt B, #112, đường chung của hộ kinh doanh; ngành F&B chưa làm) đã có,
-  kèm `permits.md` mẫu; `founder-ops` (đợt B, #114) đã có, kèm `ops.md` mẫu (chưa có báo giá nhà cung cấp thật); `founder-marketing` (đợt B, #115) đã có, kèm `marketing.md` mẫu (chiến dịch 30 ngày tính từ ngày khai trương, chưa có ngày lịch); `founder-launch` (đợt B, #116) đã có, kèm `launch.md` mẫu (thử nghiệm thật bằng danh sách chờ có cọc, đếm ngược D-30 đến D-0, chưa có ngày lịch và chưa có số liệu khách thật); `founder-offer` và `founder-brand` chưa bắt đầu (để sau pilot, Q12). Kiro CLI: chạy trọn quy trình đã xác nhận trên 0.2.0 (walkthrough 25/11/2026, #19);
+  kèm `permits.md` mẫu; `founder-ops` (đợt B, #114) đã có, kèm `ops.md` mẫu (chưa có báo giá nhà cung cấp thật); `founder-marketing` (đợt B, #115) đã có, kèm `marketing.md` mẫu (chiến dịch 30 ngày tính từ ngày khai trương, chưa có ngày lịch); `founder-launch` (đợt B, #116) đã có, kèm `launch.md` mẫu (thử nghiệm thật bằng danh sách chờ có cọc, đếm ngược D-30 đến D-0, chưa có ngày lịch và chưa có số liệu khách thật); `founder-offer` và `founder-brand` chưa bắt đầu (để sau pilot, Q12). Kiro CLI: chạy trọn quy trình đã xác nhận trên 0.2.0 (walkthrough 25/11/2026, #19); đợt B đang chờ walkthrough #118;
   mọi host khác chưa xác nhận.
 - **Quy tắc cứng**: mọi khẳng định pháp lý cần link chính thức và ngày kiểm tra. Luật đổi thì mở
   issue "Law changed".
