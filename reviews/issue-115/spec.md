@@ -1,34 +1,31 @@
-Commit mã đã chấm: 476f0faa344c
+Commit mã đã chấm: 1fcd43cb25d8
 
-# Review trục Spec, issue #115 (`founder-marketing`), vòng 1
+# Review trục Spec, vòng 2: #115 founder-marketing
 
-Phạm vi: `git diff main...HEAD` (7 file: SKILL.md, marketing.md, business-plan.md, README.md, test_front_door.py, test_marketing_skill.py, evidence). Chạy lại ở commit này: `uv run pytest tests/test_marketing_skill.py tests/test_front_door.py tests/test_plan_example.py -q` → 38 passed; `uv run python scripts/skill_lint.py` → 9 skills, 0 finding. Gate CI: success.
+Phán quyết: BLOCKED. Ba finding vòng 1 (SPEC-1, SPEC-2, SPEC-3) đã đóng. Còn một mâu thuẫn trong chính ticket về kênh người sáng tạo địa phương mà thiết kế không quyết; lane không tự trả lời được, nên đi vào câu hỏi cho operator, không gắn mã SPEC.
 
-Phán quyết: CHANGES_REQUESTED. Ba finding chặn, đều sửa được trong phần cấp phát của lane.
+## Đã đóng từ vòng 1 (đã đọc file thật ở `1fcd43cb25d8`)
 
-## Finding chặn
+- SPEC-1: câu cảnh báo "Panel là mô phỏng, cận trên, không phải khách hàng thật; cần xác nhận với khách thật trước khi chi tiền" có trong `skills/founder-marketing/SKILL.md` mục 1 và trong `examples/barbershop/founder/marketing.md` đúng một lần.
+- SPEC-2: `SKILL.md` chỉ còn một `## Protocol`; test khoá `count == 1`.
+- SPEC-3: ngày 22 là đặt lịch như khách thường, giá niêm yết, không tặng dịch vụ; ngày 25 chỉ chia sẻ lại bài họ tự đăng; không còn ưu đãi cắt thử nào do lane đặt. Hai ưu đãi còn lại trong chiến dịch và hook (giảm 15% ngày thường 10:00–16:00, gói 12 lần giá 10) có sẵn trong `idea.md` và `pricing.md`.
 
-### SPEC-1: Cảnh báo panel thiếu "cận trên" (criterion 3, và mục 7 của SKILL)
-Ticket đòi "panel caveat where panel numbers appear", và checklist review đòi cảnh báo "mô phỏng, cận trên" nơi có kết quả panel. Mọi artefact khác của bộ golden dùng cụm đó (`consumer.md:14`, `panel/results.md:5`, `pricing.md:72`, `summary.md`, `business-plan.md`). `marketing.md` dòng 9 nêu "12 trên 20 người mua mô phỏng nói không mua" cùng câu "Panel là mô phỏng, không phải khách hàng thật; cần xác nhận với khách thật trước khi chi tiền" mà không có "cận trên". `SKILL.md` mục 1 quy định đúng câu thiếu đó, nên lỗi nằm ở skill và lặp lại ở golden. Chặn vì skill dạy agent viết cảnh báo yếu hơn chuẩn của design (`docs/founder-vn-design.md` dòng 96, nhãn "mô phỏng, cận trên"). Sửa: đổi câu cảnh báo trong SKILL.md, golden, test (`tests/test_marketing_skill.py`), rồi sinh lại `business-plan.md`.
+## Đối chiếu từng criterion
 
-### SPEC-2: Khối Protocol bị lặp trong SKILL.md (criterion 1, "the common Protocol block")
-`skills/founder-marketing/SKILL.md` có hai dòng `## Protocol` liên tiếp (đếm: 2; mọi skill khác có 1). Khối chung không còn đúng dạng chung và lint không bắt được. Sửa: bỏ một dòng; thêm kiểm tra vào test hoặc lint nếu muốn khóa.
+- Criterion 1 (SKILL.md): đạt. Frontmatter, `metadata.version` "0.2.0" bằng version gói, khối Protocol, bảy mục đúng thứ tự, đủ quy tắc truy vết, ngân sách chỉ trích phần trăm, lưu ý quảng cáo chung chung không dẫn điều luật. Bằng chứng: `uv run python scripts/skill_lint.py` (9 skill, 0 finding), `tests/test_marketing_skill.py`.
+- Criterion 2 (không thêm kênh mà khách chưa được chứng tỏ dùng): chưa đạt cho kênh người sáng tạo địa phương, xem câu hỏi bên dưới. Các kênh khác có nguồn: Google Maps, Facebook, Zalo, truyền miệng trong `idea.md`; biển hiệu qua P018; ShopeeFood/GrabFood ghi "Không áp dụng" kèm lý do. Trích dẫn khách: đã đối chiếu 7 câu chọn mẫu với `panel/results.md`, khớp nguyên văn; test golden cũng kiểm nguyên văn.
+- Criterion 3 (golden): đạt. Đủ 30 hàng Ngày 1 đến Ngày 30, mỗi hàng một kênh, một việc, một phản đối có nguồn; không có `$`; cảnh báo panel một lần; hai lưu ý cuối có mặt; `business-plan.md` có mục `## Tiếp thị` (454), `tests/test_plan_example.py` xanh, commit b059334 nêu lý do. Số "12 trên 20", "3 đối thủ trực tiếp", "19:45", gói 12 lần giá 10 khớp nguồn.
+- Criterion 4 (README, front door): đạt. Hàng `founder-marketing` có #115 và `marketing.md`, mục tiếng Việt cập nhật; `tests/test_front_door.py` xanh trong cùng lát.
+- Criterion 5 (Gate, evidence): đạt về hình thức. `docs/evidence/issue-115-founder-marketing.md` có các lát đỏ rồi xanh và mục Giới hạn (không Kiro CLI, chiến dịch tương đối, không số chi tiêu). CI run 45763653954 success. Tôi chạy lại `pytest` cho `test_marketing_skill.py`, `test_front_door.py`, `test_plan_example.py`: 38 passed.
 
-### SPEC-3: Ngày 22 thêm một ưu đãi chưa được quyết (criterion 2, mục "Decisions", hook)
-Hàng Ngày 22 mời người sáng tạo "đến cắt thử một lần" với nhãn "flip: cho cắt thử một lần hợp ý". Ý panel là khách mua cắt thử để hết ngại thợ lạ, không phải tặng dịch vụ cho người sáng tạo; `idea.md` không có cắt thử miễn phí. Chính `marketing.md` mục 1 và 4 nói không dùng điều chưa quyết làm thông điệp, và SKILL.md cấm "invent no offer". Ngày 25 và dòng ngân sách (1/10 cho người sáng tạo) dựa trên hàng này. Sửa: bỏ hoặc viết lại hàng Ngày 22 thành việc `idea.md` đã quyết (ví dụ mời người sáng tạo đặt lịch như khách thường, trả giá niêm yết), hoặc đưa câu hỏi cho Owner.
+## Câu hỏi cho operator (chặn, thiết kế chưa quyết)
 
-## Đã đối chiếu và đạt
-
-- SKILL.md tồn tại, frontmatter qua lint, `metadata.version` 0.2.0 bằng phiên bản gói (lint báo package version 0.2.0); bảy mục đúng thứ tự; luật truy nguyên, không bịa lời khách, không hứa reach, kênh đóng, không Instagram/Yelp có trong văn bản. Bằng: đọc file, `test_marketing_skill.py` (11 test skill) chạy trong cổng `unit`.
-- Golden `marketing.md`: đọc toàn văn. Bảy mục; 30 hàng "Ngày 1..30" tương đối, không ngày lịch; ShopeeFood/GrabFood "Không áp dụng" với lý do từ `idea.md`; tám hook đều có mã phản đối và nguồn; trích dẫn P001, P002, P007, P012, P015, P018, P019, P020 khớp nguyên văn `panel/results.md` và `consumer.md`; không `$`; tiếng Việt, anh/chị, VND định dạng Việt; ngân sách trích "marketing 4%" từ `idea.md` và `numbers.json`, chia 10 phần, không tính số đồng; lưu ý quảng cáo chung, không điều luật, trỏ `founder-permits`; miễn trừ trách nhiệm có. `numbers.json` không đổi (diff không chạm).
-- `business-plan.md` sinh lại có mục `Tiếp thị`; commit `b059334` nêu lý do; `test_plan_example.py` xanh.
-- README: hàng `founder-marketing` có #115 và `marketing.md`, mục tiếng Việt cập nhật; `test_front_door.py` cập nhật cùng lát, 12 test xanh.
-- Evidence `docs/evidence/issue-115-founder-marketing.md`: có bảng lát red-then-green, mục Giới hạn (không Kiro CLI, chiến dịch tương đối, không số chi), và khối ba đoạn cổng ở commit `fdd1089`; các commit sau chỉ chạm file evidence.
+- [ ] Kênh người sáng tạo địa phương: danh sách kênh của ticket có kênh này, nhưng criterion 2 cấm "thêm kênh mà khách của chủ hộ chưa được chứng tỏ dùng". Golden tự nhận "chưa có nguồn nào cho thấy khách của anh/chị theo dõi người sáng tạo" (`marketing.md` mục 2), vậy mà vẫn dành cho kênh này 2 hàng chiến dịch (Ngày 22, 25) và 1 phần trong 10 ngân sách (mục 5). Lý do dựa vào P015 ("thợ quen giới thiệu") là một suy diễn: người sáng tạo không phải thợ quen. Xin operator chọn một: (a) giữ kênh ở mức nhỏ như hiện tại và chấp nhận ngoại lệ có ghi nhận cho criterion 2; (b) ghi "không áp dụng" cho barbershop như đã làm với ShopeeFood/GrabFood, bỏ Ngày 22 và 25, dồn 1 phần ngân sách sang kênh khác, sinh lại `business-plan.md`; (c) sửa ticket/design để kênh này được phép khi chưa có nguồn. Lane không tự chọn vì hai nửa của ticket mâu thuẫn nhau.
 
 ## Chưa xác minh
 
-- Không chạy lại `gate-segment.sh` ba đoạn; dựa vào kết quả CI `Gate` success ở 476f0faa344c do tin nhắn giao việc cung cấp.
-- Nguồn "5 trong 8 đối thủ có điểm sao" suy từ `competitors.md` mục 1 (đối thủ 4–8 có số); chưa mở bảng để đếm lại từng dòng.
-- Kênh "Người sáng tạo địa phương" không có nguồn nào cho thấy khách dùng kênh này (golden tự nói vậy). Ticket tự liệt kê kênh này nên không tính là lỗi; lane nên để operator xác nhận có giữ 1/10 ngân sách cho kênh chưa có nguồn hay không, vì tiêu chí "never adds a channel the Owner's customers were not shown to use" xung đột với danh sách của chính ticket.
+- Hook 1 và hook 2 cùng trả lời phản đối A (P019); `SKILL.md` yêu cầu mỗi hook trả lời một phản đối hoặc mệnh đề khác nhau. Hook 2 có thêm P020, nên tôi coi là chấp nhận được, không gắn mã. Mức độ: possible; nếu operator muốn chặt hơn thì gộp hoặc gắn hook 2 vào mệnh đề riêng.
+- Hook 8 ("Tiệm có chỗ để xe máy") gắn với P018 (nói về gửi xe trước cửa của tiệm cũ), không phải một phản đối về tiệm mới; file đã ghi chú chỉ đăng khi mặt bằng có chỗ để xe. Không chặn.
+- Mốc "nghỉ thứ Hai" lấy từ `idea.md`; số đo hạn mức dừng (9 lượt/ghế/ngày, 55%, 265.000 đ) khớp `pricing.md`.
 
-<promise>CHANGES_REQUESTED</promise>
+<promise>BLOCKED</promise>
