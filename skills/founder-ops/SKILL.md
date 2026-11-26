@@ -50,7 +50,7 @@ After the table, tell the Owner in Vietnamese: when anh/chị có báo giá th�
 
 ## 2. Nhân sự và ca làm
 
-The roles and the headcount from `idea.md`, as a table (role, headcount, full or part time). Then a weekly rota: one row per day the business is open, one column per shift or role group, built from the opening hours in `idea.md` and the headcount. Give the day off the business declares. Do not state a wage; costs stay in `cfo.md`.
+The roles and the headcount from `idea.md`, as a table (role, headcount, full or part time). Then a weekly rota: one row per day the business is open, one column per shift or role group, built from the opening hours in `idea.md` and the headcount. Give the day off the business declares. The rota must be feasible: define what one shift is, make the weekly person-slots add up to no more than headcount times the maximum shifts you state, name who holds each closing and opening duty on every open day, and say plainly where a day runs below the capacity in `idea.md`. Do not state a wage; costs stay in `cfo.md`.
 
 ## 3. Quy trình mở cửa, phục vụ, đóng cửa
 

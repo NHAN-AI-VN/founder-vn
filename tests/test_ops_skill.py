@@ -188,3 +188,10 @@ def test_golden_rota_thợ_slots_fit_the_headcount() -> None:
     staffing = _section(_golden(), "## 2. Nhân sự và ca làm")
     assert f"{sum(slots)} ca thợ một tuần" in staffing
     assert "thấp hơn công suất kế hoạch" in staffing
+
+
+def test_skill_requires_a_feasible_rota() -> None:
+    text = _skill()
+    assert "The rota must be feasible" in text
+    assert "headcount times the maximum shifts" in text
+    assert "below the capacity" in text
