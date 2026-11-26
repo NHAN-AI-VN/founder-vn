@@ -77,3 +77,14 @@ def test_one_page_version_stands_alone_with_caveat_disclaimer_and_sources() -> N
 def test_summary_closes_with_the_caveat_then_the_disclaimer() -> None:
     tail = _read("summary.md").strip().splitlines()[-1]
     assert tail.index(CAVEAT) < tail.index(DISCLAIMER)
+
+
+def test_business_plan_lists_only_offer_and_brand_as_not_done() -> None:
+    # #116: after founder-launch the compiled plan misses only the two after-pilot skills (Q12, Q55).
+    plan_text = _read("business-plan.md")
+    todo = plan_text[plan_text.index("## Chưa làm") :].split("\n\n## ", 1)[0].splitlines()[2:]
+    assert todo == [
+        "- Đề xuất giá trị: chạy skill `founder-offer` (tạo founder/offer.md).",
+        "- Thương hiệu: chạy skill `founder-brand` (tạo founder/brand.md).",
+    ]
+    assert "## Khai trương" in plan_text
