@@ -24,11 +24,13 @@ Every test runs with no network and no model.
 
 ## Cổng ba đoạn
 
+Rerun after the review fixes, once per segment, on code commit `4af23f0` (the last commit that changed code or golden files is `bafdcc7`; `a25e076` and `4af23f0` touch only evidence and review files).
+
 ```
-bash scripts/harness/gate-segment.sh static    # exit 0 (ruff, format, skill-lint: 8 skills, 17 example files, 0 findings)
-bash scripts/harness/gate-segment.sh unit      # exit 0 (404 passed)
+bash scripts/harness/gate-segment.sh static    # exit 0 (ruff check, ruff format --check, skill-lint: 0 findings)
+bash scripts/harness/gate-segment.sh unit      # exit 0 (407 passed)
 bash scripts/harness/gate-segment.sh build     # exit 0 (Successfully built dist/founder_vn-0.2.0-py3-none-any.whl)
-bash scripts/harness/gate-segment.sh verify    # see the PR body for the HEAD it was green on
+bash scripts/harness/gate-segment.sh verify    # gate-segment verify: GREEN on 4af23f09f72c3b38d8bdf689d5dc2b77c6efe581
 ```
 
 ## Giới hạn
@@ -59,3 +61,12 @@ Red then green:
 `business-plan.md` was regenerated with `founder-vn plan` in its own commit, because the compiler embeds `ops.md` and section 2 changed. `numbers.json`, `cfo.md`, `pricing.md` and `summary.md` are unchanged.
 
 Not fixed: the rota is still a proposal. The tests check that it adds up and names every role; they do not show it suits a real shop. The golden is still written by the lane, not by a model run.
+
+### Review standards, round 1 (`reviews/issue-114/standards.md`)
+
+| Issue | Decision | Where |
+|---|---|---|
+| S1. The `verify` line pointed to the PR body and named no SHA | Fixed: the block above now records the rerun of the three segments and `verify` with `GREEN on 4af23f09f72c3b38d8bdf689d5dc2b77c6efe581`; later commits are evidence only | `## Cổng ba đoạn` |
+| Wording in section 6 of the skill repeats "restate no legal figure" (reviewer note, not a violation) | Not fixed: the review names no violated standard, the lint and tests pass, and a wording-only edit would force a new gate rerun for no behaviour change | `skills/founder-ops/SKILL.md` |
+
+The spec review's SPEC-1 is answered in the table above (issue 2). Its unverified note about the `verify` line is answered by S1.
