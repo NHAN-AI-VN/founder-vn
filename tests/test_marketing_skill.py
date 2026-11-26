@@ -33,6 +33,7 @@ def _protocol_block() -> str:
 
 def test_skill_carries_the_shared_protocol_block_verbatim() -> None:
     assert _protocol_block() in _skill()
+    assert _skill().count("## Protocol") == 1
 
 
 def test_frontmatter_matches_the_lint_and_the_package_version() -> None:

@@ -17,8 +17,6 @@ metadata:
 
 ## Protocol
 
-## Protocol
-
 1. Check the version: call the MCP tool `server_info`, or run `founder-vn --version` in the shell.
    Compare its major version with `metadata.version` of this skill. On a major mismatch, stop and
    tell the Facilitator to update the package or the skill.
