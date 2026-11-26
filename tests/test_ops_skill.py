@@ -157,3 +157,34 @@ def test_business_plan_carries_the_ops_section() -> None:
     plan = (FOUNDER / "business-plan.md").read_text(encoding="utf-8")
     assert "## Vận hành" in plan
     assert "### 1. Nhà cung cấp" in plan and "### 5. Sổ rủi ro" in plan
+
+
+def _rota_rows() -> list[list[str]]:
+    staffing = _section(_golden(), "## 2. Nhân sự và ca làm")
+    rows = [ln for ln in staffing.splitlines() if ln.startswith("| Thứ") or ln.startswith("| Chủ")]
+    return [[c.strip() for c in ln.strip("|").split("|")] for ln in rows]
+
+
+def test_golden_rota_covers_every_role_the_routines_name() -> None:
+    routines = _section(_golden(), "## 3. Quy trình mở cửa, phục vụ, đóng cửa")
+    named = {
+        r.strip().lower()
+        for m in re.findall(r"Người làm: ([^.\n]+)\.", routines)
+        for r in m.split(" hoặc ")
+    }
+    assert {"quản lý", "phụ tá"} <= named
+    open_days = [r for r in _rota_rows() if r[1] != "nghỉ"]
+    assert len(open_days) == 6
+    for row in open_days:
+        assert "quản lý cả ngày" in row[3], row
+        assert "lễ tân" in row[3], row
+        assert "phụ tá" in row[2], row
+
+
+def test_golden_rota_thợ_slots_fit_the_headcount() -> None:
+    slots = [int(re.match(r"(\d+) thợ", r[1]).group(1)) for r in _rota_rows() if r[1] != "nghỉ"]
+    assert max(slots) <= 5
+    assert sum(slots) <= 5 * 5
+    staffing = _section(_golden(), "## 2. Nhân sự và ca làm")
+    assert f"{sum(slots)} ca thợ một tuần" in staffing
+    assert "thấp hơn công suất kế hoạch" in staffing

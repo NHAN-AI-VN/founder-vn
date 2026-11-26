@@ -27,19 +27,21 @@ Khi anh/chị có báo giá thật, hãy ghi vào bảng trên với nguồn là
 | Lễ tân | 1 | bán thời gian |
 | Quản lý kiêm lễ tân | 1 | toàn thời gian |
 
-Tiệm mở 10:00–21:00 và nghỉ thứ Hai. Lịch tuần dưới đây là đề xuất để anh/chị chỉnh theo người thật:
+Tiệm mở 10:00–21:00 và nghỉ thứ Hai. Một ca của thợ là một ngày làm, vào so le trong khung 10:00–21:00 và nghỉ giữa ngày để không quá 8 giờ làm. Lịch tuần dưới đây là đề xuất để anh/chị chỉnh theo người thật:
 
-| Ngày | Ca sáng (10:00–15:30) | Ca chiều (15:30–21:00) |
-| --- | --- | --- |
-| Thứ Hai | nghỉ | nghỉ |
-| Thứ Ba | 3 thợ, 1 phụ tá, quản lý | 3 thợ, 1 phụ tá, lễ tân bán thời gian |
-| Thứ Tư | 3 thợ, 1 phụ tá, quản lý | 3 thợ, 1 phụ tá, lễ tân bán thời gian |
-| Thứ Năm | 3 thợ, 1 phụ tá, quản lý | 3 thợ, 1 phụ tá, lễ tân bán thời gian |
-| Thứ Sáu | 3 thợ, 1 phụ tá, quản lý | 4 thợ, 2 phụ tá, lễ tân bán thời gian |
-| Thứ Bảy | 4 thợ, 2 phụ tá, quản lý | 4 thợ, 2 phụ tá, lễ tân bán thời gian |
-| Chủ nhật | 4 thợ, 2 phụ tá, quản lý | 4 thợ, 2 phụ tá, lễ tân bán thời gian |
+| Ngày | Thợ | Phụ tá | Quản lý và lễ tân |
+| --- | --- | --- | --- |
+| Thứ Hai | nghỉ | nghỉ | nghỉ |
+| Thứ Ba | 3 thợ | 2 phụ tá toàn thời gian | quản lý cả ngày, lễ tân bán thời gian ca chiều |
+| Thứ Tư | 3 thợ | 2 phụ tá toàn thời gian | quản lý cả ngày, lễ tân bán thời gian ca chiều |
+| Thứ Năm | 3 thợ | 2 phụ tá toàn thời gian | quản lý cả ngày, lễ tân bán thời gian ca chiều |
+| Thứ Sáu | 4 thợ | 3 phụ tá | quản lý cả ngày, lễ tân bán thời gian ca chiều |
+| Thứ Bảy | 4 thợ | 3 phụ tá | quản lý cả ngày, lễ tân bán thời gian ca chiều |
+| Chủ nhật | 4 thợ | 3 phụ tá | quản lý cả ngày, lễ tân bán thời gian ca chiều |
 
-Mỗi thợ làm tối đa 5 ca một tuần và có một ngày nghỉ ngoài thứ Hai khi tiệm chưa đông; phụ tá bán thời gian nhận ca còn thiếu. Khung giờ 17:00–21:00 và cuối tuần cần đủ thợ bậc cao theo giá niêm yết.
+Cộng lại là 21 ca thợ một tuần cho 5 thợ, mỗi thợ làm 4 đến 5 ca và nghỉ ít nhất một ngày ngoài thứ Hai. Quản lý có mặt cả ngày nên mở cửa buổi sáng và khóa cửa lúc 21:00 đều có người; lễ tân bán thời gian nhận ca chiều. Phụ tá bán thời gian là người thứ ba của thứ Sáu đến Chủ nhật.
+
+Từ thứ Ba đến thứ Năm chỉ có 3 thợ cho 4 ghế, nên một ghế để trống ngày thường: lịch này thấp hơn công suất kế hoạch 4 ghế trong `founder/idea.md` ở ba ngày ít khách nhất, và ghi nhận rằng công suất ấy chỉ đạt từ thứ Sáu đến Chủ nhật. Nếu muốn đủ 4 thợ cả tuần thì cần 24 ca thợ một tuần, vẫn trong giới hạn 5 thợ nhân 5 ca. Khung giờ 17:00–21:00 và cuối tuần cần đủ thợ bậc cao theo giá niêm yết.
 
 ## 3. Quy trình mở cửa, phục vụ, đóng cửa
 
