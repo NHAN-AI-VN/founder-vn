@@ -81,3 +81,73 @@ def test_tool_stack_names_categories_not_vendors() -> None:
 
 def test_no_dollar_in_the_skill() -> None:
     assert not DOLLAR.search(_skill())
+
+
+FOUNDER = ROOT / "examples" / "barbershop" / "founder"
+
+
+def _golden() -> str:
+    return (FOUNDER / "ops.md").read_text(encoding="utf-8")
+
+
+def _section(text: str, heading: str) -> str:
+    start = text.index(heading) + len(heading)
+    rest = text[start:]
+    nxt = re.search(r"^## ", rest, flags=re.M)
+    return rest[: nxt.start()] if nxt else rest
+
+
+def test_golden_has_the_seven_sections_in_order() -> None:
+    text = _golden()
+    positions = [text.index(h) for h in HEADINGS]
+    assert positions == sorted(positions)
+
+
+def test_golden_risk_register_has_exactly_ten_rows() -> None:
+    register = _section(_golden(), "## 5. Sổ rủi ro")
+    rows = [ln for ln in register.splitlines() if ln.startswith("|")]
+    assert rows[0].count("|") == 5
+    assert [c.strip() for c in rows[0].strip("|").split("|")] == [
+        "Rủi ro",
+        "Dấu hiệu sớm",
+        "Việc cần làm",
+        "Ai làm",
+    ]
+    assert len(rows) - 2 == 10
+
+
+def test_golden_every_supplier_quote_is_unquoted_and_no_supplier_is_named() -> None:
+    table = _section(_golden(), "## 1. Nhà cung cấp")
+    rows = [ln for ln in table.splitlines() if ln.startswith("|")][2:]
+    assert len(rows) >= 5
+    for row in rows:
+        cells = [c.strip() for c in row.strip("|").split("|")]
+        assert cells[1] == "chưa chọn", row
+        assert cells[2] == "chưa có báo giá", row
+        assert cells[3] == "chưa có", row
+    assert not re.search(r"\d", "".join(rows))
+
+
+def test_golden_feedback_loop_sentence_and_staffing() -> None:
+    text = _golden()
+    assert "`founder/numbers.json` là file của `founder-cfo`" in text
+    assert "`founder-pricing`" in text and "`founder-plan`" in text
+    staffing = _section(text, "## 2. Nhân sự và ca làm")
+    for needle in ("Thợ cắt", "Phụ tá", "Lễ tân", "Quản lý", "Thứ Hai", "nghỉ"):
+        assert needle in staffing, needle
+
+
+def test_golden_points_to_permits_and_holds_no_legal_figure() -> None:
+    text = _golden()
+    section = _section(text, "## 6. Giấy phép và nghĩa vụ")
+    assert "founder/permits.md" in section and "founder-permits" in section
+    assert not re.search(r"\d", section)
+    assert "%" not in text and "Nghị định" not in text and "Luật" not in text
+
+
+def test_golden_is_vietnamese_with_disclaimer_and_no_dollar() -> None:
+    text = _golden()
+    assert "anh/chị" in text
+    assert not DOLLAR.search(text) and "$" not in text
+    assert "không phải tư vấn tài chính, thuế hay pháp lý" in text
+    assert text.rstrip().splitlines()[-1].startswith("Tài liệu vận hành này")
