@@ -30,3 +30,14 @@ The golden slice commit carried the still-red business-plan test (the plan is re
 - Local creators have no panel source showing these customers follow them; the golden marks that and uses the channel only for the trust objection, at one share in ten.
 - Tests check structure, verbatim quotes and forbidden content; they do not show the campaign would bring customers. The panel is a simulation and the golden promises no reach or conversion.
 - The two panel flips not decided in `idea.md` (drop the deposit, a trial ticket of about 120.000 đ) are not used as messages.
+
+## Cổng ba đoạn
+
+Run once per segment on code commit `fdd1089` (later commits touch only this evidence file).
+
+```
+bash scripts/harness/gate-segment.sh static    # exit 0 (ruff check, ruff format --check, skill-lint: 9 skills, 18 example files, 0 findings)
+bash scripts/harness/gate-segment.sh unit      # exit 0 (426 passed)
+bash scripts/harness/gate-segment.sh build     # exit 0
+bash scripts/harness/gate-segment.sh verify    # gate-segment verify: GREEN on fdd1089c04ca72aaf1a84c47a4b0874455648012
+```
