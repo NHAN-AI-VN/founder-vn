@@ -151,3 +151,9 @@ def test_golden_is_vietnamese_with_disclaimer_and_no_dollar() -> None:
     assert not DOLLAR.search(text) and "$" not in text
     assert "không phải tư vấn tài chính, thuế hay pháp lý" in text
     assert text.rstrip().splitlines()[-1].startswith("Tài liệu vận hành này")
+
+
+def test_business_plan_carries_the_ops_section() -> None:
+    plan = (FOUNDER / "business-plan.md").read_text(encoding="utf-8")
+    assert "## Vận hành" in plan
+    assert "### 1. Nhà cung cấp" in plan and "### 5. Sổ rủi ro" in plan
