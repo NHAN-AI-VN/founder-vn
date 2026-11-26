@@ -204,3 +204,23 @@ def test_golden_no_date_no_dollar_and_the_disclaimer_closes_the_file() -> None:
     assert "anh/chị" in text
     assert not DOLLAR.search(text) and "$" not in text
     assert text.rstrip().splitlines()[-1].endswith("không phải tư vấn tài chính, thuế hay pháp lý.")
+
+
+def test_skill_example_roles_are_not_an_invented_role() -> None:
+    line = next(x for x in _skill().splitlines() if x.startswith("- Never name a person"))
+    assert "thợ trưởng" not in line
+
+
+def test_skill_tells_the_author_what_the_test_still_gates_and_the_unlisted_hire() -> None:
+    text = _skill()
+    assert "State truthfully what the result can still change" in text
+    assert "must be hired first and when the Owner decides" in text
+
+
+def test_golden_states_what_the_test_gates_and_the_head_barber_hire() -> None:
+    golden = (ROOT / "examples" / "barbershop" / "founder" / "launch.md").read_text(
+        encoding="utf-8"
+    )
+    assert "trước khi anh/chị bỏ vốn thuê mặt bằng và nội thất" not in golden
+    assert "không rút lại được những khoản đã cam kết trước D-14" in golden
+    assert "Thợ trưởng chưa có trong `ops.md` nên phải tuyển trước" in golden

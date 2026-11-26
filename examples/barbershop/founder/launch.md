@@ -4,11 +4,11 @@ Tài liệu này lấy từ `founder/idea.md`, `founder/pricing.md`, `founder/cf
 
 ## 1. Thử nghiệm thật trước
 
-Một thử nghiệm duy nhất: **danh sách chờ có đặt cọc**. Anh/chị mở danh sách chờ cho tuần khai trương đầu tiên ở đúng giá niêm yết: Essential Cut **199.000 đ** (giá đề xuất của `pricing.md`, cũng là giá trong `idea.md`), không phải giá giảm. Mỗi người vào danh sách giữ chỗ bằng đúng khoản cọc **50.000 đ** mà `idea.md` đã ghi cho khung 17:00–21:00 và cuối tuần; khoản cọc được hoàn nếu khách hủy trước 3 giờ, và được hoàn toàn bộ nếu tiệm không mở. Lý do chọn thử nghiệm này: nó đo cùng lúc hai điều panel nói là rào cản (giá 199.000 đ và việc đặt cọc, xem mục 5) bằng tiền thật của khách thật, trước khi anh/chị bỏ vốn thuê mặt bằng và nội thất.
+Một thử nghiệm duy nhất: **danh sách chờ có đặt cọc**. Anh/chị mở danh sách chờ cho tuần khai trương đầu tiên ở đúng giá niêm yết: Essential Cut **199.000 đ** (giá đề xuất của `pricing.md`, cũng là giá trong `idea.md`), không phải giá giảm. Mỗi người vào danh sách giữ chỗ bằng đúng khoản cọc **50.000 đ** mà `idea.md` đã ghi cho khung 17:00–21:00 và cuối tuần; khoản cọc được hoàn nếu khách hủy trước 3 giờ, và được hoàn toàn bộ nếu tiệm không mở. Lý do chọn thử nghiệm này: nó đo cùng lúc hai điều panel nói là rào cản (giá 199.000 đ và việc đặt cọc, xem mục 5) bằng tiền thật của khách thật. Thử nghiệm bắt đầu ở D-30 và đọc ở D-14, nên nó còn đổi được giá, đề xuất và quyết định khai trương; nó không rút lại được những khoản đã cam kết trước D-14 (đăng ký, nhà cung cấp nội thất và thiết bị). Nếu anh/chị muốn kết quả chặn cả những khoản đó, hãy mở danh sách chờ sớm hơn D-30, trước khoản đầu tiên.
 
 - Hỏi ai, ở đâu: nhân viên văn phòng và quản lý, chủ doanh nghiệp nhỏ quanh Quận 7 cũ, qua các kênh `marketing.md` đã chọn (Zalo, nhóm Facebook cư dân và văn phòng, người quen). Không dùng kênh `marketing.md` ghi "không áp dụng".
 - Ghi lại thế nào: mỗi người một dòng trong sổ đặt cọc hoặc công cụ đặt lịch: kênh biết đến, nhóm khách, đã cọc hay chưa. Chỉ đếm người đã cọc là người mua thật; lời nói "sẽ đến" không tính.
-- **Quy tắc dừng:** nếu dưới **anh/chị chọn** người mua thật trong **anh/chị chọn** ngày thì xem lại giá hoặc đề xuất (`founder-pricing`, `idea.md`) trước khi ký thuê hay mua nội thất. Hai số này là của anh/chị; tài liệu không đặt thay.
+- **Quy tắc dừng:** nếu dưới **anh/chị chọn** người mua thật trong **anh/chị chọn** ngày thì xem lại giá hoặc đề xuất (`founder-pricing`, `idea.md`) hoặc hoãn khai trương, trước khi chi các khoản còn lại sau D-14. Hai số này là của anh/chị; tài liệu không đặt thay.
 - Kết quả thật: chưa có
 
 ## 2. Đếm ngược
@@ -23,7 +23,7 @@ Tính từ ngày khai trương (D-0). Cột "phụ thuộc" là file giữ chi t
 | D-21 | Chốt nhà cung cấp lưỡi dao dùng một lần, vật tư gội, khăn và dịch vụ giặt, đồ uống không cồn | Quản lý | `ops.md` |
 | D-18 | Chọn phần mềm đặt lịch kèm hóa đơn điện tử và công cụ thanh toán QR; cài thử luồng đặt cọc | Quản lý, lễ tân | `ops.md` |
 | D-14 | Đọc kết quả danh sách chờ đối chiếu với quy tắc dừng ở mục 1; quyết đi tiếp, đổi giá hoặc đổi đề xuất | Anh/chị | `idea.md`, `pricing.md` |
-| D-12 | Tuyển và xác nhận đủ thợ, phụ tá, lễ tân theo bảng nhân sự; thợ nào chưa có thì báo anh/chị | Anh/chị, quản lý | `ops.md` |
+| D-12 | Tuyển và xác nhận đủ thợ, phụ tá, lễ tân theo bảng nhân sự; thợ nào chưa có thì báo anh/chị. Thợ trưởng chưa có trong `ops.md` nên phải tuyển trước: anh/chị quyết tuyển hay hoãn ngay ở D-14 | Anh/chị, quản lý | `ops.md` |
 | D-10 | Treo biển hiệu, dán bảng giờ mở cửa và "nghỉ thứ Hai"; hoàn thiện hồ sơ Google Maps | Quản lý | `marketing.md` |
 | D-7 | Lập Zalo OA, cài tin chào có đường đặt lịch và điều kiện hoàn cọc; nhắn những người đã cọc trong danh sách chờ | Lễ tân | `marketing.md` |
 | D-5 | Kiểm tra lối thoát nạn, thiết bị phòng cháy và giấy tờ đã nhận được so với danh sách giấy phép | Quản lý | `permits.md` |
