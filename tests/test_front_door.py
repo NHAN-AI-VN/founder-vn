@@ -34,7 +34,7 @@ def test_readme_names_purpose_audience_hosts_and_both_install_routes() -> None:
         "npx skills add NHAN-AI-VN/founder-vn",
         "founder-vn install --host",
         "uvx --from founder-vn founder-vn-mcp",
-        "released, 0.2.0 on PyPI",
+        "released, 0.3.0 on PyPI",
     ):
         assert needle in text, needle
     assert re.search(r"^## .*Tiếng Việt", text, re.MULTILINE)
@@ -136,13 +136,14 @@ def test_host_pages_carry_no_secret_values_or_dollar_amounts() -> None:
 def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     text = _read("README.md")
     english, vietnamese = re.split(r"^## .*Tiếng Việt", text, maxsplit=1, flags=re.MULTILINE)
-    assert "0.2.0 is the first PyPI release" in english
+    assert "0.3.0 (Wave B, ten skills) is the current PyPI release" in english
+    assert "v0.3.0" in english and "2026-11-26" in english
+    assert "0.2.0 was the first PyPI release" in english
     assert "v0.2.0" in english and "2026-11-24" in english
-    assert "pending the `v0.2.0` tag" not in english and "not yet released" not in english
-    assert "0.3.0" in english and "pending the `v0.3.0` tag" in english
-    for claim in ("0.3.0 is released", "0.3.0 is the", "verified on 0.3.0", "released, 0.3.0"):
-        assert claim not in text, claim
-    assert text.count("released, 0.2.0 on PyPI") == 2
+    assert "pending the `v0" not in english and "not yet released" not in english
+    assert text.count("released, 0.3.0 on PyPI") == 2
+    assert "released, 0.2.0 on PyPI" not in text
+    assert "verified on 0.3.0" not in text, "Wave B walkthrough (#118) not recorded yet"
     assert "0.1.0 is not published" not in text and "chưa lên PyPI" not in text
     for skill, issue, artefact in (
         ("founder-board", "#14", "board.md"),
@@ -176,7 +177,8 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     assert "No host is verified end to end yet" not in hosts_index
     for needle in ("0.2.0", "v0.2.0", "#19", "đã xác nhận", "chưa xác nhận", "chưa bắt đầu"):
         assert needle in vietnamese, needle
-    assert "đang chờ tag `v0.3.0`" in vietnamese
+    assert "v0.3.0" in vietnamese and "26/11/2026" in vietnamese
+    assert "Bản hiện hành trên PyPI là 0.3.0" in vietnamese
+    assert "đang chờ tag" not in vietnamese
     assert "đang chờ walkthrough #118" in vietnamese
-    for claim in ("0.3.0 đã phát hành", "xác nhận trên 0.3.0", "0.3.0 là bản"):
-        assert claim not in vietnamese, claim
+    assert "xác nhận trên 0.3.0" not in vietnamese

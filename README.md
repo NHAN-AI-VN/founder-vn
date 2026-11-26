@@ -22,17 +22,19 @@ is in [docs/hosts/](docs/hosts/README.md).
 
 ## Install
 
-Version 0.2.0 is the first PyPI release (0.1.0 was never published). `v0.2.0` was tagged on
-2026-11-24 and published by `release.yml` through trusted publishing; the clean-install walkthrough
-on Kiro CLI is recorded in [docs/evidence/issue-19-wave-a-walkthrough.md](docs/evidence/issue-19-wave-a-walkthrough.md).
-Version 0.3.0 (Wave B, ten skills) is pending the `v0.3.0` tag: until it is tagged and published,
-0.2.0 stays the released version, and nothing here says 0.3.0 is on PyPI or verified on a host.
+Version 0.3.0 (Wave B, ten skills) is the current PyPI release: `v0.3.0` was tagged on 2026-11-26
+and published by `release.yml` through trusted publishing (release record in
+[docs/evidence/issue-118-wave-b-walkthrough.md](docs/evidence/issue-118-wave-b-walkthrough.md)).
+Version 0.2.0 was the first PyPI release (0.1.0 was never published), tagged `v0.2.0` on
+2026-11-24; the clean-install walkthrough of the six Wave A skills on Kiro CLI is recorded in
+[docs/evidence/issue-19-wave-a-walkthrough.md](docs/evidence/issue-19-wave-a-walkthrough.md).
+The walkthrough of the Wave B skills on 0.3.0 has not run yet (#118).
 
 | Route | Command | State |
 |---|---|---|
 | Development (skills only) | `npx skills add NHAN-AI-VN/founder-vn` | works from the repository |
-| Facilitator | `uvx --from founder-vn founder-vn install --host kiro\|claude\|codex\|grok\|kirocrew` | released, 0.2.0 on PyPI |
-| MCP server | `uvx --from founder-vn founder-vn-mcp` | released, 0.2.0 on PyPI |
+| Facilitator | `uvx --from founder-vn founder-vn install --host kiro\|claude\|codex\|grok\|kirocrew` | released, 0.3.0 on PyPI |
+| MCP server | `uvx --from founder-vn founder-vn-mcp` | released, 0.3.0 on PyPI |
 
 ## Model
 
@@ -109,8 +111,9 @@ số, nên không có số nào do mô hình tự nghĩ ra.
 - **Host hỗ trợ**: Kiro CLI, Claude Code, Codex, Gemini / Antigravity CLI (cần xác nhận khi cài),
   Grok Build, KiroCrew (thêm qua dashboard).
 - **Cách cài**: `npx skills add NHAN-AI-VN/founder-vn` (phát triển); `uvx --from founder-vn founder-vn install --host ...`
-  và `uvx --from founder-vn founder-vn-mcp` (0.2.0 là bản PyPI đầu tiên, phát hành 24/11/2026 qua tag
-  `v0.2.0`; 0.1.0 chưa bao giờ được phát hành). Bản 0.3.0 (đợt B, mười skill) đang chờ tag `v0.3.0`; cho đến khi đó 0.2.0 vẫn là bản đã phát hành.
+  và `uvx --from founder-vn founder-vn-mcp`. Bản hiện hành trên PyPI là 0.3.0 (đợt B, mười skill),
+  phát hành 26/11/2026 qua tag `v0.3.0`; 0.2.0 là bản PyPI đầu tiên, phát hành 24/11/2026 qua tag
+  `v0.2.0`; 0.1.0 chưa bao giờ được phát hành.
 - **Trạng thái**: sáu skill đợt A (`founder-board` #14, `founder-competitors` #13, `founder-consumer`
   #16, `founder-pricing` #17, `founder-cfo` #12, `founder-plan` #18) đã có, kèm sản phẩm mẫu trong
   `examples/barbershop/founder/`; `founder-permits` (đợt B, #112, đường chung của hộ kinh doanh; ngành F&B chưa làm) đã có,
