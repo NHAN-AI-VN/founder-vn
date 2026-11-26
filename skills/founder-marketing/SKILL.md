@@ -53,7 +53,7 @@ Write one statement (one statement of one or two sentences, not a list of slogan
 
 ## 2. Kênh
 
-One subsection or table row per channel, each with why it fits this Owner's customers (with the source file): Biển hiệu và khách đi ngang (foot traffic and signage), Google Maps, Zalo OA, Facebook (trang và nhóm), ShopeeFood/GrabFood, người sáng tạo địa phương. Write ShopeeFood/GrabFood as "không áp dụng" with the reason when the business does not sell food or drink for delivery. A channel that does not fit is written as "không áp dụng" with the reason, not dropped silently.
+One subsection or table row per channel, each with why it fits this Owner's customers (with the source file): Biển hiệu và khách đi ngang (foot traffic and signage), Google Maps, Zalo OA, Facebook (trang và nhóm), ShopeeFood/GrabFood, người sáng tạo địa phương. Write ShopeeFood/GrabFood as "không áp dụng" with the reason when the business does not sell food or drink for delivery. A channel that does not fit is written as "không áp dụng" with the reason, not dropped silently. The list is fixed, the evidence is not: when no file of the Owner (`idea.md`, `panel/results.md`, `consumer.md`, `competitors.md`) shows that this Owner's customers use a listed channel, write it as "không áp dụng (chưa có nguồn)", name what would reopen it (a real customer naming that channel when asked how they found the shop), and give it no campaign row, no budget share and no metric. Evidence for another channel (word of mouth, a familiar barber's recommendation) is not a source for this one.
 
 ## 3. Chiến dịch 30 ngày
 

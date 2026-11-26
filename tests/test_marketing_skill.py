@@ -93,6 +93,16 @@ def test_never_invents_a_quote_a_result_or_a_channel() -> None:
     assert "Never add a channel" in text
 
 
+def test_a_channel_with_no_source_in_the_owners_files_is_not_applicable() -> None:
+    # #115 review round 2: the channel list is fixed, the evidence is not. A listed channel that
+    # no file of the Owner shows the customers use is written like ShopeeFood/GrabFood, not funded.
+    text = _skill()
+    assert "no file of the Owner" in text
+    assert "không áp dụng (chưa có nguồn)" in text
+    assert "no campaign row, no budget share and no metric" in text
+    assert "is not a source" in text
+
+
 def test_disclaimers_and_panel_caveat() -> None:
     text = _skill()
     assert "founder-permits" in text
@@ -164,6 +174,44 @@ def test_golden_shopeefood_grabfood_not_applicable_and_no_instagram() -> None:
     row = next(ln for ln in _section(text, "## 2. Kênh").splitlines() if "ShopeeFood" in ln)
     assert "Không áp dụng" in row
     assert "Instagram" not in text and "Yelp" not in text
+
+
+def _table_rows(section: str) -> list[list[str]]:
+    rows = [
+        [c.strip() for c in ln.strip().strip("|").split("|")]
+        for ln in section.splitlines()
+        if ln.startswith("|") and not ln.startswith("|---")
+    ]
+    return rows[1:]  # drop the header
+
+
+def test_golden_local_creators_not_applicable_without_a_source_and_unused_downstream() -> None:
+    # #115 review round 2, operator answer (b): no Owner file shows these customers follow local
+    # creators, so the channel is "Không áp dụng (chưa có nguồn)" and gets no row, share or metric.
+    text = _golden()
+    row = next(ln for ln in _section(text, "## 2. Kênh").splitlines() if "sáng tạo" in ln)
+    assert "Không áp dụng" in row and "chưa có nguồn" in row
+    campaign = _table_rows(_section(text, "## 3. Chiến dịch 30 ngày"))
+    assert not any("sáng tạo" in r[1] for r in campaign), [
+        r[0] for r in campaign if "sáng tạo" in r[1]
+    ]
+    budget = next(
+        r for r in _table_rows(_section(text, "## 5. Chia ngân sách")) if "sáng tạo" in r[0]
+    )
+    assert budget[1] == "0"
+    assert "sáng tạo" not in _section(text, "## 6. Số đo")
+
+
+def test_golden_budget_shares_sum_to_ten_and_not_applicable_channels_get_zero() -> None:
+    text = _golden()
+    not_applicable = {
+        r[0] for r in _table_rows(_section(text, "## 2. Kênh")) if "Không áp dụng" in r[1]
+    }
+    shares = {r[0]: int(r[1]) for r in _table_rows(_section(text, "## 5. Chia ngân sách"))}
+    assert sum(shares.values()) == 10, shares
+    assert not_applicable, "section 2 marks at least ShopeeFood/GrabFood as not applicable"
+    for channel in not_applicable:
+        assert shares[channel] == 0, channel
 
 
 def test_golden_budget_quotes_the_percentage_and_states_no_amount() -> None:
