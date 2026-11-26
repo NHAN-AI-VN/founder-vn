@@ -150,12 +150,10 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
         ("founder-permits", "#112", "permits.md"),
         ("founder-ops", "#114", "ops.md"),
         ("founder-marketing", "#115", "marketing.md"),
+        ("founder-launch", "#116", "launch.md"),
     ):
         row = next(line for line in english.splitlines() if f"`{skill}`" in line and "|" in line)
         assert issue in row and f"examples/barbershop/founder/{artefact}" in row, skill
-    for skill in ("founder-launch",):
-        row = next(line for line in english.splitlines() if f"`{skill}`" in line and "|" in line)
-        assert "not started" in row, skill
     kiro_row = next(line for line in english.splitlines() if line.startswith("| Kiro CLI"))
     assert "full pipeline verified" in kiro_row and "0.2.0" in kiro_row and "#19" in kiro_row
     assert "pending walkthrough" not in text
