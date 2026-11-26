@@ -41,13 +41,24 @@ Self-review of the diff against the acceptance criteria and the PR checklist (no
 - The panel caveat appears once, in section 5, where the buy rate is quoted; the disclaimer closes the file.
 - Finding handled: the countdown's D-14 decision row assumes the test fits in D-30 to D-14; the golden says to move D-30 earlier when the Owner's M is longer.
 
+## Giải quyết review nội bộ
+
+Review `2026-11-26-070000-review.md`:
+
+1. Gate after the spending (fixed): section 1 of `launch.md` now says the test, read at D-14, still changes price, offer and the go decision, cannot undo commitments made before D-14 (registration, suppliers), and tells the Owner to open the waitlist earlier than D-30 to gate those. The stop rule and the D-14 row say the same. The skill now requires the author to state this.
+2. "thợ trưởng" as an `ops.md` role (fixed): the skill example now says "as listed in `ops.md`" with roles that exist.
+3. Head barber hire (fixed): the D-12 row says the thợ trưởng is not in `ops.md`, must be hired first, and the Owner decides at D-14. The skill requires this line for any unlisted role.
+4. 70% Việt share in a "mốc dừng" table (not changed, cosmetic): its row already labels it as a target.
+
+Red: `test_skill_tells_the_author_what_the_test_still_gates_and_the_unlisted_hire` and `test_golden_states_what_the_test_gates_and_the_head_barber_hire` failed before the text change; `tests/test_launch_skill.py` now 21 passed. `business-plan.md` regenerated with `founder-vn plan` (3 lines changed, the launch section text).
+
 ## Cổng ba đoạn
 
-Run once at code commit `7bda96b` (the commit after it touches only this file).
+Run once at code commit `ae01d20` (the commit after it touches only this file).
 
 ```
-bash scripts/harness/gate-segment.sh static    # exit 0 (ruff check, ruff format --check, skill-lint: 10 skills, 19 example files, 0 findings)
-bash scripts/harness/gate-segment.sh unit      # exit 0 (448 passed)
+bash scripts/harness/gate-segment.sh static    # exit 0 (All checks passed, skill-lint 0 findings)
+bash scripts/harness/gate-segment.sh unit      # exit 0 (451 passed)
 bash scripts/harness/gate-segment.sh build     # exit 0 (Successfully built dist/founder_vn-0.2.0-py3-none-any.whl)
-bash scripts/harness/gate-segment.sh verify    # gate-segment verify: GREEN on 7bda96be1a87a9560a5bd1f42c6730277f625146
+bash scripts/harness/gate-segment.sh verify    # exit 0 (GREEN on ae01d20b0f048dba509ac71f7730e32d1d1db6b2)
 ```
