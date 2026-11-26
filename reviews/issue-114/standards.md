@@ -1,34 +1,29 @@
-Commit mã đã chấm: 272ed5e692d5
+Commit mã đã chấm: edf478da67b9
 
 # Review trục Standards, #114, vòng 1
 
-Phán quyết: CHANGES_REQUESTED
+Phán quyết: PASS
 
 ## Phạm vi đã xét
 
-`git diff --stat main...HEAD` (7 file) và `git log --stat main..HEAD` (6 commit: `4c83039` seam, `fa9fdbf`, `92c8388`, `bf83bf5`, `b876e29` lát, `272ed5e` evidence). Đã đọc `AGENTS.md`, `docs/agents/standards.md`, `docs/agents/evidence-gates.md`, `.kiro/skills/code-review/SKILL.md`, `skills/founder-ops/SKILL.md`, `examples/barbershop/founder/ops.md`, `docs/evidence/issue-114-founder-ops.md`. `docs/adr/` không tồn tại. Đã chạy ở checkout này: `uv run python scripts/skill_lint.py` (8 skill, 17 file ví dụ, 0 finding), `uv run pytest -q` (404 passed), `uv run ruff check .` và `uv run ruff format --check .` (sạch).
+`git diff --stat main...HEAD` (9 file, gồm 2 file review) và `git log --oneline main..HEAD` (13 commit, tới `6070d3b`). Commit mã đang chấm là `edf478da67b9`; `6070d3b` chỉ sửa `reviews/issue-114/spec.md`. Đã đọc `AGENTS.md`, `docs/agents/standards.md`, `docs/agents/evidence-gates.md`, `.kiro/skills/code-review/SKILL.md`, `skills/founder-ops/SKILL.md`, `examples/barbershop/founder/ops.md`, `docs/evidence/issue-114-founder-ops.md`. `docs/adr/` không tồn tại. Đã chạy ở checkout này: `uv run python scripts/skill_lint.py` (8 skill, 17 file ví dụ, 0 finding), `uv run pytest -q` (407 passed), `uv run ruff check .` và `uv run ruff format --check .` (sạch).
 
-Đã kiểm và không có finding:
-- Diff không chạm `src/`: không có phép tính mới nên không có vấn đề CLI/MCP parity, đường dẫn ghi, hay số mặc định.
-- Checklist skill: không `$` cạnh chữ số (lint xanh); `ops.md` bằng tiếng Việt, xưng "anh/chị"; có miễn trừ trách nhiệm ở mục 7; không có khẳng định pháp lý hay số liệu cần link (mục 6 chỉ trỏ tới `founder/permits.md`); không có kết quả panel nên không cần cảnh báo "panel là mô phỏng"; `metadata.version` "0.2.0" khớp package 0.2.0; frontmatter có `name` khớp thư mục, `license`, `author`, `source`, `commit`; khối Protocol giống `founder-pricing`.
-- Hình dạng vòng lặp (a): `4c83039` là commit `seam:` đầu tiên và mang `## Seam`. (b): không commit nào chạm `src/`; mỗi commit slice chạm test của lát và có dòng trong `## Lát`. (c): test ở seam đã khai (`tests/test_ops_skill.py`, `test_plan_example.py`, `test_front_door.py`), không ở internals.
-- Golden `business-plan.md` đổi: commit `bf83bf5` nêu lý do (có `ops.md` nên thêm mục Vận hành), evidence ghi +104/-1.
+## Finding của vòng trước
+
+- S1 (khối `## Cổng ba đoạn` thiếu `GREEN on <sha>`): đã giải quyết. Khối trong `docs/evidence/issue-114-founder-ops.md` giờ ghi ba đoạn `static`, `unit`, `build` exit 0 và dòng `gate-segment verify: GREEN on 4af23f09f72c3b38d8bdf689d5dc2b77c6efe581`. Commit mã cuối (chạm `src/`, `skills/`, `examples/`, `tests/`) là `bafdcc7`. `4af23f0` là hậu duệ của `bafdcc7` (`git merge-base --is-ancestor bafdcc7 4af23f0` đúng) và từ `bafdcc7` tới `edf478d` chỉ có file evidence và review đổi (`git diff --stat bafdcc7 edf478d`). Cổng không stale; `scripts/harness/gate-segment.sh` dòng 71 cho phép đúng trường hợp này (SHA khác HEAD khi chỉ có commit docs/evidence theo sau). Khối còn nêu rõ lý do chọn `4af23f0`.
+
+## Đã kiểm và không có finding
+
+- Không commit nào chạm `src/`: không có phép tính mới, nên không có vấn đề CLI/MCP parity, đường dẫn ghi, số mặc định hay thuế hardcode.
+- Checklist skill: không `$` cạnh chữ số (lint xanh); `ops.md` tiếng Việt, xưng "anh/chị"; có miễn trừ trách nhiệm; mục 6 chỉ trỏ tới `founder/permits.md`, không có khẳng định pháp lý hay số liệu cần link; không có kết quả panel; `metadata.version` 0.2.0 khớp package 0.2.0.
+- Hình dạng vòng lặp: (a) `4c83039` là commit `seam:` đầu tiên, mang `## Seam`, đứng trước mọi commit `slice(`. (b) Mỗi commit `slice(` chạm test của lát và có dòng trong `## Lát`; `bafdcc7` (sửa skill) kèm `tests/test_ops_skill.py` và được ghi ở mục "Giải quyết review nội bộ". (c) Test ở seam đã khai, không ở internals. (d) Xem S1 ở trên.
+- Golden `business-plan.md` đổi hai lần (`bf83bf5`, `be9661f`), message cả hai nêu lý do (compiler nhúng `ops.md`).
 - Không có biến `FOUNDER_LLM_*`, mạng hay dữ liệu thật trong diff.
-
-## Finding chặn
-
-### S1: khối `## Cổng ba đoạn` không ghi `verify` GREEN ở một SHA
-
-- Chỗ: `docs/evidence/issue-114-founder-ops.md`, dòng `bash scripts/harness/gate-segment.sh verify    # see the PR body for the HEAD it was green on`.
-- Sai gì: dòng `verify` không ghi `GREEN on <sha>`, mà trỏ sang thân PR. Một lane kết thúc ở PR nhưng bằng chứng phải nằm trong repo; không thể đối chiếu SHA với commit mã cuối (`bf83bf5`/`b876e29`, tùy cách tính commit chạm test và README) nên không kiểm được cổng có stale hay không. Ba đoạn `static`, `unit`, `build` có ghi exit 0 nhưng không có SHA.
-- Chuẩn: `docs/agents/evidence-gates.md`, mục "Where evidence lives" (khối `## Cổng ba đoạn` phải có output của `gate-segment.sh verify`, `GREEN on <sha>` nêu commit mã cuối) và nguyên tắc 3, "Reproducible evidence"; `AGENTS.md` quy tắc 5 (một khẳng định chỉ có trong câu trả lời hay thân PR không phải bằng chứng). Phép kiểm hình dạng vòng lặp (d) của lượt review này.
-- Vì sao chặn: thiếu (d) là finding chặn theo hướng dẫn trục Standards.
-- Cách sửa (commit bổ sung, không viết lại lịch sử): chạy lại ba đoạn `gate-segment.sh static|unit|build` rồi `verify` ở HEAD, dán dòng `gate-segment sau verify: GREEN on <sha>` vào khối, với SHA là commit mã cuối hoặc hậu duệ chỉ gồm commit docs/evidence (script đã in nhắc nhở này).
 
 ## Chưa xác minh
 
-- Không chạy `gate-segment.sh build` và `verify` ở đây (không ghi ledger `.harness/` để khỏi tạo file ngoài báo cáo). CI `Gate` run 45753556274 ở `272ed5e692d5` báo success theo tin nhắn mở đầu.
-- Cách diễn đạt "Restate no legal figure ... (restate no legal figure at all)" ở mục 6 của `skills/founder-ops/SKILL.md` lặp ý; không vi phạm chuẩn nào, chỉ nên gọn lại khi sửa.
-- Lịch ca và "tối đa 5 ca một tuần" trong `ops.md` là đề xuất về vận hành, thuộc trục Spec, không xét ở đây.
+- Không chạy `gate-segment.sh build` và `verify` ở đây, để không tạo file ledger `.harness/` ngoài báo cáo. CI `Gate` run 45754117730 ở `edf478da67b9` báo success theo tin nhắn mở đầu.
+- Cách diễn đạt lặp "restate no legal figure" ở mục 6 của `skills/founder-ops/SKILL.md` không vi phạm chuẩn nào; lane đã quyết không sửa và lý do hợp lý.
+- Lịch ca và các con số ca trong `ops.md` là đề xuất vận hành, thuộc trục Spec.
 
-<promise>CHANGES_REQUESTED</promise>
+<promise>PASS</promise>
