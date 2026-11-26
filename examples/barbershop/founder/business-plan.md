@@ -483,7 +483,7 @@ Hai điều panel nói có thể đổi một lời từ chối nhưng chưa đ�
 | Zalo OA | Anh/chị ghi khách đặt lịch và chọn thợ qua app hoặc Zalo, và biết tiệm qua Zalo; Zalo OA là chỗ nhắc giờ, nêu điều kiện hoàn cọc và giữ khách quay lại | `idea.md` |
 | Facebook (trang và nhóm) | Anh/chị ghi khách biết tiệm qua Facebook; trang cho ảnh thật, nhóm cư dân và văn phòng quanh tiệm cho khách trong bán kính 1,5 km | `idea.md` |
 | ShopeeFood, GrabFood | **Không áp dụng**: tiệm cắt tóc không bán đồ ăn hay đồ uống để giao; mọi dịch vụ làm tại tiệm, không giao | `idea.md` ("Toàn bộ dịch vụ làm tại tiệm, không giao") |
-| Người sáng tạo địa phương | Dùng ở mức nhỏ: chưa có nguồn nào cho thấy khách của anh/chị theo dõi người sáng tạo; chỉ dùng để trả lời phản đối về độ tin cậy, vì khách nói sẽ ghé nếu có thợ quen giới thiệu. Anh/chị ghi truyền miệng trong khu là một đường biết tiệm | `idea.md`; `panel/results.md` (P015) |
+| Người sáng tạo địa phương | **Không áp dụng (chưa có nguồn)**: không file nào của anh/chị (`idea.md`, `panel/results.md`, `consumer.md`, `competitors.md`) cho thấy khách theo dõi người sáng tạo địa phương; "thợ quen giới thiệu" (P015) và truyền miệng trong khu là bằng chứng cho kênh khác, không phải cho kênh này. Mở lại khi khách thật trả lời "biết tiệm qua người sáng tạo" lúc anh/chị hỏi họ biết tiệm qua đâu | `idea.md` (các đường biết tiệm: Google Maps, Facebook, Zalo, truyền miệng); `panel/results.md` (không buyer nào nêu) |
 
 #### 3. Chiến dịch 30 ngày
 
@@ -512,10 +512,10 @@ Hai điều panel nói có thể đổi một lời từ chối nhưng chưa đ�
 | Ngày 19 | Google Maps | Xem lại đánh giá đã có, ghi lại điều khách khen và điều khách chê để sửa quy trình | E (P012) |
 | Ngày 20 | Zalo OA | Gửi tin cho khách chưa quay lại sau lần cắt đầu, hỏi thợ có hợp ý không | D (P015) |
 | Ngày 21 | Facebook (nhóm) | Đăng ảnh thợ và tên thợ phụ trách từng khung giờ, với sự đồng ý của thợ | D (P015) |
-| Ngày 22 | Người sáng tạo địa phương | Mời một vài người sáng tạo nội dung địa phương quanh Quận 7 cũ đặt lịch như khách thường và trả giá niêm yết, không ép nội dung, không tặng dịch vụ | D (P015, flip: thợ quen giới thiệu) |
+| Ngày 22 | Google Maps | Nhờ khách vừa cắt xong nêu tên thợ trong đánh giá Google Maps, để khách mới đọc được thợ nào cắt hợp ý; không trả công, không hứa quà | D (P015, flip: thợ quen giới thiệu); E (P012, flip: đọc review thấy ổn) |
 | Ngày 23 | Biển hiệu và khách đi ngang | Thay bảng chân vỉa bằng lời nhắc giảm 15% ngày thường 10:00–16:00 cho khách giờ nghỉ trưa | A (P020); B (P002) |
 | Ngày 24 | Zalo OA | Gửi tin mời khách giờ nghỉ trưa dùng khung giảm 15% ngày thường 10:00–16:00 | B (P002) |
-| Ngày 25 | Người sáng tạo địa phương | Xem người sáng tạo đã đến có tự đăng gì không; chỉ chia sẻ lại bài họ tự đăng | D (P015) |
+| Ngày 25 | Zalo OA | Gửi tin cho khách đã cắt hai lần với cùng một thợ: mời giới thiệu người quen đặt lịch với thợ ấy qua Zalo; không tặng dịch vụ, không giảm giá | D (P015, flip: thợ quen giới thiệu); idea.md (truyền miệng trong khu) |
 | Ngày 26 | Facebook (trang) | Đăng bài kể cách chọn thợ và đặt lịch qua app hoặc Zalo, kèm câu "không đặt trước cũng được" | F (P018) |
 | Ngày 27 | Google Maps | Cập nhật giờ mở cửa và ảnh theo thực tế tuần qua | E (P012) |
 | Ngày 28 | Zalo OA | Gửi khách đã cắt hai lần tin về gói 12 lần giá 10: Essential 1.990.000 đ | A (P004 mua vì gói; P019) |
@@ -545,9 +545,9 @@ Không có hook cho "vé thử 120.000 đ" hay "bỏ cọc": hai điều đó ch
 |---|---|---|
 | Google Maps | 3 | Phản đối E; hai khách nói tới Google Maps hoặc chỗ ở xa (P012, P003) |
 | Facebook (trang và nhóm) | 3 | Nhiều mệnh đề nhất cần ảnh và lời giải thích (A, C, D) |
-| Zalo OA | 2 | Nhắc giờ, điều kiện hoàn cọc, khách quay lại (C, D) |
+| Zalo OA | 3 | Nhắc giờ, điều kiện hoàn cọc, khách quay lại và giới thiệu người quen (C, D) |
 | Biển hiệu và khách đi ngang | 1 | Phản đối F; biển hiệu chính thường nằm trong chi phí khai trương, không trong phần 4% |
-| Người sáng tạo địa phương | 1 | Chỉ cho phản đối D, ở mức nhỏ |
+| Người sáng tạo địa phương | 0 | Không áp dụng (chưa có nguồn); mở lại khi khách thật nêu kênh này |
 | ShopeeFood, GrabFood | 0 | Không áp dụng |
 
 Số đồng tuyệt đối thuộc `founder-cfo`. Để có số đồng, anh/chị áp các phần trên vào khoản marketing mà `founder-cfo` đưa ra.
@@ -562,7 +562,7 @@ Mỗi số dưới đây lấy từ con số anh/chị đã có trong `idea.md`;
 | Google Maps | Số đánh giá mới và nội dung khách chê, đối chiếu với phản đối E | Hồ sơ Google Maps, mỗi tuần |
 | Zalo OA | Tỷ lệ khách quay lại trong 60 ngày; mốc dừng của anh/chị là dưới 55% | Báo cáo Zalo OA và công cụ đặt lịch, mỗi tuần |
 | Facebook (trang và nhóm) | Khách đặt lịch nói biết tiệm qua đâu; vé gộp thực thu so với mốc dừng 265.000 đ | Hỏi khách lúc đặt lịch và công cụ đặt lịch, mỗi tuần |
-| Người sáng tạo địa phương | Số khách mới nói đến người sáng tạo | Hỏi khách lúc đặt lịch, mỗi tuần |
+
 
 Mục tiêu khách Việt chiếm ít nhất 70% lượt (`idea.md`) cũng nên xem mỗi tháng.
 
