@@ -114,6 +114,11 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
     assert not re.search(
         r"(?i)before the\s+`?v?[\d.]*`?\s*tag|once the `v0\.2\.0`|after the tag", text
     )
+    # #118 ran on 0.3.0: the page links its record, not the template, and names the known defect.
+    assert "`v0.3.0` (published 2026-11-26) is the current release" in text
+    assert "../evidence/issue-118-wave-b-walkthrough.md" in section
+    assert "issue-#118" not in text and "pending" not in section
+    assert "2026-11-26" in section and "#118" in section and "#142" in section
 
 
 def test_issue_118_template_has_unticked_boxes_and_claims_no_run() -> None:
