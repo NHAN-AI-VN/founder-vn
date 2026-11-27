@@ -1,0 +1,3 @@
+# Review closure ledger — #118 Wave B milestone, human half: release 0.3.0, Kiro CLI walkthrough of Wave B
+
+SPEC-1 FIXED — criterion 4 observed on 0.3.0 on 2026-11-27: `founder-launch` at `metadata.version` 1.0.0 stopped at Protocol step 1 after `server_info` answered `founder-vn 0.3.0`, stop message quoted, file restored byte-identical (`docs/evidence/issue-118-wave-b-walkthrough.md`, "Major-mismatch check (criterion 4)", criterion 4 ticked, commit 2424508); `README.md` Kiro CLI row and `docs/hosts/kiro.md` say the stop was observed on 0.2.0 (#19) and 0.3.0 (#118) (commit ea77918); friction filed as #148. Closed by the operator's work, not by an address turn: `reviews/issue-118/operator-answer.md`.

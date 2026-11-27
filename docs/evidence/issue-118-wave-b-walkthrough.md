@@ -144,21 +144,23 @@ All four carry `needs-triage` and a list of options for the operator to choose f
 | `test_kiro_page_has_the_clean_install_walkthrough_for_19` (the page says `` `v0.3.0` (published 2026-11-26) is the current release ``, links `../evidence/issue-118-wave-b-walkthrough.md`, has no `issue-#118` and no "pending" in its walkthrough section, and names 2026-11-26, #118 and #142) | ``AssertionError: assert '`v0.3.0` (published 2026-11-26) is the current release' in '# Kiro: registering the founder-vn MCP server…'`` (1 failed, 11 deselected) | `uv run pytest tests/test_hosts.py -q`: 12 passed (commit `5fa7c1f`) |
 | `test_readme_truth_table_is_honest_about_release_status_and_hosts` (Kiro CLI row "full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118)" with #142 and the 0.2.0 history; the `founder-permits` row names #142; no "has not run yet" and no "pending walkthrough"; the host index Kiro row "verified end to end on 0.3.0 incl. Wave B (walkthrough 2026-11-26, #118" with #142 and #19, and the index links this record; Vietnamese "đã xác nhận trên 0.3.0 (walkthrough 26/11/2026, #118)" and #142 twice) | `AssertionError: assert ('has not run yet' not in '# founder-v…')`, on "0.3.0 has not run yet (#118)" (1 failed, 11 passed) | `uv run pytest tests/test_front_door.py tests/test_hosts.py -q`: 24 passed (commit `eb8585d`). On the way to green, the new assertion `"pending" not in hosts_index` was narrowed to `"pending walkthrough"`, because the Gemini row of the index says "pending confirmation" by design |
 | `test_issue_118_evidence_records_the_kiro_cli_run` (replaces `test_issue_118_template_has_unticked_boxes_and_claims_no_run`: the `issue-#118` template is gone; this file has the seven criteria with 1, 2, 3, 5 and 6 ticked and criterion 4 open as "skipped by the operator"; at least 15 numbered record rows; the PyPI version command, `founder-vn 0.3.0`, `founder/business-plan.md`, `plan --check`, both model names, #142, #143, #144, `## Giới hạn`; no template wording, no secret) | `AssertionError: the template is replaced` / `assert not True` (1 failed, 11 deselected) | `uv run pytest tests/test_hosts.py -q`: 12 passed (commit `2d5a447`) |
+| `test_issue_118_evidence_records_the_kiro_cli_run` and `test_kiro_page_has_the_clean_install_walkthrough_for_19` (after SPEC-1 of `reviews/issue-118/spec.md`: criteria 1 to 6 ticked, criterion 4 says "observed on 0.3.0" and 2026-11-27 and no longer "skipped by the operator"; the record carries `version: "1.0.0"`, `kiro-cli chat --no-interactive`, the quoted stop "I stopped at the skill's first step, the version check" with "The founder-vn MCP server reports `founder-vn 0.3.0`", and #148; the Kiro page no longer says step 9 was "run on 0.2.0 only" and names 2026-11-27) | `AssertionError: [1, 2, 3, 5, 6]` / `assert [1, 2, 3, 5, 6] == [1, 2, 3, 4, 5, 6]` and `AssertionError: assert ('run on 0.2.0 only' not in '\n\nThe ope...` (3 failed, 21 passed, with the front-door test below in the same run) | `uv run pytest tests/test_hosts.py -q`: 12 passed (commit `2424508`) |
+| `test_readme_truth_table_is_honest_about_release_status_and_hosts` (the Kiro CLI row carries "major-mismatch stop observed on 0.2.0 (#19) and on 0.3.0 (2026-11-27, #118)" and no longer "not rerun on 0.3.0") | `AssertionError: assert 'major-mismatch stop observed on 0.2.0 (#19) and on 0.3.0 (2026-11-27, #118)' in '| Kiro CLI | full pipeline incl. Wave B verified on 0.3.0 … with the major-mismatch stop, not rerun on 0.3.0 |'` (same red run) | `uv run pytest tests/test_front_door.py -q`: 12 passed (commit `ea77918`), after the operator applied `.harness/readme-criterion4.patch` by hand: `.kiro/hooks/guard.sh` refused this session's read and edit of `README.md` (`HARNESS_SINGLE_OWNER_FILES` not exported in this session; the allocation comment grants the file), the gap #5 and #19 recorded |
 
 ## Cổng ba đoạn
 
-Run at the last code commit `2d5a447` (the record slice); the commit after it touches only this evidence file. Counts read from `.harness/gate-*.log`. The first `unit` run was red, 1 failed and 463 passed: `tests/test_package.py::test_package_has_single_source_version` read `'0.2.0' == '0.3.0'` because the local `.venv` still carried the installed metadata of 0.2.0. `uv sync --frozen --reinstall-package founder-vn` refreshed it (`- founder-vn==0.2.0`, `+ founder-vn==0.3.0`), the same refresh #117 recorded, and `unit` was rerun alone.
+Run at the last code commit `ea77918` (the front-door slice of the criterion-4 round); the commit after it touches only this evidence file and the operator's answer files under `reviews/issue-118/`. Counts read from `.harness/gate-*.log`; each segment ran once and was green. The first gate of this lane, at `2d5a447`, is kept in the history of this file (commit `e7ec97e`): there the first `unit` run was red on stale `.venv` metadata of 0.2.0 and was rerun alone after `uv sync --frozen --reinstall-package founder-vn`.
 
 ```
-bash scripts/harness/gate-segment.sh static   # All checks passed!; 304 files already formatted; skill-lint: 10 skills checked, 19 example file(s), 0 finding(s) (package version 0.3.0)
-bash scripts/harness/gate-segment.sh unit     # 464 passed in 22.08s
+bash scripts/harness/gate-segment.sh static   # All checks passed!; 306 files already formatted; skill-lint: 10 skills checked, 19 example file(s), 0 finding(s) (package version 0.3.0)
+bash scripts/harness/gate-segment.sh unit     # 464 passed in 22.30s
 bash scripts/harness/gate-segment.sh build    # Successfully built dist/founder_vn-0.3.0.tar.gz and dist/founder_vn-0.3.0-py3-none-any.whl
 bash scripts/harness/gate-segment.sh verify
 gate-segment verify: latest line per segment (.harness/gate-segments.txt)
-  static 0 2d5a447dcd417e842b318cd3b4513f040e828dc4 2026-11-27T04:40:49Z
-  unit 0 2d5a447dcd417e842b318cd3b4513f040e828dc4 2026-11-27T04:42:06Z
-  build 0 2d5a447dcd417e842b318cd3b4513f040e828dc4 2026-11-27T04:42:14Z
-gate-segment verify: GREEN on 2d5a447dcd417e842b318cd3b4513f040e828dc4
+  static 0 ea779186aa92994957423f8cb842ddbc294e0d79 2026-11-27T06:57:51Z
+  unit 0 ea779186aa92994957423f8cb842ddbc294e0d79 2026-11-27T06:58:18Z
+  build 0 ea779186aa92994957423f8cb842ddbc294e0d79 2026-11-27T06:58:28Z
+gate-segment verify: GREEN on ea779186aa92994957423f8cb842ddbc294e0d79
 ```
 
 ## Giới hạn
@@ -177,4 +179,4 @@ gate-segment verify: GREEN on 2d5a447dcd417e842b318cd3b4513f040e828dc4
 
 ## Giải quyết review nội bộ
 
-No self-review was run (lane rule: review is two independent turns after the pull request opens).
+No self-review was run (lane rule: review is two independent turns after the pull request opens). Harness review, round 1 at `e7ec97e`: Standards PASS; Spec BLOCKED on SPEC-1 (criterion 4 not observed). The operator chose to run the check rather than defer it; the run, its record and the README line are the two slices above, and the answer is `reviews/issue-118/operator-answer.md` with `reviews/issue-118/ledger.md`.
