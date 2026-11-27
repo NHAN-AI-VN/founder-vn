@@ -495,6 +495,8 @@ run_cases() {
   expect_skill_lint "version-mismatch"    1 "differs from pyproject"
   expect_skill_lint "dollar"              1 "SKILL.md:21:"
   expect_skill_lint "examples-dollar"     1 "cfo.md:3:"
+  # #148 (Q60): the Protocol block carries the Vietnamese step-1 stop template; the finding names the heading line.
+  expect_skill_lint "no-protocol-stop"    1 "SKILL.md:15: \`## Protocol\` block lacks the Vietnamese step-1 stop template"
   # ---- post-commit autopush (D23) ----
   expect_autopush "commit on a lane branch is pushed"        lane/issue-9 pushed
   expect_autopush "commit on main stays local"               main         kept
@@ -785,6 +787,7 @@ if [ "$mode" = "--witness-red" ]; then
   mutate "lint: accept a skill without a license" "$skill_lint" 's#^    return bool\(fm\.get\("license"\)\)#    return True#'
   mutate "lint: accept a version unlike the package" "$skill_lint" 's#^    return project is None or skill == project#    return True#'
   mutate "lint: accept a SKILL.md without frontmatter" "$skill_lint" 's#^        findings\.append\(f"\{rel\}:1: no frontmatter.*#        pass#'
+  mutate "lint: accept a Protocol block without the Vietnamese stop template" "$skill_lint" 's#^    return PROTOCOL_STOP in block#    return True#'
   mutate "never push a lane branch"          "$hook"   's#lane/issue-\*\) ;;#never/*) ;;#'
   mutate "push from inside a rebase"         "$hook"   's#-d "\$gitdir/rebase-merge"#-d "$gitdir/never-a-dir"#'
   mutate "drop the HARNESS_AUTOPUSH switch"  "$hook"   's#HARNESS_AUTOPUSH:-1#HARNESS_AUTOPUSH_NEVER:-1#'

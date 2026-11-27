@@ -11,6 +11,9 @@ Checks every ``skills/*/SKILL.md`` (the founder-vn skills, not the dev skills un
 * ``license`` present;
 * ``metadata.version`` present and, when ``pyproject.toml`` exists, equal to ``[project].version``
   (skills and package move in lockstep, design §2 / Q45);
+* the ``## Protocol`` block carries, verbatim with its placeholders, the Vietnamese step-1 stop
+  template of docs/skill-conventions.md ("Shared protocol"; #148, Q60): a skill whose block lacks
+  it, or that has no block, is a finding at the heading's line;
 * no ``$`` next to a digit, in SKILL.md prose (fenced code is skipped: a shell ``$1`` is not a
   price) and anywhere in ``examples/**/*.md`` (the Owner-facing artifacts, design §3).
 
@@ -38,6 +41,13 @@ VIETNAMESE = re.compile(
 )
 DOLLAR = re.compile(r"\$\s?\d|\d\s?\$")
 FENCE = re.compile(r"^\s*(```|~~~)")
+# docs/skill-conventions.md, "Shared protocol", step 1: the stop on a major mismatch is Vietnamese,
+# in this shape; the session fills the angle-bracket placeholders (#148, Q60).
+PROTOCOL_STOP = (
+    "Dừng ở bước 1 của Protocol: gói founder-vn <phiên bản gói> và skill <tên skill> "
+    "<phiên bản skill> lệch số major; anh/chị cập nhật gói hoặc skill rồi chạy lại."
+)
+PROTOCOL_HEADING = "## Protocol"
 
 
 # ---- rules: one line each -------------------------------------------------------------------
@@ -59,6 +69,10 @@ def rule_has_version(fm: dict) -> bool:
 
 def rule_version_matches(skill: str | None, project: str | None) -> bool:
     return project is None or skill == project
+
+
+def rule_has_protocol_stop(block: str) -> bool:
+    return PROTOCOL_STOP in block
 
 
 def rule_no_dollar(line: str) -> bool:
@@ -179,6 +193,29 @@ def check_skill(path: Path, folder: str, version: str | None, findings: list[str
             findings.append(
                 f"{rel}:{n}: `$` next to a digit; Owner-facing money is VND (`35.000 đ`)"
             )
+    heading, block = protocol_block(lines, body_start)
+    if not rule_has_protocol_stop(block):
+        findings.append(
+            f"{rel}:{heading}: `## Protocol` block lacks the Vietnamese step-1 stop template"
+            f" `{PROTOCOL_STOP[:27]}…` (docs/skill-conventions.md, Shared protocol)"
+        )
+
+
+def protocol_block(lines: list[str], body_start: int) -> tuple[int, str]:
+    """Return (line number of the ``## Protocol`` heading, the section's text up to the next ``## ``).
+
+    Without a heading the block is empty and the line is the first line of the body: the rule then
+    reports where the block should start.
+    """
+    for i, line in enumerate(lines[body_start:], start=body_start + 1):
+        if line.strip() == PROTOCOL_HEADING:
+            section = []
+            for following in lines[i:]:
+                if following.startswith("## "):
+                    break
+                section.append(following)
+            return i, "\n".join(section)
+    return body_start + 1, ""
 
 
 def check_example(path: Path, findings: list[str]) -> None:
