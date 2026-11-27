@@ -34,7 +34,7 @@ def test_readme_names_purpose_audience_hosts_and_both_install_routes() -> None:
         "npx skills add NHAN-AI-VN/founder-vn",
         "founder-vn install --host",
         "uvx --from founder-vn founder-vn-mcp",
-        "released, 0.2.0 on PyPI",
+        "released, 0.3.0 on PyPI",
     ):
         assert needle in text, needle
     assert re.search(r"^## .*Tiếng Việt", text, re.MULTILINE)
@@ -136,13 +136,14 @@ def test_host_pages_carry_no_secret_values_or_dollar_amounts() -> None:
 def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     text = _read("README.md")
     english, vietnamese = re.split(r"^## .*Tiếng Việt", text, maxsplit=1, flags=re.MULTILINE)
-    assert "0.2.0 is the first PyPI release" in english
+    assert "0.3.0 (Wave B, ten skills) is the current PyPI release" in english
+    assert "v0.3.0" in english and "2026-11-26" in english
+    assert "0.2.0 was the first PyPI release" in english
     assert "v0.2.0" in english and "2026-11-24" in english
-    assert "pending the `v0.2.0` tag" not in english and "not yet released" not in english
-    assert "0.3.0" in english and "pending the `v0.3.0` tag" in english
-    for claim in ("0.3.0 is released", "0.3.0 is the", "verified on 0.3.0", "released, 0.3.0"):
-        assert claim not in text, claim
-    assert text.count("released, 0.2.0 on PyPI") == 2
+    assert "pending the `v0" not in english and "not yet released" not in english
+    assert text.count("released, 0.3.0 on PyPI") == 2
+    assert "released, 0.2.0 on PyPI" not in text
+    assert "has not run yet" not in english and "pending walkthrough" not in text
     assert "0.1.0 is not published" not in text and "chưa lên PyPI" not in text
     for skill, issue, artefact in (
         ("founder-board", "#14", "board.md"),
@@ -158,11 +159,15 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     ):
         row = next(line for line in english.splitlines() if f"`{skill}`" in line and "|" in line)
         assert issue in row and f"examples/barbershop/founder/{artefact}" in row, skill
+    permits_row = next(line for line in english.splitlines() if "`founder-permits`" in line)
+    assert "#142" in permits_row, "a clean install has no source ledger (#142)"
     kiro_row = next(line for line in english.splitlines() if line.startswith("| Kiro CLI"))
-    assert "full pipeline verified" in kiro_row and "0.2.0" in kiro_row and "#19" in kiro_row
-    assert "full pipeline verified on 0.2.0 (walkthrough 2026-11-25, #19)" in kiro_row
-    assert "Wave B: pending walkthrough (#118)" in kiro_row
-    assert text.count("pending walkthrough") == 1, "only the Kiro CLI row waits on #118"
+    assert "full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118)" in kiro_row
+    assert "#142" in kiro_row
+    assert "verified on 0.2.0 (walkthrough 2026-11-25, #19)" in kiro_row
+    # #118 criterion 4: the major-mismatch stop was observed on 0.3.0 as well (2026-11-27).
+    assert "major-mismatch stop observed on 0.2.0 (#19) and on 0.3.0 (2026-11-27, #118)" in kiro_row
+    assert "not rerun on 0.3.0" not in kiro_row
     for host in ("Claude Code", "Codex", "Gemini / Antigravity CLI", "Grok Build", "KiroCrew"):
         row = next(line for line in english.splitlines() if line.startswith(f"| {host}"))
         assert "not yet verified" in row and "verified on" not in row, host
@@ -170,13 +175,17 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     kiro_index_row = next(
         line for line in hosts_index.splitlines() if line.startswith("| Kiro CLI")
     )
-    assert "verified end to end" in kiro_index_row and "#19" in kiro_index_row
-    assert "Wave B: pending walkthrough (#118)" in kiro_index_row
-    assert "verified end to end on 0.3.0" not in hosts_index
+    assert (
+        "verified end to end on 0.3.0 incl. Wave B (walkthrough 2026-11-26, #118" in kiro_index_row
+    )
+    assert "#142" in kiro_index_row and "#19" in kiro_index_row
+    assert "../evidence/issue-118-wave-b-walkthrough.md" in hosts_index
+    assert "pending walkthrough" not in hosts_index
     assert "No host is verified end to end yet" not in hosts_index
     for needle in ("0.2.0", "v0.2.0", "#19", "đã xác nhận", "chưa xác nhận", "chưa bắt đầu"):
         assert needle in vietnamese, needle
-    assert "đang chờ tag `v0.3.0`" in vietnamese
-    assert "đang chờ walkthrough #118" in vietnamese
-    for claim in ("0.3.0 đã phát hành", "xác nhận trên 0.3.0", "0.3.0 là bản"):
-        assert claim not in vietnamese, claim
+    assert "v0.3.0" in vietnamese and "26/11/2026" in vietnamese
+    assert "Bản hiện hành trên PyPI là 0.3.0" in vietnamese
+    assert "đang chờ tag" not in vietnamese and "đang chờ walkthrough" not in vietnamese
+    assert "đã xác nhận trên 0.3.0 (walkthrough 26/11/2026, #118)" in vietnamese
+    assert vietnamese.count("#142") == 2, "the Kiro CLI line and the founder-permits line"

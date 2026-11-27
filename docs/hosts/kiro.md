@@ -26,7 +26,7 @@ chosen by the bake-off, [docs/bakeoff/README.md](../bakeoff/README.md)). Panel r
 comparable across hosts and across Owners only when every run uses this model; `results.json`
 records the model that answered.
 
-`uvx --from founder-vn founder-vn-mcp` resolves the package from PyPI, and `v0.2.0` (the first release on PyPI, published 2026-11-24) is available there (see `.github/workflows/release.yml`).
+`uvx --from founder-vn founder-vn-mcp` resolves the package from PyPI: `v0.3.0` (published 2026-11-26) is the current release and `v0.2.0` (published 2026-11-24) was the first (see `.github/workflows/release.yml`).
 
 ## Installing the skills
 
@@ -38,12 +38,15 @@ Copies the skills into `.kiro/skills/` of the current project (idempotent; `--pr
 
 ## Clean-install walkthrough
 
-For ticket #19. The operator ran this on a real Kiro CLI on 2026-11-25 against PyPI release 0.2.0
-and recorded it in [docs/evidence/issue-19-wave-a-walkthrough.md](../evidence/issue-19-wave-a-walkthrough.md)
-(commands, times, friction, the issues filed). The steps below are the script to repeat it. Steps 1 to 6
-are Wave A; step 7 adds the four Wave B skills for the walkthrough of #118, which is pending: its record is
-the template [docs/evidence/issue-#118-wave-b-walkthrough.md](../evidence/issue-#118-wave-b-walkthrough.md)
-(the `#` is part of the file name).
+The operator ran this script on a real Kiro CLI twice: on 2026-11-25 against PyPI release 0.2.0 with the
+six Wave A skills (#19, [docs/evidence/issue-19-wave-a-walkthrough.md](../evidence/issue-19-wave-a-walkthrough.md)),
+and on 2026-11-26 against 0.3.0 with all ten skills (#118,
+[docs/evidence/issue-118-wave-b-walkthrough.md](../evidence/issue-118-wave-b-walkthrough.md)). Each record
+lists the commands, times, friction and the issues filed; step 9 ran on 0.2.0 in the #19 session and on
+0.3.0 on 2026-11-27 (#118 record, in a nested non-interactive session; the stop came in English, #148). Steps 1 to 6 are
+Wave A; step 7 adds the four Wave B skills. Known defect #142: a clean install has no `permits/sources.md`,
+so until it is fixed the permits checklist (step 7.1) carries no verified figure and the CFO step (step 6.4)
+finds no sourced tax figure.
 
 1. Start from an empty folder and open a shell in it:
 
