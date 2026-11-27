@@ -15,6 +15,18 @@ Derived from the acceptance criteria (the ticket has no `## Seam` section); ever
 5. **`docs/hosts/kiro.md` walkthrough section**: it says the #118 walkthrough is pending and links the template; asserted by `tests/test_hosts.py::test_kiro_page_has_the_clean_install_walkthrough_for_19` (inferred from criterion 5: a host page that still says pending after the run would contradict the README).
 6. **The tracker**: every friction or defect as an issue naming the skill or tool (criterion 6), not code.
 
+## Acceptance criteria of #118
+
+Copied from the ticket; the first is the allocation comment.
+
+- [x] Allocation comment written by the operator on #118 (`<!-- harness:allocation -->`, `singleOwnerFiles: README.md`, `laneBranch: lane/issue-118`): comment of 2026-11-26T07:17:12Z.
+- [x] Dry run on the local 0.3.0 wheel in an empty folder (install, MCP `initialize`), then tag `v0.3.0` on the merge commit of the machine half, `release.yml` Build green, `Publish to PyPI` approved by the operator on environment `pypi`, `uvx --no-cache --from founder-vn founder-vn --version` gives `founder-vn 0.3.0`: release record below.
+- [x] Clean-install walkthrough on Kiro CLI following `docs/hosts/kiro.md` (Wave A, then permits, ops, marketing, launch, plan recompile, `plan --check` exit 0), recorded in this file: record below, with the deviations it names.
+- [ ] The deliberate major mismatch still stops a skill (one Wave B skill set to `1.0.0`, run, stop message quoted, restored): skipped by the operator ("bỏ qua", 2026-11-26); not observed on 0.3.0 (see "Major-mismatch check" and the limits).
+- [x] README says 0.3.0 is released (tag date) and the Kiro CLI host row says the full pipeline including Wave B is verified on 0.3.0 (walkthrough date, #118); `docs/hosts/README.md` likewise; `tests/test_front_door.py` updated: slices `eb4e2ed` and `eb8585d`, with known defect #142 named next to the claim (operator's decision).
+- [x] Every friction or defect filed as an issue naming the skill or tool; blocking defects fixed (0.3.1) or filed before closing: #142, #143, #144 (all `needs-triage`); #142 is blocking for verified legal figures and is filed, not fixed (operator's decision).
+- [ ] PR from `lane/issue-118` with `Closes #118` through `scripts/harness/open-lane-pr.sh`: the pull request is opened after this record is committed.
+
 ## Release record (criterion 2)
 
 Done on 2026-11-26 from the operator's machine (macOS, uv 0.11.24); times UTC. The MCP `initialize` check is a scratch helper under `.harness/` (git-ignored): it sends `initialize` with protocol `2025-06-18` over stdio, reads the first response line, sends `notifications/initialized` and closes stdin.
@@ -31,8 +43,89 @@ Done on 2026-11-26 from the operator's machine (macOS, uv 0.11.24); times UTC. T
 | On PyPI | `curl -s https://pypi.org/pypi/founder-vn/0.3.0/json` | `founder_vn-0.3.0-py3-none-any.whl` sha256 `6c9628c9623cae47…` uploaded 07:35:08Z and `founder_vn-0.3.0.tar.gz` sha256 `6ab79f449993adf7…` uploaded 07:35:09Z: byte-identical to the build of the dry run; the project JSON gave `version 0.3.0` at 07:35:53Z |
 | From PyPI, empty folder (07:36:00Z) | `uvx --no-cache --from founder-vn founder-vn --version`; `uvx --no-cache --from founder-vn founder-vn install --host kiro`; MCP `initialize` to `uvx --no-cache --from founder-vn founder-vn-mcp` | `founder-vn 0.3.0`; the same 13 `create` lines; `10   version: "0.3.0"`; `serverInfo {"name": "founder-vn", "version": "0.3.0"}`, protocol `2025-06-18`, stderr empty, exit 0 |
 
+## Record (criterion 3)
+
+Operator: the project owner, acting as Facilitator and as Owner. Host: Kiro CLI 2.37.1 on macOS, in the folder `~/Documents/Research/founder-walkthrough-118`, outside every git tree (`git rev-parse --show-toplevel` fails in it and in its parent). The session's model, named by the operator: `claude-opus-5.5` (only the name is recorded). Package: `founder-vn` 0.3.0 from PyPI. Panel and board model: `gemini-3.5-flash-lite`, recorded by `founder/board/board.json` and `founder/panel/results.json` with a `prompt_hash`; n = 20 buyers; the three board lenses. Date: 2026-11-26; times are local (UTC+7).
+
+The operator kept no stopwatch: `started` and `duration` are read from the modification times of the files each step wrote (`stat -f '%Sm'` in the walkthrough folder), so a step's duration includes the Owner's own work and any break between the previous file and its own. Asked afterwards for friction the files would not show and about the three long gaps (steps 7.2 and 7.4 and the extra row), the operator answered "ok" and named none; the gaps are recorded as measured, with no cause. Asked whether they had requested `offer.md` and `brand.md` and whether `founder-plan` ran after Wave A, the operator answered "yes".
+
+| step | command | started | duration | friction | issue filed |
+|---|---|---|---|---|---|
+| 1 | `mkdir founder-walkthrough-118 && cd founder-walkthrough-118` (under `~/Documents/Research`) | before 14:42 | no file trace | none | |
+| 2 | `uvx --from founder-vn founder-vn install --host kiro` | 14:42 | seconds: the ten skill folders and `.kiro/settings/mcp.json` all written at 14:42:20 | none; the registration is written by the installer (Q54), the hand-made file of #19 (#94) is gone | |
+| 3 | check `.kiro/settings/mcp.json` | 14:42 | written by step 2 | none | |
+| 4 | export the three `FOUNDER_LLM_*` names in the shell that starts Kiro CLI | before the session | no file trace | none reported; the MCP server inherited the variables (the board and the panel ran) | |
+| 5 | `mkdir founder && cp …/examples/barbershop/founder/idea.md founder/`; `kiro-cli chat` | 14:44 (`idea.md` 14:44:34) | | the golden idea, byte-identical to `examples/barbershop/founder/idea.md` (see limits) | |
+| 6.1 | `founder-board` | after 14:44 | 34 min to `board.md` 15:18:41; `board/brief.md` 15:10:52, `board_run` from 15:11:10 to 15:11:15 (5 s for three lenses) | none reported | |
+| 6.2 | `founder-competitors` | 15:18 | 37 min to `competitors.md` 15:55:36, most of it the Owner's desk survey (filled form 15:54:00, two price-board images 15:44:55); the skill's own output took about 2 min | a new desk survey by the Owner, not the golden form | |
+| 6.3 | `founder-consumer` | 15:56 | 11 min to `consumer.md` 16:06:25: `customer.json` 15:58:43; first panel, n = 20, from 16:00:22 to 16:01:27 (three jobs: one buyer answered on the retry); the Owner changed the pitch; the session set the first run aside as `panel-lan-1/`, `pitch-lan-1.md` and `consumer-lan-1.md` (16:04:29); second panel from 16:04:42 to 16:05:19 (one job, 20 answers in 22 s) | without the set-aside, `panel init` would have kept the first run's answers and the second run would have asked nobody | #143 |
+| 6.4 | `founder-cfo` | 16:06 | 16 min; `numbers.json` 16:20:25, `cfo.md` 16:22:22 | no `permits/sources.md` in the project. At the Owner's request ("đặt giả định và tiếp tục") the session set the cost inputs as its own assumptions, labelled as such in `cfo.md`; it took the tax rate from the model's memory (marked "chưa kiểm chứng") and the threshold from a provincial tax office's PDF summary; no "Giới hạn của phần thuế" section | #142 |
+| 6.5 | `founder-pricing` | 16:22 | 19 min; `pricing_input.json` 16:35:01, `pricing.md` 16:41:15 | repeats the unverified tax rate without a Công báo link | #142 |
+| 6.6 | `founder-plan` | after 16:41 | no file trace: the run of step 7.5 overwrote `business-plan.md` and `summary.md`; the operator confirms it ran | none reported | |
+| 7.1 | `founder-permits` | after 16:41 | 22 min to `permits.md` 17:03:10 (includes step 6.6) | no ledger: every figure and date is "chưa có nguồn đã kiểm chứng", and the file tells the Facilitator to put `permits/sources.md` into the project; the "ngành có điều kiện" line has no verification date | #142 |
+| 7.2 | `founder-ops` | 17:03 | 1 h 50 min to `ops.md` 18:53:25 | none reported; the gap has no recorded cause | |
+| 7.3 | `founder-marketing` | 18:53 | 12 min to `marketing.md` 19:05:24 | none reported | |
+| 7.4 | `founder-launch` | 19:05 | 1 h 8 min to `launch.md` 20:13:11 | none reported; the gap has no recorded cause | |
+| extra | `founder-offer` and `founder-brand`, at the Owner's request (not in the script) | 20:13 | 59 min to `brand.md` 21:12:25 and `offer.md` 21:13:24 | 0.3.0 ships neither skill: the session fetched the English upstream skills from `github.com/Jakeschincariol/founder-skill` (commit `fd9385b`) and adapted them; each file says so in its first lines | #144 |
+| 7.5 | `founder-plan` again | 21:13 | `summary.md` 21:13:37, `business-plan.md` 21:13:43 | the plan compiles offer and brand as sections ("Đề xuất giá trị", "Thương hiệu"), so it has no `## Chưa làm` list; verdict `Not yet (chưa lãi)` printed by `plan_compile` | #144 |
+| 7.6 | `uvx --from founder-vn founder-vn plan --check; echo $?` | after 21:13 | no file trace (check mode writes nothing) | none reported | |
+| 8 | confirm `founder/business-plan.md` and `plan --check` exit 0 | repeated by this lane after the run | | `founder-vn 0.3.0`; `business-plan.md khớp với các file hiện có`; `exit=0`; `business-plan.md` kept its 21:13:43 time | |
+| 9 | deliberate major mismatch on a Wave B skill | | not run | skipped by the operator; `.kiro/skills/founder-launch/SKILL.md` keeps its install time 14:42:20 | |
+
+Elapsed from the install to the final plan: 14:42 to 21:13, 6 h 31 min of wall-clock time. The three long gaps (steps 7.2 and 7.4 and the extra row) make 3 h 57 min of it and have no recorded cause. Design §7 budgets about four hours per pilot participant, two meetings included.
+
+Deviations from the script of `docs/hosts/kiro.md`: the golden idea instead of a new case; the panel ran twice after a pitch change; the CFO inputs are the session's assumptions at the Owner's request, not the Owner's figures; `offer.md` and `brand.md` were added at the Owner's request; step 9 was skipped.
+
+## Review-checklist walk on the walkthrough outputs
+
+Run by this lane on 2026-11-26 over the walkthrough's `founder/` folder (outside git; nothing from it is committed) with a scratch runner under `.harness/` that applies the checks of `tests/test_wave_a_checklist.py` and the six check functions of `tests/test_wave_b_checklist.py` to that folder. Only file names and the kind of failure are recorded.
+
+| Check (`docs/review-checklist.md`) | Result |
+| --- | --- |
+| No `$` next to a digit | none in any `.md` |
+| No English leaks (the stoplist of `tests/test_wave_a_checklist.py`, lines without a link) | no hit in any `.md`, `offer.md` and `brand.md` included |
+| Disclaimer "không phải tư vấn" | present in `cfo.md`, `pricing.md`, `summary.md`, `business-plan.md` and in the four Wave B files |
+| Panel caveat "mô phỏng, cận trên, không phải khách hàng thật" | present in `panel/results.md`, `consumer.md`, `pricing.md`, `summary.md`, `business-plan.md`, `marketing.md`, `launch.md` |
+| Wave A and Wave B files present | all twelve Wave A artefacts and `permits.md`, `ops.md`, `marketing.md`, `launch.md` |
+| Legal claims carry a Công báo link and a date | fails on `cfo.md`, `pricing.md` and `summary.md`: their tax figures carry no Công báo link (#142) |
+| Every Công báo link in `permits.md` carries a verification date | fails on the "ngành có điều kiện" line (#142) |
+| The plan lists exactly the two after-pilot lines | does not apply: `offer.md` and `brand.md` exist, so the plan has no `## Chưa làm` (#144) |
+| Model recorded | `board/board.json` and both `results.json`: `gemini-3.5-flash-lite` with a `prompt_hash`; n = 20, the same seed in both runs, different prompt hashes |
+| Installed skills | the ten installed `SKILL.md` files are byte-identical to `skills/*/SKILL.md` at `ca6bc9f`; `10   version: "0.3.0"` |
+
+## Major-mismatch check (criterion 4)
+
+Not run: the operator skipped it ("bỏ qua"). The installed `founder-launch/SKILL.md` was never edited (its modification time is the install time). What this lane can show is text identity only: the shared `## Protocol` block (from its heading to the next `## ` heading) has the same sha256 (prefix `9b27c1dd8629`) in all ten `skills/*/SKILL.md` and in `skills/founder-board/SKILL.md` at `v0.2.0`, the block whose stop the #19 walkthrough observed on 0.2.0.
+
+## Issues filed (criterion 6)
+
+- #142 (`founder-permits`, `founder-cfo`, `founder-plan`, `founder-vn install`): a clean install has no `permits/sources.md`, so no legal figure can be sourced. Blocking for verified legal figures; filed, not fixed, by the operator's decision of 2026-11-26 (close #118 with the README naming the defect).
+- #143 (`panel init`, `panel run`; MCP `panel_init`, `panel_run`): a new panel keeps the previous panel's answers. Reproduction in the issue: after a second `panel init` with another pitch and seed, `founder-vn panel check` lists only the buyers that never answered.
+- #144 (`founder-plan`, `plan_compile`): the plan's "Chưa làm" lines tell the Owner to run `founder-offer` and `founder-brand`, which 0.3.0 does not ship.
+
+All three carry `needs-triage` and a list of options for the operator to choose from.
+
 ## Lát
 
 | Test | Assertion line while red | Green rerun |
 | --- | --- | --- |
 | `test_readme_truth_table_is_honest_about_release_status_and_hosts` and `test_readme_names_purpose_audience_hosts_and_both_install_routes` (Install: 0.3.0 is the current PyPI release, `v0.3.0` tagged 2026-11-26; 0.2.0 was the first; both routes "released, 0.3.0 on PyPI"; no "pending the `v0…` tag"; still no "verified on 0.3.0"; Vietnamese "Bản hiện hành trên PyPI là 0.3.0", `v0.3.0`, 26/11/2026, no "đang chờ tag") | `AssertionError: released, 0.3.0 on PyPI` and `assert '0.3.0 (Wave B, ten skills) is the current PyPI release' in '# founder-vn…'` (2 failed, 10 passed) | `uv run pytest tests/test_front_door.py -q`: 12 passed (commit `eb4e2ed`) |
+| `test_kiro_page_has_the_clean_install_walkthrough_for_19` (the page says `` `v0.3.0` (published 2026-11-26) is the current release ``, links `../evidence/issue-118-wave-b-walkthrough.md`, has no `issue-#118` and no "pending" in its walkthrough section, and names 2026-11-26, #118 and #142) | ``AssertionError: assert '`v0.3.0` (published 2026-11-26) is the current release' in '# Kiro: registering the founder-vn MCP server…'`` (1 failed, 11 deselected) | `uv run pytest tests/test_hosts.py -q`: 12 passed (commit `5fa7c1f`) |
+| `test_readme_truth_table_is_honest_about_release_status_and_hosts` (Kiro CLI row "full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118)" with #142 and the 0.2.0 history; the `founder-permits` row names #142; no "has not run yet" and no "pending walkthrough"; the host index Kiro row "verified end to end on 0.3.0 incl. Wave B (walkthrough 2026-11-26, #118" with #142 and #19, and the index links this record; Vietnamese "đã xác nhận trên 0.3.0 (walkthrough 26/11/2026, #118)" and #142 twice) | `AssertionError: assert ('has not run yet' not in '# founder-v…')`, on "0.3.0 has not run yet (#118)" (1 failed, 11 passed) | `uv run pytest tests/test_front_door.py tests/test_hosts.py -q`: 24 passed (commit `eb8585d`). On the way to green, the new assertion `"pending" not in hosts_index` was narrowed to `"pending walkthrough"`, because the Gemini row of the index says "pending confirmation" by design |
+
+## Giới hạn
+
+- Times are reconstructed from file modification times, not measured with a stopwatch. Steps 1, 4, 6.6 and 7.6 leave no file and have no time. The operator, asked about friction the files would not show, answered "ok": three gaps of 1 h 50 min, 1 h 8 min and 59 min have no recorded cause.
+- The idea file was the golden `idea.md`, so the ticket's "or a pilot participant's case" was not exercised. The survey, the two panels (20 personas each, the same seed), the CFO inputs and every report were produced in the session. The CFO inputs are the session's assumptions at the Owner's request, not the Owner's figures, so the verdict `Not yet (chưa lãi)` says nothing about the golden case or any real shop.
+- Criterion 4 is not met: the major-mismatch stop was not observed on 0.3.0. Text identity of the `## Protocol` block with the 0.2.0 block whose stop #19 observed is not an observation: a skill run is a model following text.
+- #142 is blocking for verified legal figures on a clean install. By the operator's decision it is filed, not fixed, and the README names it next to the "verified" claim; the tax figures in the walkthrough's `cfo.md`, `pricing.md` and `summary.md` are unverified.
+- The walkthrough's plan holds two sections, "Đề xuất giá trị" and "Thương hiệu", from files that no founder-vn 0.3.0 skill writes, made at the Owner's request (#144). The Wave B check of the two after-pilot lines could not apply.
+- One host. Claude Code, Codex, Gemini / Antigravity CLI, Grok Build and KiroCrew stay "not yet verified".
+- The Kiro CLI session's model is recorded as the operator named it (`claude-opus-5.5`). This lane read no host configuration and did not observe the session: what the skills did is read from the files the session wrote and from what those files say about themselves.
+- The walkthrough folder stays outside git. This record quotes no case content beyond what the golden example already publishes: no competitor names, no prices, no persona text, no Owner inputs.
+- The tag push and the approval of `Publish to PyPI` were run by this lane with the operator's `gh` account, each on the operator's instruction in the session. No test reaches PyPI or GitHub Actions. The two dry-run folders were inside the repository's git-ignored `.harness/`, not outside every git tree; the installer writes relative to the current folder, so the repository's own `.kiro/` was not touched.
+- The README slices: `HARNESS_SINGLE_OWNER_FILES=README.md` was exported in this Kiro CLI session, so `.kiro/hooks/guard.sh` let the lane edit `README.md`. #5 and #19 had to apply a hand patch instead.
+
+## Giải quyết review nội bộ
+
+No self-review was run (lane rule: review is two independent turns after the pull request opens).

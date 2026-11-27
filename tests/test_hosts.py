@@ -121,16 +121,32 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
     assert "2026-11-26" in section and "#118" in section and "#142" in section
 
 
-def test_issue_118_template_has_unticked_boxes_and_claims_no_run() -> None:
-    path = ROOT / "docs" / "evidence" / "issue-#118-wave-b-walkthrough.md"
-    text = path.read_text(encoding="utf-8")
-    boxes = re.findall(r"^- \[( |x)\] ", text, re.MULTILINE)
-    assert len(boxes) == 7 and set(boxes) == {" "}
+def test_issue_118_evidence_records_the_kiro_cli_run() -> None:
+    evidence = ROOT / "docs" / "evidence"
+    assert not (evidence / "issue-#118-wave-b-walkthrough.md").exists(), "the template is replaced"
+    text = (evidence / "issue-118-wave-b-walkthrough.md").read_text(encoding="utf-8")
+    criteria = re.findall(r"^- \[( |x)\] (.*)$", text, re.MULTILINE)
+    assert len(criteria) == 7, "the seven #118 criteria"
+    ticked = [i for i, (box, _) in enumerate(criteria, 1) if box == "x"]
+    assert ticked == [1, 2, 3, 5, 6], ticked
+    assert "skipped by the operator" in criteria[3][1], "criterion 4 says why it is open"
     assert "| step | command | started | duration | friction | issue filed |" in text
-    assert "operator fills" in text and "real Kiro CLI" in text
-    assert "docs/hosts/kiro.md" in text
-    assert not re.search(r"^\|\s*\d+(\.\d+)?\s*\|", text, re.MULTILINE)
-    assert not re.search(r"(?i)\b(ran|executed|recorded on)\b", text.split("## Record")[0])
+    rows = re.findall(r"^\|\s*(\d+(?:\.\d+)?)\s*\|", text, re.MULTILINE)
+    assert len(rows) >= 15, "steps 1 to 9, one row per skill of both waves"
+    for needle in (
+        "uvx --no-cache --from founder-vn founder-vn --version",
+        "founder-vn 0.3.0",
+        "founder/business-plan.md",
+        "plan --check",
+        "gemini-3.5-flash-lite",
+        "claude-opus-5.5",
+        "#142",
+        "#143",
+        "#144",
+        "## Giới hạn",
+    ):
+        assert needle in text, needle
+    assert "operator fills" not in text and "No walkthrough has been recorded" not in text
     assert not re.search(r"(sk-|Bearer )\w|FOUNDER_LLM_\w+=\S", text)
 
 
