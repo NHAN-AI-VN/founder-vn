@@ -212,3 +212,12 @@ def test_ledger_through_an_escaping_symlink_is_refused(
         install.run(project_root, "kiro", print_only=False, skills_dir=SRC)
     assert list(outside.iterdir()) == []
     assert not (project_root / ".kiro").exists()
+
+
+def test_design_and_standards_record_q57() -> None:
+    root = Path(__file__).parent.parent
+    design = (root / "docs" / "founder-vn-design.md").read_text(encoding="utf-8")
+    assert "(Q1–Q57)" in design and "\n- Q57 (2026-11-27" in design
+    assert "ghi sổ nguồn `permits/sources.md` của gói vào dự án (Q57)" in design
+    standards = (root / "docs" / "agents" / "standards.md").read_text(encoding="utf-8")
+    assert "`<project>/permits/sources.md`" in standards and "(Q57, #142.)" in standards
