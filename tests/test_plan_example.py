@@ -84,7 +84,7 @@ def test_business_plan_lists_only_offer_and_brand_as_not_done() -> None:
     plan_text = _read("business-plan.md")
     todo = plan_text[plan_text.index("## Chưa làm") :].split("\n\n## ", 1)[0].splitlines()[2:]
     assert todo == [
-        "- Đề xuất giá trị: chạy skill `founder-offer` (tạo founder/offer.md).",
-        "- Thương hiệu: chạy skill `founder-brand` (tạo founder/brand.md).",
+        "- Đề xuất giá trị: để sau pilot, chưa có trong bản này (skill `founder-offer` sẽ tạo founder/offer.md).",
+        "- Thương hiệu: để sau pilot, chưa có trong bản này (skill `founder-brand` sẽ tạo founder/brand.md).",
     ]
     assert "## Khai trương" in plan_text

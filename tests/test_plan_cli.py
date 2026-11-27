@@ -214,3 +214,76 @@ def test_check_is_1_when_a_source_changed_since(project_root: Path, run_cli: Run
     run = run_cli("plan", "--check")
     assert run.exit_code == 1
     assert run.stdout == "business-plan.md đã cũ so với các file hiện có: chạy `founder-vn plan`\n"
+
+
+OFFER_LINE = (
+    "- Đề xuất giá trị: để sau pilot, chưa có trong bản này "
+    "(skill `founder-offer` sẽ tạo founder/offer.md)."
+)
+BRAND_LINE = (
+    "- Thương hiệu: để sau pilot, chưa có trong bản này "
+    "(skill `founder-brand` sẽ tạo founder/brand.md)."
+)
+OFFER_MARKER = (
+    "_Mục này lấy từ file founder/offer.md anh/chị cung cấp; bản này chưa có skill "
+    "`founder-offer`, nên nội dung chưa qua rà soát của founder-vn._"
+)
+BRAND_MARKER = OFFER_MARKER.replace("offer", "brand")
+
+
+def _fixture_skills(tmp_path: Path, *names: str) -> Path:
+    folder = tmp_path / "skills-fixture"
+    folder.mkdir()
+    for name in names:
+        (folder / name).mkdir()
+        (folder / name / "SKILL.md").write_text("---\nname: x\n---\n", encoding="utf-8")
+    return folder
+
+
+def test_unshipped_sections_say_after_pilot_and_shipped_ones_keep_the_run_line(
+    project_root: Path, run_cli: RunCli
+) -> None:
+    _numbers(project_root)
+    plan = run_cli("plan").files["business-plan.md"]
+    todo = plan[plan.index("## Chưa làm") :].splitlines()
+    assert OFFER_LINE in todo and BRAND_LINE in todo
+    assert "- Giấy phép và thuế: chạy skill `founder-permits` (tạo founder/permits.md)." in todo
+    assert "`founder-offer` (tạo" not in plan and "`founder-brand` (tạo" not in plan
+
+
+def test_hand_written_offer_and_brand_are_compiled_with_the_marker(
+    project_root: Path, run_cli: RunCli
+) -> None:
+    _numbers(project_root)
+    founder = project_root / "founder"
+    (founder / "offer.md").write_text("# Ưu đãi\n\nGói đầu tiên.\n", encoding="utf-8")
+    (founder / "brand.md").write_text("# Tên\n\nTên quán.\n", encoding="utf-8")
+    (founder / "pricing.md").write_text("# Giá\n\nGiá hợp lý.\n", encoding="utf-8")
+    plan = run_cli("plan").files["business-plan.md"]
+    assert f"## Đề xuất giá trị\n\n{OFFER_MARKER}\n\n### Ưu đãi\n\nGói đầu tiên.\n" in plan
+    assert f"## Thương hiệu\n\n{BRAND_MARKER}\n\n### Tên\n\nTên quán.\n" in plan
+    assert OFFER_LINE not in plan and BRAND_LINE not in plan
+    assert "## Giá\n\n### Giá\n" in plan
+    assert plan.count("chưa qua rà soát của founder-vn") == 2
+
+
+def test_shipped_skill_lookup_reads_the_packaged_skills_folder(
+    project_root: Path, run_cli: RunCli, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _numbers(project_root)
+    (project_root / "founder" / "offer.md").write_text("# Ưu đãi\n\nGói.\n", encoding="utf-8")
+    without = _fixture_skills(tmp_path, "founder-cfo")
+    monkeypatch.setattr("founder_vn.install.packaged_skills_dir", lambda: without)
+    plan = run_cli("plan").files["business-plan.md"]
+    assert OFFER_MARKER in plan and BRAND_LINE in plan
+    assert "- Giấy phép và thuế: chạy skill `founder-permits`" not in plan
+    assert "- Giấy phép và thuế: để sau pilot" in plan
+    shipped = tmp_path / "with"
+    (shipped / "founder-offer").mkdir(parents=True)
+    (shipped / "founder-offer" / "SKILL.md").write_text("x", encoding="utf-8")
+    monkeypatch.setattr("founder_vn.install.packaged_skills_dir", lambda: shipped)
+    plan = run_cli("plan").files["business-plan.md"]
+    assert OFFER_MARKER not in plan
+    assert "## Đề xuất giá trị\n\n### Ưu đãi\n" in plan
+    todo = plan[plan.index("## Chưa làm") :]
+    assert "- Thương hiệu: để sau pilot" in todo

@@ -19,8 +19,8 @@ WAVE_B_FILES = ("permits.md", "ops.md", "marketing.md", "launch.md")
 PANEL_FILES = ("marketing.md", "launch.md")
 CAVEAT_PARTS = ("mô phỏng", "cận trên", "không phải khách hàng thật")
 AFTER_PILOT = (
-    "- Đề xuất giá trị: chạy skill `founder-offer` (tạo founder/offer.md).",
-    "- Thương hiệu: chạy skill `founder-brand` (tạo founder/brand.md).",
+    "- Đề xuất giá trị: để sau pilot, chưa có trong bản này (skill `founder-offer` sẽ tạo founder/offer.md).",
+    "- Thương hiệu: để sau pilot, chưa có trong bản này (skill `founder-brand` sẽ tạo founder/brand.md).",
 )
 
 

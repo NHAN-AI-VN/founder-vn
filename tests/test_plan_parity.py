@@ -79,3 +79,18 @@ def test_plan_with_permits_section_cli_equals_mcp(
     prepare()
     assert mcp_call("plan_compile", None) == cli.stdout
     assert _files(project_root) == cli.files
+
+
+def test_plan_with_hand_written_offer_cli_equals_mcp(
+    project_root: Path, run_cli: Callable[..., CliRun], mcp_call: McpCall
+) -> None:
+    def prepare() -> None:
+        _state(project_root, panel=False)
+        (project_root / "founder" / "offer.md").write_text("# Ưu đãi\n\nGói.\n", encoding="utf-8")
+
+    prepare()
+    cli = run_cli("plan")
+    assert "chưa qua rà soát của founder-vn" in cli.files["business-plan.md"]
+    prepare()
+    assert mcp_call("plan_compile", None) == cli.stdout
+    assert _files(project_root) == cli.files
