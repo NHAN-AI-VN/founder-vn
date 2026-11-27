@@ -126,6 +126,18 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
     assert "run on 0.2.0 only" not in section and "2026-11-27" in section
 
 
+def test_kiro_step_9_expects_the_vietnamese_stop_and_keeps_the_step_1_condition() -> None:
+    # #148 (Q60): the stop on a major mismatch is Vietnamese, in the shape the Protocol block quotes.
+    text = _page("kiro")
+    step9 = text.split("Deliberate major-mismatch check", 1)[1].split("\n\n", 1)[0]
+    assert "Dừng ở bước 1 của Protocol" in step9
+    assert "Vietnamese" in step9
+    assert (
+        "On a major mismatch, stop and tell the Facilitator to update the package or the skill"
+    ) in step9
+    assert "English" not in step9
+
+
 def test_issue_118_evidence_records_the_kiro_cli_run() -> None:
     evidence = ROOT / "docs" / "evidence"
     assert not (evidence / "issue-#118-wave-b-walkthrough.md").exists(), "the template is replaced"

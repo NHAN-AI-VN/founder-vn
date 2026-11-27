@@ -92,7 +92,7 @@ installed package (`create` when absent, `update` when it differs, `unchanged` w
    6. `founder-vn plan --check`
 8. Confirm `founder/business-plan.md` exists and `founder-vn plan --check` exits 0.
 9. Deliberate major-mismatch check. Open `.kiro/skills/founder-board/SKILL.md` and set
-   `metadata.version` to `1.0.0` (`version: "1.0.0"`). Run `founder-board` again. Expect the stop message of Protocol step 1: "On a major mismatch, stop and tell the Facilitator to update the package or the skill". Then restore the file (set the version back to `0.3.0`, the version of the installed package, or run the install command of step 2 again) and confirm the skill runs again.
+   `metadata.version` to `1.0.0` (`version: "1.0.0"`). Run `founder-board` again. Expect the stop of Protocol step 1 ("On a major mismatch, stop and tell the Facilitator to update the package or the skill"): a Vietnamese message that begins `Dừng ở bước 1 của Protocol` and names the package version, the skill and its version (the shape the block quotes, #148). Then restore the file (set the version back to `0.3.0`, the version of the installed package, or run the install command of step 2 again) and confirm the skill runs again.
 
 Record each step in this table (copy it into the evidence file):
 
