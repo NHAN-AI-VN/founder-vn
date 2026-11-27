@@ -119,6 +119,8 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
     assert "../evidence/issue-118-wave-b-walkthrough.md" in section
     assert "issue-#118" not in text and "pending" not in section
     assert "2026-11-26" in section and "#118" in section and "#142" in section
+    # #118 criterion 4 ran on 0.3.0 the day after the walkthrough: step 9 is no longer 0.2.0-only.
+    assert "run on 0.2.0 only" not in section and "2026-11-27" in section
 
 
 def test_issue_118_evidence_records_the_kiro_cli_run() -> None:
@@ -128,8 +130,10 @@ def test_issue_118_evidence_records_the_kiro_cli_run() -> None:
     criteria = re.findall(r"^- \[( |x)\] (.*)$", text, re.MULTILINE)
     assert len(criteria) == 7, "the seven #118 criteria"
     ticked = [i for i, (box, _) in enumerate(criteria, 1) if box == "x"]
-    assert ticked == [1, 2, 3, 5, 6], ticked
-    assert "skipped by the operator" in criteria[3][1], "criterion 4 says why it is open"
+    assert ticked == [1, 2, 3, 4, 5, 6], ticked
+    # Criterion 4 (SPEC-1 of reviews/issue-118/spec.md): the stop was observed on 0.3.0, not inferred.
+    assert "observed on 0.3.0" in criteria[3][1] and "2026-11-27" in criteria[3][1]
+    assert "skipped by the operator" not in criteria[3][1]
     assert "| step | command | started | duration | friction | issue filed |" in text
     rows = re.findall(r"^\|\s*(\d+(?:\.\d+)?)\s*\|", text, re.MULTILINE)
     assert len(rows) >= 15, "steps 1 to 9, one row per skill of both waves"
@@ -144,6 +148,12 @@ def test_issue_118_evidence_records_the_kiro_cli_run() -> None:
         "#143",
         "#144",
         "## Giới hạn",
+        # the major-mismatch run: the edit, the command, the quoted stop, the friction issue
+        'version: "1.0.0"',
+        "kiro-cli chat --no-interactive",
+        "I stopped at the skill's first step, the version check",
+        "The founder-vn MCP server reports `founder-vn 0.3.0`",
+        "#148",
     ):
         assert needle in text, needle
     assert "operator fills" not in text and "No walkthrough has been recorded" not in text

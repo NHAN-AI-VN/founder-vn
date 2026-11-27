@@ -22,9 +22,9 @@ Copied from the ticket; the first is the allocation comment.
 - [x] Allocation comment written by the operator on #118 (`<!-- harness:allocation -->`, `singleOwnerFiles: README.md`, `laneBranch: lane/issue-118`): comment of 2026-11-26T07:17:12Z.
 - [x] Dry run on the local 0.3.0 wheel in an empty folder (install, MCP `initialize`), then tag `v0.3.0` on the merge commit of the machine half, `release.yml` Build green, `Publish to PyPI` approved by the operator on environment `pypi`, `uvx --no-cache --from founder-vn founder-vn --version` gives `founder-vn 0.3.0`: release record below.
 - [x] Clean-install walkthrough on Kiro CLI following `docs/hosts/kiro.md` (Wave A, then permits, ops, marketing, launch, plan recompile, `plan --check` exit 0), recorded in this file: record below, with the deviations it names.
-- [ ] The deliberate major mismatch still stops a skill (one Wave B skill set to `1.0.0`, run, stop message quoted, restored): skipped by the operator ("bỏ qua", 2026-11-26); not observed on 0.3.0 (see "Major-mismatch check" and the limits).
+- [x] The deliberate major mismatch still stops a skill (one Wave B skill set to `1.0.0`, run, stop message quoted, restored): observed on 0.3.0 on 2026-11-27: `founder-launch` at `1.0.0` stopped at Protocol step 1 after `server_info` answered 0.3.0, in a nested non-interactive Kiro CLI session this lane started from the walkthrough folder, and the file was restored byte-identical ("Major-mismatch check" below). The 2026-11-26 session had not run it.
 - [x] README says 0.3.0 is released (tag date) and the Kiro CLI host row says the full pipeline including Wave B is verified on 0.3.0 (walkthrough date, #118); `docs/hosts/README.md` likewise; `tests/test_front_door.py` updated: slices `eb4e2ed` and `eb8585d`, with known defect #142 named next to the claim (operator's decision).
-- [x] Every friction or defect filed as an issue naming the skill or tool; blocking defects fixed (0.3.1) or filed before closing: #142, #143, #144 (all `needs-triage`); #142 is blocking for verified legal figures and is filed, not fixed (operator's decision).
+- [x] Every friction or defect filed as an issue naming the skill or tool; blocking defects fixed (0.3.1) or filed before closing: #142, #143, #144 from the walkthrough and #148 from the major-mismatch check (all `needs-triage`); #142 is blocking for verified legal figures and is filed, not fixed (operator's decision).
 - [ ] PR from `lane/issue-118` with `Closes #118` through `scripts/harness/open-lane-pr.sh`: the pull request is opened after this record is committed.
 
 ## Release record (criterion 2)
@@ -70,11 +70,11 @@ The operator kept no stopwatch: `started` and `duration` are read from the modif
 | 7.5 | `founder-plan` again | 21:13 | `summary.md` 21:13:37, `business-plan.md` 21:13:43 | the plan compiles offer and brand as sections ("Đề xuất giá trị", "Thương hiệu"), so it has no `## Chưa làm` list; verdict `Not yet (chưa lãi)` printed by `plan_compile` | #144 |
 | 7.6 | `uvx --from founder-vn founder-vn plan --check; echo $?` | after 21:13 | no file trace (check mode writes nothing) | none reported | |
 | 8 | confirm `founder/business-plan.md` and `plan --check` exit 0 | repeated by this lane after the run | | `founder-vn 0.3.0`; `business-plan.md khớp với các file hiện có`; `exit=0`; `business-plan.md` kept its 21:13:43 time | |
-| 9 | deliberate major mismatch on a Wave B skill | | not run | skipped by the operator; `.kiro/skills/founder-launch/SKILL.md` keeps its install time 14:42:20 | |
+| 9 | deliberate major mismatch on a Wave B skill: `sed -i '' 's/version: "0.3.0"/version: "1.0.0"/' .kiro/skills/founder-launch/SKILL.md`; `kiro-cli chat --no-interactive --trust-workspace --trust-all-tools --model claude-opus-5.5 "founder-launch"` in the walkthrough folder; the reverse `sed` to restore | 2026-11-27 13:36 (not in the 2026-11-26 session: the operator skipped it then) | 8 min to the restored `SKILL.md` (13:44:38) | the skill stopped at Protocol step 1 once its tools could run (quoted below). A first attempt with `--trust-tools=fs_read,@founder-vn/server_info` had every approval-needing tool denied, `server_info` included: Kiro CLI 2.37.1 `--trust-tools` does not take the `@server/tool` form (a Kiro CLI limit, not a founder-vn skill or tool; no issue). The stop message came in English | #148 |
 
 Elapsed from the install to the final plan: 14:42 to 21:13, 6 h 31 min of wall-clock time. The three long gaps (steps 7.2 and 7.4 and the extra row) make 3 h 57 min of it and have no recorded cause. Design §7 budgets about four hours per pilot participant, two meetings included.
 
-Deviations from the script of `docs/hosts/kiro.md`: the golden idea instead of a new case; the panel ran twice after a pitch change; the CFO inputs are the session's assumptions at the Owner's request, not the Owner's figures; `offer.md` and `brand.md` were added at the Owner's request; step 9 was skipped.
+Deviations from the script of `docs/hosts/kiro.md`: the golden idea instead of a new case; the panel ran twice after a pitch change; the CFO inputs are the session's assumptions at the Owner's request, not the Owner's figures; `offer.md` and `brand.md` were added at the Owner's request; step 9 did not run in that session and ran on 2026-11-27 in nested non-interactive sessions started by this lane (row 9), not by the operator at the keyboard.
 
 ## Review-checklist walk on the walkthrough outputs
 
@@ -95,15 +95,46 @@ Run by this lane on 2026-11-26 over the walkthrough's `founder/` folder (outside
 
 ## Major-mismatch check (criterion 4)
 
-Not run: the operator skipped it ("bỏ qua"). The installed `founder-launch/SKILL.md` was never edited (its modification time is the install time). What this lane can show is text identity only: the shared `## Protocol` block (from its heading to the next `## ` heading) has the same sha256 (prefix `9b27c1dd8629`) in all ten `skills/*/SKILL.md` and in `skills/founder-board/SKILL.md` at `v0.2.0`, the block whose stop the #19 walkthrough observed on 0.2.0.
+Run on 2026-11-27 by this lane from the walkthrough folder `~/Documents/Research/founder-walkthrough-118` (outside git), after the operator answered the review question of `reviews/issue-118/spec.md` (SPEC-1) by choosing to run the check rather than defer it. The operator had skipped it in the 2026-11-26 session ("bỏ qua"). Host: Kiro CLI 2.37.1, the same binary as the walkthrough, started by the lane as a nested non-interactive session with `--model claude-opus-5.5` (the walkthrough's model; only the name is recorded). Package: `founder-vn` 0.3.0 from PyPI through the installed `.kiro/settings/mcp.json`. Times are local (UTC+7), from `date -u` lines the lane wrote to `.harness/criterion4-times.txt` (git-ignored) and from file modification times.
+
+| Step | Command or measurement | Result |
+| --- | --- | --- |
+| Before (13:35) | `shasum -a 256` on the installed `.kiro/skills/founder-launch/SKILL.md` and the repository's `skills/founder-launch/SKILL.md`; `cp -a founder/` to a sibling folder outside git as a backup; `stat` of every file under `founder/` to a list | both files `e8908d4ec871…`; `founder/` holds 86 files (modes `-rw-r--r--`, folders `drwxr-xr-x`); the skill file still carries its install time 14:42:20 of 2026-11-26 |
+| Set `1.0.0` (13:36:10) | `sed -i '' 's/version: "0.3.0"/version: "1.0.0"/' .kiro/skills/founder-launch/SKILL.md` | `grep -h -E '^ +version:' .kiro/skills/*/SKILL.md \| sort \| uniq -c` gives `9 version: "0.3.0"` and `1 version: "1.0.0"` |
+| Run 1 (13:36:28 to 13:40:48) | `kiro-cli chat --no-interactive --trust-workspace --trust-tools=fs_read,@founder-vn/server_info --model claude-opus-5.5 "founder-launch"` | not an observation of the version check: Kiro CLI denied every tool that needs approval, `@founder-vn/server_info`, `founder-vn --version` and `web_fetch` included ("tool permission approval is not supported in non-interactive mode"), because `--trust-tools` does not take the `@server/tool` form in 2.37.1. The session still stopped at step 1, in Vietnamese, inferring the mismatch from the files it could read ("Em dừng ở bước 1 của `founder-launch`, bước kiểm tra phiên bản. … Không kiểm tra được phiên bản."), and wrote nothing |
+| Run 2 (13:42:22 to 13:43:29) | `chmod -R a-w founder` and `chmod a-w` on the edited skill file first, the lane's own lock against a write (`--trust-all-tools` trusts `fs_write` too); then `kiro-cli chat --no-interactive --trust-workspace --trust-all-tools --model claude-opus-5.5 "founder-launch"` | the session read the skill, called `@founder-vn/server_info`, ran `command -v founder-vn; founder-vn --version` (no `founder-vn` on PATH: the package runs through `uvx`), and stopped at step 1; the stop message is quoted below; exit 0 |
+| Restore (13:44:38) | `chmod -R u+w founder`; `chmod u+w` and `sed -i '' 's/version: "1.0.0"/version: "0.3.0"/'` on the skill file | sha256 `e8908d4ec871…` again, equal to `skills/founder-launch/SKILL.md` at `ca6bc9f`; `10 version: "0.3.0"`; mode `-rw-r--r--` |
+| Case folder after | `diff -rq founder/ <backup>`; `stat` of the 86 files against the list taken before; modes | identical content, identical modification times, modes as before; the backup was then deleted. Kiro CLI had created an empty `.kiro/agents/` in the folder on launch; removed |
+
+Run 2, the stop message as the nested Kiro CLI session wrote it (its whole response; the `[tool]` lines of the transcript are left out):
+
+> I stopped at the skill's first step, the version check. The skill's rules say to stop when the major versions differ, and here they do:
+>
+> - The founder-launch skill is version 1.0.0.
+> - The founder-vn MCP server reports `founder-vn 0.3.0`.
+> - There's no `founder-vn` command on your system to check instead (`command not found`).
+>
+> To continue, either upgrade the founder-vn package the MCP server runs to a 1.x release, or install the founder-launch skill version made for 0.x. The skill comes from github.com/Jakeschincariol/founder-skill (commit fd9385b). This project has no README with the install command.
+>
+> Two things will affect the next run:
+>
+> - `founder/launch.md` already exists, written Nov 26 at 13:13. The skill will first show the Owner what's in it and ask what to change.
+> - Every file in `founder/` is read-only (`-r--r--r--`), `launch.md` included. The skill can't save a new version until you make it writable again.
+>
+> I haven't changed any files. Tell me when the versions match and I'll run founder-launch again.
+
+What this shows: with the installed package at 0.3.0 and the skill at 1.0.0, Protocol step 1 of `founder-launch` read the version through `server_info`, saw the major mismatch and stopped before Step 0 without writing a file (design Q45). Friction: the message is in English where the #19 stop on 0.2.0 was in Vietnamese; filed as #148. In the message, "Nov 26 at 13:13" is the UTC form of `launch.md`'s 20:13 local time, and the read-only files were the lane's lock, not the skill's doing.
+
+Text identity, as before: the shared `## Protocol` block (from its heading to the next `## ` heading) has the same sha256 (prefix `9b27c1dd8629`) in all ten `skills/*/SKILL.md` and in `skills/founder-board/SKILL.md` at `v0.2.0`, the block whose stop the #19 walkthrough observed on 0.2.0.
 
 ## Issues filed (criterion 6)
 
 - #142 (`founder-permits`, `founder-cfo`, `founder-plan`, `founder-vn install`): a clean install has no `permits/sources.md`, so no legal figure can be sourced. Blocking for verified legal figures; filed, not fixed, by the operator's decision of 2026-11-26 (close #118 with the README naming the defect).
 - #143 (`panel init`, `panel run`; MCP `panel_init`, `panel_run`): a new panel keeps the previous panel's answers. Reproduction in the issue: after a second `panel init` with another pitch and seed, `founder-vn panel check` lists only the buyers that never answered.
 - #144 (`founder-plan`, `plan_compile`): the plan's "Chưa làm" lines tell the Owner to run `founder-offer` and `founder-brand`, which 0.3.0 does not ship.
+- #148 (the shared `## Protocol` block of the ten skills, observed on `founder-launch`): the Protocol step 1 stop on a major mismatch came in English in the criterion-4 run of 2026-11-27; the #19 stop on 0.2.0 came in Vietnamese. The block fixes the condition and the addressee, not the language.
 
-All three carry `needs-triage` and a list of options for the operator to choose from.
+All four carry `needs-triage` and a list of options for the operator to choose from.
 
 ## Lát
 
@@ -134,11 +165,12 @@ gate-segment verify: GREEN on 2d5a447dcd417e842b318cd3b4513f040e828dc4
 
 - Times are reconstructed from file modification times, not measured with a stopwatch. Steps 1, 4, 6.6 and 7.6 leave no file and have no time. The operator, asked about friction the files would not show, answered "ok": three gaps of 1 h 50 min, 1 h 8 min and 59 min have no recorded cause.
 - The idea file was the golden `idea.md`, so the ticket's "or a pilot participant's case" was not exercised. The survey, the two panels (20 personas each, the same seed), the CFO inputs and every report were produced in the session. The CFO inputs are the session's assumptions at the Owner's request, not the Owner's figures, so the verdict `Not yet (chưa lãi)` says nothing about the golden case or any real shop.
-- Criterion 4 is not met: the major-mismatch stop was not observed on 0.3.0. Text identity of the `## Protocol` block with the 0.2.0 block whose stop #19 observed is not an observation: a skill run is a model following text.
+- Criterion 4 was observed in a nested, non-interactive Kiro CLI session that this lane started from the walkthrough folder with `--trust-all-tools` and `--model claude-opus-5.5`, on 2026-11-27, not in the operator's interactive session of 2026-11-26 and not with the operator at the keyboard. The lane read the transcript Kiro CLI printed, not the model's reasoning. The write lock on `founder/` during run 2 was the lane's, so the record cannot say whether the session would have written anything had the files been writable; it said it had not, and the folder was unchanged. Run 1 is not a version-check observation: its tools were denied.
+- After the restore, `founder-launch` was not run again (`docs/hosts/kiro.md` step 9 says "confirm the skill runs again"): a full run would rewrite `founder/launch.md` and the record's times. The restore is shown byte-identical to the file that ran in step 7.4 instead.
 - #142 is blocking for verified legal figures on a clean install. By the operator's decision it is filed, not fixed, and the README names it next to the "verified" claim; the tax figures in the walkthrough's `cfo.md`, `pricing.md` and `summary.md` are unverified.
 - The walkthrough's plan holds two sections, "Đề xuất giá trị" and "Thương hiệu", from files that no founder-vn 0.3.0 skill writes, made at the Owner's request (#144). The Wave B check of the two after-pilot lines could not apply.
 - One host. Claude Code, Codex, Gemini / Antigravity CLI, Grok Build and KiroCrew stay "not yet verified".
-- The Kiro CLI session's model is recorded as the operator named it (`claude-opus-5.5`). This lane read no host configuration and did not observe the session: what the skills did is read from the files the session wrote and from what those files say about themselves.
+- The Kiro CLI session's model is recorded as the operator named it (`claude-opus-5.5`); the criterion-4 sessions used the same name through `--model`. This lane read no host configuration and did not observe the walkthrough session: what the skills did on 2026-11-26 is read from the files the session wrote and from what those files say about themselves.
 - The walkthrough folder stays outside git. This record quotes no case content beyond what the golden example already publishes: no competitor names, no prices, no persona text, no Owner inputs.
 - The tag push and the approval of `Publish to PyPI` were run by this lane with the operator's `gh` account, each on the operator's instruction in the session. No test reaches PyPI or GitHub Actions. The two dry-run folders were inside the repository's git-ignored `.harness/`, not outside every git tree; the installer writes relative to the current folder, so the repository's own `.kiro/` was not touched.
 - The README slices: `HARNESS_SINGLE_OWNER_FILES=README.md` was exported in this Kiro CLI session, so `.kiro/hooks/guard.sh` let the lane edit `README.md`. #5 and #19 had to apply a hand patch instead.
