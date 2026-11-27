@@ -179,7 +179,8 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     assert "v0.3.0" in english and "2026-11-26" in english
     assert "0.2.0 was the first PyPI release" in english
     assert "v0.2.0" in english and "2026-11-24" in english
-    assert "pending the `v0" not in english and "not yet released" not in english
+    assert "pending the `v0.3.0` tag" not in english and "not yet released" not in english
+    assert "The repository is at 0.3.1, pending the `v0.3.1` tag (#149)." in english
     assert text.count("released, 0.3.0 on PyPI") == 2
     assert "released, 0.2.0 on PyPI" not in text
     assert "has not run yet" not in english and "pending walkthrough" not in text
@@ -224,6 +225,7 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     )
     assert "known defect" not in kiro_index_row and "#19" in kiro_index_row
     assert "known defect" not in hosts_index
+    assert "the repository is at 0.3.1, pending the `v0.3.1` tag (#149)" in hosts_index
     assert "../evidence/issue-118-wave-b-walkthrough.md" in hosts_index
     assert "pending walkthrough" not in hosts_index
     assert "No host is verified end to end yet" not in hosts_index
@@ -231,7 +233,8 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
         assert needle in vietnamese, needle
     assert "v0.3.0" in vietnamese and "26/11/2026" in vietnamese
     assert "Bản hiện hành trên PyPI là 0.3.0" in vietnamese
-    assert "đang chờ tag" not in vietnamese and "đang chờ walkthrough" not in vietnamese
+    assert "0.3.1 đang chờ tag `v0.3.1` (#149)" in vietnamese
+    assert "đang chờ tag `v0.3.0`" not in vietnamese and "đang chờ walkthrough" not in vietnamese
     assert "đã xác nhận trên 0.3.0 (walkthrough 26/11/2026, #118)" in vietnamese
     assert vietnamese.count("#142") == 2, "the Kiro CLI line and the founder-permits line"
     assert "lỗi đã biết #142" not in vietnamese

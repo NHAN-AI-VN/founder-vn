@@ -30,6 +30,7 @@ Version 0.2.0 was the first PyPI release (0.1.0 was never published), tagged `v0
 [docs/evidence/issue-19-wave-a-walkthrough.md](docs/evidence/issue-19-wave-a-walkthrough.md).
 The clean-install walkthrough of all ten skills on Kiro CLI with 0.3.0 is recorded in the same file
 as the 0.3.0 release. 0.3.0 on PyPI lacks `permits/sources.md` on a clean install; the installer writes the ledger from the first release that ships #142.
+The repository is at 0.3.1, pending the `v0.3.1` tag (#149).
 
 | Route | Command | State |
 |---|---|---|
@@ -114,7 +115,7 @@ số, nên không có số nào do mô hình tự nghĩ ra.
 - **Cách cài**: `npx skills add NHAN-AI-VN/founder-vn` (phát triển); `uvx --from founder-vn founder-vn install --host ...`
   và `uvx --from founder-vn founder-vn-mcp`. Bản hiện hành trên PyPI là 0.3.0 (đợt B, mười skill),
   phát hành 26/11/2026 qua tag `v0.3.0`; 0.2.0 là bản PyPI đầu tiên, phát hành 24/11/2026 qua tag
-  `v0.2.0`; 0.1.0 chưa bao giờ được phát hành.
+  `v0.2.0`; 0.1.0 chưa bao giờ được phát hành. Kho mã đang ở 0.3.1; 0.3.1 đang chờ tag `v0.3.1` (#149).
 - **Trạng thái**: sáu skill đợt A (`founder-board` #14, `founder-competitors` #13, `founder-consumer`
   #16, `founder-pricing` #17, `founder-cfo` #12, `founder-plan` #18) đã có, kèm sản phẩm mẫu trong
   `examples/barbershop/founder/`; `founder-permits` (đợt B, #112, đường chung của hộ kinh doanh; ngành F&B chưa làm; bản cài đặt ghi sổ nguồn `permits/sources.md` từ bản phát hành đầu tiên có #142; 0.3.0 trên PyPI vẫn chưa có) đã có,

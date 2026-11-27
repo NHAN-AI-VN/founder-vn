@@ -60,7 +60,7 @@ installed package (`create` when absent, `update` when it differs, `unchanged` w
    From a local wheel (development only: built with `uv build` in the repository, copied to `./dist/`):
 
    ```bash
-   uvx --from ./dist/founder_vn-0.3.0-py3-none-any.whl founder-vn install --host kiro
+   uvx --from ./dist/founder_vn-0.3.1-py3-none-any.whl founder-vn install --host kiro
    ```
 
    From PyPI (the released package):
@@ -71,7 +71,7 @@ installed package (`create` when absent, `update` when it differs, `unchanged` w
 
 3. Check the MCP registration: on a clean project the installer of step 2 has already written
    `.kiro/settings/mcp.json` with the snippet above (Q54, #94); if the file existed, it was left unchanged and the
-   snippet was printed, so add the entry by hand. For a local wheel, edit `args` and put the wheel path in `args` in place of the package name: `["--from", "./dist/founder_vn-0.3.0-py3-none-any.whl", "founder-vn-mcp"]`.
+   snippet was printed, so add the entry by hand. For a local wheel, edit `args` and put the wheel path in `args` in place of the package name: `["--from", "./dist/founder_vn-0.3.1-py3-none-any.whl", "founder-vn-mcp"]`.
 4. Set the three model variables in the shell that starts Kiro CLI: `FOUNDER_LLM_BASE_URL`,
    `FOUNDER_LLM_API_KEY`, `FOUNDER_LLM_MODEL`. Check each is present with `test -n "$NAME"`; never
    print or write the values.

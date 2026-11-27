@@ -85,7 +85,7 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
     assert "## Clean-install walkthrough" in text
     section = text.split("## Clean-install walkthrough", 1)[1]
     for needle in (
-        "uvx --from ./dist/founder_vn-0.3.0-py3-none-any.whl founder-vn install --host kiro",
+        "uvx --from ./dist/founder_vn-0.3.1-py3-none-any.whl founder-vn install --host kiro",
         "uvx --from founder-vn founder-vn install --host kiro",
         "FOUNDER_LLM_BASE_URL",
         "FOUNDER_LLM_API_KEY",

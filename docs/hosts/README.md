@@ -5,7 +5,7 @@ skills from PyPI release 0.3.0 to `business-plan.md` on 2026-11-26 ([evidence](.
 and 0.3.0 on PyPI lacks the source ledger on a clean install (#142), which `founder-vn install` writes from the first release that ships it;
 the walkthrough of #19 ran the six Wave A skills from 0.2.0 on 2026-11-25 ([evidence](../evidence/issue-19-wave-a-walkthrough.md)). The other pages
 are written from the output of `founder-vn install --host <host>` and say what is not yet witnessed (design §5). The MCP server command is the same
-everywhere: `uvx --from founder-vn founder-vn-mcp` (it resolves from PyPI since `v0.2.0`, the first release, published 2026-11-24; the current release is `v0.3.0`, published 2026-11-26).
+everywhere: `uvx --from founder-vn founder-vn-mcp` (it resolves from PyPI since `v0.2.0`, the first release, published 2026-11-24; the current release is `v0.3.0`, published 2026-11-26; the repository is at 0.3.1, pending the `v0.3.1` tag (#149)).
 
 | Host | Page | State |
 |---|---|---|
