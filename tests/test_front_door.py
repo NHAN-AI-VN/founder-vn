@@ -160,10 +160,12 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
         row = next(line for line in english.splitlines() if f"`{skill}`" in line and "|" in line)
         assert issue in row and f"examples/barbershop/founder/{artefact}" in row, skill
     permits_row = next(line for line in english.splitlines() if "`founder-permits`" in line)
-    assert "#142" in permits_row, "a clean install has no source ledger (#142)"
+    assert "`founder-vn install` writes the source ledger `permits/sources.md`" in permits_row
+    assert "0.3.0 on PyPI still lacks it" in permits_row and "known defect" not in permits_row
     kiro_row = next(line for line in english.splitlines() if line.startswith("| Kiro CLI"))
     assert "full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118)" in kiro_row
-    assert "#142" in kiro_row
+    assert "the installer writes the ledger from the first release that ships #142" in kiro_row
+    assert "known defect" not in kiro_row
     assert "verified on 0.2.0 (walkthrough 2026-11-25, #19)" in kiro_row
     # #118 criterion 4: the major-mismatch stop was observed on 0.3.0 as well (2026-11-27).
     assert "major-mismatch stop observed on 0.2.0 (#19) and on 0.3.0 (2026-11-27, #118)" in kiro_row
@@ -178,7 +180,11 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     assert (
         "verified end to end on 0.3.0 incl. Wave B (walkthrough 2026-11-26, #118" in kiro_index_row
     )
-    assert "#142" in kiro_index_row and "#19" in kiro_index_row
+    assert "the installer writes the source ledger from the first release that ships #142" in (
+        kiro_index_row
+    )
+    assert "known defect" not in kiro_index_row and "#19" in kiro_index_row
+    assert "known defect" not in hosts_index
     assert "../evidence/issue-118-wave-b-walkthrough.md" in hosts_index
     assert "pending walkthrough" not in hosts_index
     assert "No host is verified end to end yet" not in hosts_index
@@ -189,3 +195,7 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     assert "đang chờ tag" not in vietnamese and "đang chờ walkthrough" not in vietnamese
     assert "đã xác nhận trên 0.3.0 (walkthrough 26/11/2026, #118)" in vietnamese
     assert vietnamese.count("#142") == 2, "the Kiro CLI line and the founder-permits line"
+    assert "lỗi đã biết #142" not in vietnamese
+    assert "bản cài đặt ghi sổ nguồn `permits/sources.md` từ bản phát hành đầu tiên có #142" in (
+        vietnamese
+    )

@@ -2,14 +2,14 @@
 
 One page per supported host. Kiro CLI is verified end to end: the clean-install walkthrough of #118 ran all ten
 skills from PyPI release 0.3.0 to `business-plan.md` on 2026-11-26 ([evidence](../evidence/issue-118-wave-b-walkthrough.md)),
-with one known defect (#142: a clean install has no source ledger, so `founder-permits` writes no verified figure);
+and 0.3.0 on PyPI lacks the source ledger on a clean install (#142), which `founder-vn install` writes from the first release that ships it;
 the walkthrough of #19 ran the six Wave A skills from 0.2.0 on 2026-11-25 ([evidence](../evidence/issue-19-wave-a-walkthrough.md)). The other pages
 are written from the output of `founder-vn install --host <host>` and say what is not yet witnessed (design §5). The MCP server command is the same
 everywhere: `uvx --from founder-vn founder-vn-mcp` (it resolves from PyPI since `v0.2.0`, the first release, published 2026-11-24; the current release is `v0.3.0`, published 2026-11-26).
 
 | Host | Page | State |
 |---|---|---|
-| Kiro CLI | [kiro.md](kiro.md) | verified end to end on 0.3.0 incl. Wave B (walkthrough 2026-11-26, #118; known defect #142); Wave A first on 0.2.0 (walkthrough 2026-11-25, #19) |
+| Kiro CLI | [kiro.md](kiro.md) | verified end to end on 0.3.0 incl. Wave B (walkthrough 2026-11-26, #118; the installer writes the source ledger from the first release that ships #142); Wave A first on 0.2.0 (walkthrough 2026-11-25, #19) |
 | Claude Code | [claude.md](claude.md) | written, not witnessed on host |
 | Codex | [codex.md](codex.md) | written, not witnessed on host |
 | Gemini / Antigravity CLI | [gemini.md](gemini.md) | pending confirmation |
