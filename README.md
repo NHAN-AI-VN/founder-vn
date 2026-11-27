@@ -28,7 +28,8 @@ and published by `release.yml` through trusted publishing (release record in
 Version 0.2.0 was the first PyPI release (0.1.0 was never published), tagged `v0.2.0` on
 2026-11-24; the clean-install walkthrough of the six Wave A skills on Kiro CLI is recorded in
 [docs/evidence/issue-19-wave-a-walkthrough.md](docs/evidence/issue-19-wave-a-walkthrough.md).
-The walkthrough of the Wave B skills on 0.3.0 has not run yet (#118).
+The clean-install walkthrough of all ten skills on Kiro CLI with 0.3.0 is recorded in the same file
+as the 0.3.0 release (known defect #142).
 
 | Route | Command | State |
 |---|---|---|
@@ -57,7 +58,7 @@ this model; `founder/panel/results.json` records the model that answered. Per-ho
 | `founder-pricing` | #17 | shipped (Wave A) | [`pricing.md`](examples/barbershop/founder/pricing.md) |
 | `founder-cfo` | #12 | shipped (Wave A) | [`cfo.md`](examples/barbershop/founder/cfo.md) |
 | `founder-plan` | #18 | shipped (Wave A): writes `summary.md`, compiles `business-plan.md` | [`business-plan.md`](examples/barbershop/founder/business-plan.md) |
-| `founder-permits` | #112 | shipped (Wave B): common path, household business; F&B path deferred | [`permits.md`](examples/barbershop/founder/permits.md) |
+| `founder-permits` | #112 | shipped (Wave B): common path, household business; F&B path deferred; a clean install lacks the source ledger, so no figure is verified (#142) | [`permits.md`](examples/barbershop/founder/permits.md) |
 | `founder-ops` | #114 | shipped (Wave B): suppliers, rota, routines, ten-item risk register; no supplier quotes yet | [`ops.md`](examples/barbershop/founder/ops.md) |
 | `founder-marketing` | #115 | shipped (Wave B): positioning, channels, 30-day campaign relative to opening day, hooks, budget shares, numbers to watch; ShopeeFood/GrabFood not applicable to the barbershop | [`marketing.md`](examples/barbershop/founder/marketing.md) |
 | `founder-launch` | #116 | shipped (Wave B): real-world test first (waitlist with deposit at the listed price), D-30 to D-0 countdown, launch-day run sheet, first 30 days, real buyers override the panel; no real-buyer data yet | [`launch.md`](examples/barbershop/founder/launch.md) |
@@ -66,7 +67,7 @@ Golden artefacts are under `examples/barbershop/founder/`.
 
 | Host | State |
 |---|---|
-| Kiro CLI | full pipeline verified on 0.2.0 (walkthrough 2026-11-25, #19): clean install from PyPI, six Wave A skills to `business-plan.md`, major-mismatch stop. Wave B: pending walkthrough (#118) |
+| Kiro CLI | full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118): clean install from PyPI, ten skills to `business-plan.md`, `plan --check` exit 0; known defect: a clean install has no source ledger, so `founder-permits` writes no verified figure (#142). Wave A first verified on 0.2.0 (walkthrough 2026-11-25, #19), with the major-mismatch stop, not rerun on 0.3.0 |
 | Claude Code | not yet verified |
 | Codex | not yet verified |
 | Gemini / Antigravity CLI | not yet verified |
@@ -116,8 +117,8 @@ số, nên không có số nào do mô hình tự nghĩ ra.
   `v0.2.0`; 0.1.0 chưa bao giờ được phát hành.
 - **Trạng thái**: sáu skill đợt A (`founder-board` #14, `founder-competitors` #13, `founder-consumer`
   #16, `founder-pricing` #17, `founder-cfo` #12, `founder-plan` #18) đã có, kèm sản phẩm mẫu trong
-  `examples/barbershop/founder/`; `founder-permits` (đợt B, #112, đường chung của hộ kinh doanh; ngành F&B chưa làm) đã có,
-  kèm `permits.md` mẫu; `founder-ops` (đợt B, #114) đã có, kèm `ops.md` mẫu (chưa có báo giá nhà cung cấp thật); `founder-marketing` (đợt B, #115) đã có, kèm `marketing.md` mẫu (chiến dịch 30 ngày tính từ ngày khai trương, chưa có ngày lịch); `founder-launch` (đợt B, #116) đã có, kèm `launch.md` mẫu (thử nghiệm thật bằng danh sách chờ có cọc, đếm ngược D-30 đến D-0, chưa có ngày lịch và chưa có số liệu khách thật); `founder-offer` và `founder-brand` chưa bắt đầu (để sau pilot, Q12). Kiro CLI: chạy trọn quy trình đã xác nhận trên 0.2.0 (walkthrough 25/11/2026, #19); đợt B đang chờ walkthrough #118;
+  `examples/barbershop/founder/`; `founder-permits` (đợt B, #112, đường chung của hộ kinh doanh; ngành F&B chưa làm; bản cài sạch chưa có sổ nguồn nên chưa có số đã kiểm chứng, #142) đã có,
+  kèm `permits.md` mẫu; `founder-ops` (đợt B, #114) đã có, kèm `ops.md` mẫu (chưa có báo giá nhà cung cấp thật); `founder-marketing` (đợt B, #115) đã có, kèm `marketing.md` mẫu (chiến dịch 30 ngày tính từ ngày khai trương, chưa có ngày lịch); `founder-launch` (đợt B, #116) đã có, kèm `launch.md` mẫu (thử nghiệm thật bằng danh sách chờ có cọc, đếm ngược D-30 đến D-0, chưa có ngày lịch và chưa có số liệu khách thật); `founder-offer` và `founder-brand` chưa bắt đầu (để sau pilot, Q12). Kiro CLI: chạy trọn quy trình gồm đợt B đã xác nhận trên 0.3.0 (walkthrough 26/11/2026, #118), còn lỗi đã biết #142 (bản cài sạch không có sổ nguồn); đợt A xác nhận lần đầu trên 0.2.0 (walkthrough 25/11/2026, #19);
   mọi host khác chưa xác nhận.
 - **Quy tắc cứng**: mọi khẳng định pháp lý cần link chính thức và ngày kiểm tra. Luật đổi thì mở
   issue "Law changed".
