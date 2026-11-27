@@ -399,3 +399,105 @@ def test_run_returns_a_job_id_at_once_and_status_follows_it_to_done(
 def test_status_of_an_unknown_job_exits_2(founder: Path, run_cli: RunCli) -> None:
     run_cli("panel", "init", "--n", "3", "--seed", "7")
     assert run_cli("panel", "status", "J-00000000").exit_code == 2
+
+
+def _snapshot(founder: Path) -> dict[str, bytes]:
+    return {
+        p.relative_to(founder).as_posix(): p.read_bytes() for p in founder.rglob("*") if p.is_file()
+    }
+
+
+def _refused(founder: Path, run_cli: RunCli, capsys: pytest.CaptureFixture[str], *args: str) -> str:
+    """Run `panel init` expecting the refusal: exit 2, files byte-identical; return stderr."""
+    before = _snapshot(founder)
+    code = run_cli_main(*args)
+    err = capsys.readouterr().err
+    assert code == 2
+    assert _snapshot(founder) == before
+    return err
+
+
+def run_cli_main(*args: str) -> int:
+    from founder_vn.cli import main
+
+    return main(list(args))
+
+
+def _first_deal(founder: Path, run_cli: RunCli) -> None:
+    run_cli("panel", "init", "--n", "3", "--seed", "1")
+    _answer(founder, "P001", json.dumps({**GOOD, "id": "P001"}))
+
+
+def test_init_refuses_a_changed_pitch_over_answers(
+    founder: Path, run_cli: RunCli, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _first_deal(founder, run_cli)
+    capsys.readouterr()
+    (founder / "pitch.md").write_text("Cắt tóc nam 80.000 đ, quận 3.\n", encoding="utf-8")
+    err = _refused(founder, run_cli, capsys, "panel", "init", "--n", "3", "--seed", "1")
+    assert "founder/panel/answers/" in err
+    assert "1 câu trả lời" in err
+    assert "không bao giờ xoá" in err
+    assert "founder/panel-lan-1/" in err
+
+
+def test_init_refuses_other_seed_or_other_n_over_answers(
+    founder: Path, run_cli: RunCli, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _first_deal(founder, run_cli)
+    capsys.readouterr()
+    for args in (("--n", "3", "--seed", "2"), ("--n", "4", "--seed", "1")):
+        err = _refused(founder, run_cli, capsys, "panel", "init", *args)
+        assert "founder/panel/answers/" in err
+
+
+def test_init_of_an_identical_deal_passes_over_answers(founder: Path, run_cli: RunCli) -> None:
+    _first_deal(founder, run_cli)
+    before = _snapshot(founder)
+    run = run_cli("panel", "init", "--n", "3", "--seed", "1")
+    assert run.exit_code == 0
+    assert run.stdout == "Đã chia 3 người mua (seed 1) vào founder/panel/\n"
+    assert _snapshot(founder) == before
+
+
+def test_init_proceeds_without_answers_or_over_an_empty_answers_folder(
+    founder: Path, run_cli: RunCli
+) -> None:
+    run_cli("panel", "init", "--n", "3", "--seed", "1")
+    assert run_cli("panel", "init", "--n", "3", "--seed", "2").exit_code == 0
+    (founder / "panel" / "answers").mkdir()
+    assert run_cli("panel", "init", "--n", "3", "--seed", "3").exit_code == 0
+
+
+@pytest.mark.parametrize("broken", ["panel.json", "personas.json"])
+@pytest.mark.parametrize("how", ["missing", "not json"])
+def test_init_refuses_when_answers_exist_and_the_panel_on_disk_is_unreadable(
+    founder: Path,
+    run_cli: RunCli,
+    capsys: pytest.CaptureFixture[str],
+    broken: str,
+    how: str,
+) -> None:
+    _first_deal(founder, run_cli)
+    capsys.readouterr()
+    target = founder / "panel" / broken
+    if how == "missing":
+        target.unlink()
+    else:
+        target.write_text("{not json", encoding="utf-8")
+    err = _refused(founder, run_cli, capsys, "panel", "init", "--n", "3", "--seed", "1")
+    assert "founder/panel/answers/" in err
+    assert "founder/panel-lan-1/" in err
+
+
+def test_issue_143_reproduction_stops_at_the_third_command(
+    founder: Path, run_cli: RunCli, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _first_deal(founder, run_cli)
+    capsys.readouterr()
+    (founder / "pitch2.md").write_text("Cắt tóc nam 80.000 đ, quận 3.\n", encoding="utf-8")
+    code = run_cli_main("panel", "init", "--pitch", "pitch2.md", "--n", "3", "--seed", "2")
+    assert code == 2
+    capsys.readouterr()
+    run = run_cli("panel", "check")
+    assert run.stdout.splitlines() == ["P002: chưa có câu trả lời", "P003: chưa có câu trả lời"]

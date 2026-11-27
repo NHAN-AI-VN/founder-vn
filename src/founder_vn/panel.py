@@ -248,6 +248,26 @@ def _read_json(project: Path, path: str) -> Any:
         raise PanelError(f"{path} không phải JSON hợp lệ: {e}") from None
 
 
+def _refuse_other_deal(project: Path, new_hash: str) -> None:
+    """Refuse a deal whose prompt hash differs from the panel on disk while answers exist."""
+    folder = files.resolve(project, _path("answers"))
+    count = sum(1 for p in folder.iterdir() if p.is_file()) if folder.is_dir() else 0
+    if not count:
+        return
+    try:
+        cards = json.loads(files.read_text(project, _path("personas.json")))
+        pitch = json.loads(files.read_text(project, _path("panel.json")))["pitch"]
+        if prompt_hash(cards, pitch) == new_hash:
+            return
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    raise PanelError(
+        f"founder/{PANEL_DIR}/answers/ còn {count} câu trả lời của một lần chia trước (lời chào "
+        "hàng hoặc hồ sơ khách đã đổi). Công cụ không bao giờ xoá câu trả lời. Hãy cất panel cũ "
+        "sang thư mục khác (ví dụ founder/panel-lan-1/) rồi chia lại."
+    )
+
+
 def init(project: Path, customer: str, pitch: str, n: int, seed: int | None) -> str:
     """Deal the cards and write ``panel.json`` and ``personas.json``; return the stdout text."""
     if n < 1:
@@ -260,6 +280,7 @@ def init(project: Path, customer: str, pitch: str, n: int, seed: int | None) -> 
     if seed is None:
         seed = random.SystemRandom().randrange(1, 10**6)
     cards = deal(spec, n, seed)
+    _refuse_other_deal(project, prompt_hash(cards, text))
     files.write_text(
         project, _path("panel.json"), _dump({"n": n, "seed": seed, "customer": spec, "pitch": text})
     )

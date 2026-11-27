@@ -69,7 +69,8 @@ Sự thật về host (có nguồn trong `docs/review-round5.md`):
   `founder-vn-mcp`** bọc *cùng* hàm, đầu ra giống hệt từng byte. Skill gọi MCP nếu host đã cấu hình,
   không thì chạy CLI qua shell. Hai đường vận chuyển, một kết quả: không có hạ cấp.
 - **Fan-out trong server**: `panel_run` và `board_run` là job bất đồng bộ (`job_id` + `job_status`,
-  một tool poll chung cho mọi loại job, Q50; answers ghi dần) để vượt timeout 60 giây của Codex.
+  một tool poll chung cho mọi loại job, Q50; answers ghi dần; chia lại khi `answers/` còn câu trả lời của
+  một lần chia khác thì bị từ chối, chia lại y hệt thì qua, Q58) để vượt timeout 60 giây của Codex.
   Server gọi mô hình cấu hình qua env
   `FOUNDER_LLM_BASE_URL` / `FOUNDER_LLM_API_KEY` / `FOUNDER_LLM_MODEL`, một client OpenAI-compatible,
   tự parse JSON (không dựa vào `response_format`/`seed`/`temperature`), ghi `model` và hash prompt
@@ -206,7 +207,7 @@ bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; đường 
 Kiro Power / Claude Code plugin; máy tính web tĩnh dùng chung công thức; mô hình tài chính bền vững
 cho dự án OSS (chưa bàn, không cần cho v1).
 
-## Phụ lục: nhật ký quyết định (Q1–Q57)
+## Phụ lục: nhật ký quyết định (Q1–Q58)
 
 Vòng 1
 
@@ -352,3 +353,17 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   hành vi khi sổ vẫn vắng giữ nguyên. Sửa §5, `src/founder_vn/install.py`, `pyproject.toml`,
   `tests/golden/install_*.json` (kế hoạch nay liệt kê `permits/sources.md`), ba skill, `docs/agents/standards.md`,
   `docs/hosts/kiro.md`, `docs/hosts/README.md` và README cùng thay đổi. Bản 0.3.0 trên PyPI chưa có thay đổi này.
+- Q58 (2026-11-27, quyết định của operator, từ #143) `panel init` từ chối chia lại không nhất quán: khi
+  `founder/panel/answers/` có ít nhất một file, `init` so hash prompt của panel đang có trên đĩa (các thẻ trong
+  `personas.json` và lời chào hàng trong `panel.json`) với hash prompt của lần chia sắp làm (thẻ từ hồ sơ khách,
+  `n` và seed đã cho, cùng lời chào hàng đã cho). Hash bằng nhau là cùng một panel: `init` chạy như cũ (cùng
+  file, cùng stdout). Hash khác, hoặc panel trên đĩa không đọc được (`panel.json` hay `personas.json` thiếu hoặc
+  hỏng trong khi còn câu trả lời): `init` từ chối trước khi ghi bất cứ gì, bằng `PanelError` tiếng Việt nêu
+  `founder/panel/answers/`, số câu trả lời, rằng công cụ không bao giờ xoá, và việc cần làm: cất panel cũ sang thư
+  mục khác (ví dụ `founder/panel-lan-1/`) rồi chia lại. Hai đường vận chuyển cùng một văn bản: CLI in ra stderr với
+  mã thoát 2, MCP `panel_init` trả lỗi tool. Skill `founder-consumer` bước 3 thêm một câu hướng dẫn xử lý lời từ
+  chối này. Lý do: công cụ không bao giờ được đếm một câu trả lời dưới thẻ hay lời chào hàng mà nó không được hỏi
+  (§2, Q31: hash prompt là nguồn gốc của một kết quả); điểm dừng giữ panel đầu của Owner để so sánh, với giá là
+  một lần chuyển thư mục do con người làm. Phương án đóng dấu `prompt_hash` vào từng file trả lời đã cân nhắc và
+  không chọn cho 0.3.1. Sửa §2, `src/founder_vn/panel.py`, `src/founder_vn/server.py` và
+  `skills/founder-consumer/SKILL.md` cùng thay đổi.

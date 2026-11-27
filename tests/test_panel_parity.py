@@ -166,3 +166,35 @@ def test_panel_run_and_job_status_cli_equals_mcp_seed_7(
     assert settled(mcp_status, mcp_id) == settled(cli_status, cli_id)
     assert json.loads(cli_status)["done"] == 7
     assert stable_files() == cli_files
+
+
+def test_panel_init_refusal_is_the_same_text_through_cli_and_mcp(
+    project_root: Path,
+    run_cli: Callable[..., CliRun],
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from founder_vn.cli import main
+
+    _restore(project_root, _inputs())
+    run_cli("panel", "init", "--n", "3", "--seed", "1")
+    answers = project_root / "founder" / "panel" / "answers"
+    answers.mkdir()
+    (answers / "P001.json").write_text("{}", encoding="utf-8")
+    capsys.readouterr()
+    assert main(["panel", "init", "--n", "3", "--seed", "2"]) == 2
+    cli_err = capsys.readouterr().err
+    before = _files(project_root)
+
+    params = StdioServerParameters(
+        command=sys.executable, args=["-m", "founder_vn.server"], cwd=project_root
+    )
+
+    async def call() -> tuple[bool, str]:
+        async with Client(params) as client:
+            result = await client.call_tool("panel_init", {"n": 3, "seed": 2})
+            return result.is_error, "".join(block.text for block in result.content)
+
+    is_error, text = anyio.run(call)
+    assert is_error
+    assert text == f"Error executing tool panel_init: {cli_err.strip()}"
+    assert _files(project_root) == before
