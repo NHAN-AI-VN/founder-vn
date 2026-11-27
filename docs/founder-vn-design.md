@@ -207,7 +207,7 @@ bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; đường 
 Kiro Power / Claude Code plugin; máy tính web tĩnh dùng chung công thức; mô hình tài chính bền vững
 cho dự án OSS (chưa bàn, không cần cho v1).
 
-## Phụ lục: nhật ký quyết định (Q1–Q58)
+## Phụ lục: nhật ký quyết định (Q1–Q59)
 
 Vòng 1
 
@@ -329,7 +329,8 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   không chọn: Owner nên đọc luật yêu cầu gì trước khi đọc tiệm vận hành ra sao. Khoá `permits`, file
   `permits.md` (hợp đồng trạng thái của spec #1: artefact giữ tên của upstream). `offer` và `brand` vẫn
   nằm trong `plan.SECTIONS` (sau pilot, Q12), nên kế hoạch biên dịch khi chưa có hai skill ấy luôn còn hai
-  dòng "Chưa làm". Sửa `src/founder_vn/plan.py` (và chú thích trên `SECTIONS`, trước đó ghi sai "design §2"),
+  dòng "Chưa làm". Kế hoạch gọi skill của một mục là "chưa có trong bản này" khi gói không đem skill ấy (Q59), và đánh
+  dấu mục Owner tự đưa vào là chưa qua rà soát. Sửa `src/founder_vn/plan.py` (và chú thích trên `SECTIONS`, trước đó ghi sai "design §2"),
   `skills/founder-plan/SKILL.md`, `examples/barbershop/founder/business-plan.md` và `tests/golden/plan_*.json`
   cùng thay đổi.
 - Q56 (2026-11-25, quyết định của operator, từ #111) Đường F&B đầy đủ của `founder-permits` (chứng nhận an
@@ -367,3 +368,22 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   một lần chuyển thư mục do con người làm. Phương án đóng dấu `prompt_hash` vào từng file trả lời đã cân nhắc và
   không chọn cho 0.3.1. Sửa §2, `src/founder_vn/panel.py`, `src/founder_vn/server.py` và
   `skills/founder-consumer/SKILL.md` cùng thay đổi.
+- Q59 (2026-11-27, quyết định của operator, từ #144) Kế hoạch không bao giờ bảo Owner chạy một skill mà bản này
+  không đem: "bản này có skill `founder-<skill>`" được suy ra, không ghi cứng, từ việc gói có thư mục skill ấy với
+  `SKILL.md` (`install.packaged_skills_dir()`: `founder_vn/skills/` trong wheel, nếu không thì `skills/` của repo).
+  `plan.SECTIONS` giữ thứ tự pipeline và hai hàng `offer`, `brand` (Q55). Mục thiếu mà bản này không đem skill thì
+  dòng `Chưa làm` đọc ``- Đề xuất giá trị: để sau pilot, chưa có trong bản này (skill `founder-offer` sẽ tạo
+  founder/offer.md).`` (cùng dạng cho `Thương hiệu` và `founder-brand`); mục thiếu mà skill có trong gói giữ dòng
+  `chạy skill`. Mục có file mà bản này không đem skill thì vẫn được biên dịch, và dòng đầu dưới `## <tiêu đề>` là
+  ``_Mục này lấy từ file founder/offer.md anh/chị cung cấp; bản này chưa có skill `founder-offer`, nên nội dung
+  chưa qua rà soát của founder-vn._``; mục có skill trong gói biên dịch như cũ. Khi `founder-offer` và
+  `founder-brand` được đem vào gói, văn bản kế hoạch tự đổi. `skills/founder-plan/SKILL.md` bước 1 đổi hai hàng
+  bảng thành "để sau pilot, chưa có trong bản này" và thêm một câu: Owner hỏi mục đề xuất giá trị hay thương hiệu
+  thì nói bằng tiếng Việt rằng hai skill ấy đến sau pilot và chưa có trong bản này, không tải, dịch hay tự dựng
+  skill từ nơi khác (phiên #118 đã tải skill upstream tiếng Anh). Lý do: Owner không được bị bảo chạy một skill
+  không tồn tại, và một kế hoạch phải nói mục nào đến từ skill founder-vn đã rà soát (§3) và mục nào không.
+  Ngoài phạm vi: viết hay đem `founder-offer`, `founder-brand` (Q12), bỏ hay đổi thứ tự hai hàng trong
+  `SECTIONS` (Q55), phát hiện ai viết một file mà skill của nó có trong gói. Sửa `src/founder_vn/plan.py`,
+  `skills/founder-plan/SKILL.md`, `examples/barbershop/founder/business-plan.md` (biên dịch lại bằng công cụ) và
+  `tests/golden/plan_*.json` (hai dòng) cùng thay đổi. Dự án có sẵn `business-plan.md` sẽ cũ một lần:
+  `founder-vn plan --check` thoát 1 tới khi biên dịch lại.
