@@ -43,16 +43,20 @@ metadata:
 ## Shared protocol
 
 Every skill includes the block below, copied exactly, as its first section after the title.
-`tests/test_front_door.py` asserts that this block carries all five rules.
+`tests/test_front_door.py` asserts that this block carries all five rules and the Vietnamese step-1
+stop template; `scripts/skill_lint.py` requires that template line in every skill's block (Q60).
 
 ````markdown
 ## Protocol
 
 1. Check the version: call the MCP tool `server_info`, or run `founder-vn --version` in the shell.
    Compare its major version with `metadata.version` of this skill. On a major mismatch, stop and
-   tell the Facilitator to update the package or the skill.
+   tell the Facilitator to update the package or the skill. The stop message is in Vietnamese and
+   has this shape (fill the angle-bracket placeholders):
+   `Dừng ở bước 1 của Protocol: gói founder-vn <phiên bản gói> và skill <tên skill> <phiên bản skill> lệch số major; anh/chị cập nhật gói hoặc skill rồi chạy lại.`
 2. Prefer MCP tools. If the MCP server is not available, run the `founder-vn` CLI through the
-   shell. If neither is available, stop and print the install instructions from the README.
+   shell. If neither is available, stop and print the install instructions from the README; that
+   stop message is in Vietnamese too, with the install commands as the README gives them.
 3. Never compute a number yourself. Every figure comes from a `founder-vn` tool or command.
 4. Never answer for a buyer. Simulated buyers answer only through the panel tools.
 5. Never write the verdict. The verdict comes from the tool output and is shown as given.

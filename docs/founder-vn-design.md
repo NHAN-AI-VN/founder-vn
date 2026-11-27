@@ -121,6 +121,7 @@ Mỗi skill được viết lại theo bối cảnh Việt Nam và kiểm chứn
 | Hướng dẫn mô hình trong SKILL.md | Tiếng Anh; `description` kèm cụm kích hoạt tiếng Việt ("có nên mở quán", "cần bao nhiêu vốn") |
 | README, CONTRIBUTING, docs | Tiếng Anh, có một mục tiếng Việt |
 | Đầu ra cho chủ hộ, `examples/`, BRIEF người mua | Theo ngôn ngữ người dùng, mặc định tiếng Việt, xưng "anh/chị" |
+| Điều skill nói với người hỗ trợ trong phiên khi Protocol dừng nó (lệch số major, không có MCP lẫn CLI) | Tiếng Việt; điểm dừng bước 1 theo đúng dạng khối Protocol trích: `Dừng ở bước 1 của Protocol: gói founder-vn <phiên bản gói> và skill <tên skill> <phiên bản skill> lệch số major; anh/chị cập nhật gói hoặc skill rồi chạy lại.` (Q60) |
 
 README nhắm **người hỗ trợ** (tư vấn viên, nhân viên vườn ươm, người thân biết công nghệ) vận hành
 cho chủ hộ; chủ hộ tự chạy CLI không phải đối tượng v1.
@@ -207,7 +208,7 @@ bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; đường 
 Kiro Power / Claude Code plugin; máy tính web tĩnh dùng chung công thức; mô hình tài chính bền vững
 cho dự án OSS (chưa bàn, không cần cho v1).
 
-## Phụ lục: nhật ký quyết định (Q1–Q59)
+## Phụ lục: nhật ký quyết định (Q1–Q60)
 
 Vòng 1
 
@@ -387,3 +388,23 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   `skills/founder-plan/SKILL.md`, `examples/barbershop/founder/business-plan.md` (biên dịch lại bằng công cụ) và
   `tests/golden/plan_*.json` (hai dòng) cùng thay đổi. Dự án có sẵn `business-plan.md` sẽ cũ một lần:
   `founder-vn plan --check` thoát 1 tới khi biên dịch lại.
+- Q60 (2026-11-27, quyết định của operator, từ #148) Điểm dừng ở bước 1 của khối `## Protocol` chung (gói và
+  skill lệch số major) nói bằng tiếng Việt, theo một dạng cố định mà khối trích nguyên văn, chỗ trong ngoặc nhọn
+  do phiên điền:
+  `Dừng ở bước 1 của Protocol: gói founder-vn <phiên bản gói> và skill <tên skill> <phiên bản skill> lệch số major; anh/chị cập nhật gói hoặc skill rồi chạy lại.`
+  Điểm dừng ở bước 2 (không có MCP lẫn CLI)
+  cũng bằng tiếng Việt, không có dạng cố định; lệnh cài đặt giữ như README. Một thay đổi, mười một file: bản gốc
+  trong `docs/skill-conventions.md` và mười `skills/*/SKILL.md` đổi cùng nhau và giữ giống hệt từng byte (test
+  của từng skill đã so khối với bản gốc); năm luật của khối và câu điều kiện của bước 1 giữ nguyên, hướng dẫn
+  vẫn tiếng Anh, chỉ dòng mẫu trích là tiếng Việt, như các dòng tiếng Việt cố định khác mà skill trích (lời
+  miễn trừ, cảnh báo panel). `scripts/skill_lint.py` thêm một luật: khối `## Protocol` của mọi skill chứa
+  nguyên văn dòng mẫu kèm chỗ trống; thiếu là một finding nêu file và dòng; luật được đưa vào theo đỏ-rồi-xanh
+  (`docs/agents/evidence-gates.md`). Lý do: người hỗ trợ đọc tiếng Việt (§4, đối tượng của README); mặc định
+  đầu ra của §4 là tiếng Việt; và một dạng cố định làm điểm dừng kiểm được trong walkthrough (tiêu chí 4 của #19
+  và #118 phải trích văn bản tự do: #19 dừng bằng tiếng Việt, #118 bằng tiếng Anh, cùng mô hình, cùng một lệnh
+  một token) và trong lint. Phương án dịch cả khối sang tiếng Việt đã cân nhắc và không chọn: nó đảo "hướng dẫn
+  tiếng Anh" của §4 cho một khối và không thêm gì. Sửa §4 (hàng mới trong bảng ngôn ngữ), `docs/skill-conventions.md`,
+  mười skill, `scripts/skill_lint.py`, `docs/hosts/kiro.md` bước 9 (điểm dừng mong đợi bắt đầu bằng `Dừng ở bước 1
+  của Protocol`) và `docs/agents/standards.md` (mục skill) cùng thay đổi. Ngoài phạm vi: quan sát điểm dừng mới
+  với mô hình thật (walkthrough cài sạch kế tiếp, #149), ngôn ngữ của `founder-vn install` và của README ngoài
+  mục `## Tiếng Việt`.
