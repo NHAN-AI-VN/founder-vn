@@ -107,6 +107,30 @@ def test_shared_protocol_block_carries_the_five_rules() -> None:
         assert needle in block, needle
 
 
+# #148 (Q60): the step-1 stop is Vietnamese, in one fixed shape; placeholders are filled by the session.
+PROTOCOL_STOP = (
+    "Dừng ở bước 1 của Protocol: gói founder-vn <phiên bản gói> và skill <tên skill> "
+    "<phiên bản skill> lệch số major; anh/chị cập nhật gói hoặc skill rồi chạy lại."
+)
+
+
+def test_shared_protocol_block_quotes_the_vietnamese_stop_template() -> None:
+    block = _protocol_block()
+    step1, rest = block.split("\n2. ", 1)
+    step2 = rest.split("\n3. ", 1)[0]
+    assert PROTOCOL_STOP in step1
+    flat = " ".join(step1.split())
+    # the condition sentence stays as #19 and #118 observed it (docs/hosts/kiro.md step 9 quotes it)
+    condition = (
+        "On a major mismatch, stop and tell the Facilitator to update the package or the skill."
+    )
+    assert condition in flat
+    assert "Vietnamese" in step1, "step 1 says the stop message is Vietnamese"
+    assert "Vietnamese" in step2, "step 2 says its stop (no MCP, no CLI) is Vietnamese"
+    assert "install instructions from the README" in " ".join(step2.split())
+    assert not DOLLAR.search(block)
+
+
 def test_review_checklist_has_the_five_items() -> None:
     text = _read("docs/review-checklist.md")
     for needle in (
