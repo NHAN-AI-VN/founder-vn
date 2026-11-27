@@ -153,3 +153,71 @@ def test_project_file_hosts_write_when_absent_and_print_when_present(
     assert target.read_bytes() == b"mine"
     assert f"exists     {rel} (not modified)" in again and "founder-vn" in again
     assert "~/" not in again.split("MCP registration", 1)[1].splitlines()[0]
+
+
+LEDGER = Path(__file__).parent.parent / "permits" / "sources.md"
+
+
+def test_pyproject_ships_the_ledger_in_the_wheel() -> None:
+    root = Path(__file__).parent.parent
+    wheel = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))["tool"]["hatch"][
+        "build"
+    ]["targets"]["wheel"]
+    assert wheel["force-include"]["permits/sources.md"] == "founder_vn/permits/sources.md"
+
+
+def test_default_ledger_is_the_repository_ledger_when_not_packaged() -> None:
+    assert install.packaged_ledger().read_bytes() == LEDGER.read_bytes()
+
+
+@pytest.mark.parametrize("host", sorted(FOLDERS))
+def test_every_host_writes_the_ledger_on_an_empty_project(host: str, project_root: Path) -> None:
+    text = install.run(project_root, host, print_only=False, skills_dir=SRC)
+    assert (project_root / "permits/sources.md").read_bytes() == LEDGER.read_bytes()
+    assert "create     permits/sources.md" in text
+
+
+def test_second_run_reports_the_ledger_unchanged(project_root: Path) -> None:
+    install.run(project_root, "kiro", print_only=False, skills_dir=SRC)
+    text = install.run(project_root, "kiro", print_only=False, skills_dir=SRC)
+    assert "unchanged  permits/sources.md" in text
+
+
+def test_a_differing_ledger_is_updated_and_other_permits_files_are_kept(
+    project_root: Path,
+) -> None:
+    target = project_root / "permits/sources.md"
+    target.parent.mkdir()
+    target.write_text("local edit", encoding="utf-8")
+    other = project_root / "permits/notes.md"
+    other.write_text("mine", encoding="utf-8")
+    text = install.run(project_root, "kiro", print_only=False, skills_dir=SRC)
+    assert "update     permits/sources.md" in text
+    assert target.read_bytes() == LEDGER.read_bytes()
+    assert other.read_text(encoding="utf-8") == "mine"
+
+
+def test_print_only_plans_the_ledger_and_writes_nothing(project_root: Path) -> None:
+    text = install.run(project_root, "kirocrew", print_only=True, skills_dir=SRC)
+    assert "create     permits/sources.md" in text
+    assert list(project_root.iterdir()) == []
+
+
+def test_ledger_through_an_escaping_symlink_is_refused(
+    project_root: Path, tmp_path_factory: pytest.TempPathFactory
+) -> None:
+    outside = tmp_path_factory.mktemp("outside")
+    (project_root / "permits").symlink_to(outside, target_is_directory=True)
+    with pytest.raises(install.InstallRefused):
+        install.run(project_root, "kiro", print_only=False, skills_dir=SRC)
+    assert list(outside.iterdir()) == []
+    assert not (project_root / ".kiro").exists()
+
+
+def test_design_and_standards_record_q57() -> None:
+    root = Path(__file__).parent.parent
+    design = (root / "docs" / "founder-vn-design.md").read_text(encoding="utf-8")
+    assert "(Q1–Q57)" in design and "\n- Q57 (2026-11-27" in design
+    assert "ghi sổ nguồn `permits/sources.md` của gói vào dự án (Q57)" in design
+    standards = (root / "docs" / "agents" / "standards.md").read_text(encoding="utf-8")
+    assert "`<project>/permits/sources.md`" in standards and "(Q57, #142.)" in standards

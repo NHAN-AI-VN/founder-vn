@@ -136,3 +136,14 @@ def test_names_permits_in_the_file_list_and_the_missing_section_mapping() -> Non
     text = _skill()
     assert "`ops.md`" in text and "`cfo.md`, `permits.md`, `marketing.md`" in text
     assert "| Giấy phép và thuế | `founder-permits` |" in text
+
+
+LEDGER_SENTENCE = (
+    "When `permits/sources.md` is absent from the project, the ledger is written by "
+    "`founder-vn install --host <host>` from the installed package: run it, and do not fill "
+    "the figure from memory or from a website."
+)
+
+
+def test_says_how_to_get_an_absent_ledger_and_not_to_guess() -> None:
+    assert LEDGER_SENTENCE in _skill()

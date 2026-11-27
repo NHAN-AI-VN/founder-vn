@@ -127,8 +127,8 @@ cho chủ hộ; chủ hộ tự chạy CLI không phải đối tượng v1.
 ## 5. Phân phối, repo, kiểm chứng, quản trị
 
 - Cài skill: `npx skills add <owner>/founder-vn` (dev) hoặc `founder-vn install --host
-  kiro|claude|codex|grok|kirocrew` (người hỗ trợ chỉ cần Python/uv): sao chép skill vào đúng thư mục
-  và đăng ký MCP (Q54): host có file đăng ký trong dự án (Kiro `.kiro/settings/mcp.json`, Claude Code
+  kiro|claude|codex|grok|kirocrew` (người hỗ trợ chỉ cần Python/uv): sao chép skill vào đúng thư mục,
+  ghi sổ nguồn `permits/sources.md` của gói vào dự án (Q57) và đăng ký MCP (Q54): host có file đăng ký trong dự án (Kiro `.kiro/settings/mcp.json`, Claude Code
   `.mcp.json`, Codex `.codex/config.toml`, Grok `.grok/config.toml`) thì ghi file đó khi chưa có và chỉ in đoạn
   cấu hình khi đã có; KiroCrew chỉ in. Server trên PyPI, chạy `uvx --from founder-vn founder-vn-mcp` (`uvx <lệnh>` cài gói tên `<lệnh>`
   nếu không có `--from`, Q53). `docs/hosts/<host>.md` có
@@ -206,7 +206,7 @@ bằng sub-agent của host (v1.1); `founder-offer`, `founder-brand`; đường 
 Kiro Power / Claude Code plugin; máy tính web tĩnh dùng chung công thức; mô hình tài chính bền vững
 cho dự án OSS (chưa bàn, không cần cho v1).
 
-## Phụ lục: nhật ký quyết định (Q1–Q56)
+## Phụ lục: nhật ký quyết định (Q1–Q57)
 
 Vòng 1
 
@@ -336,3 +336,19 @@ Vòng 8 (sau spec và mã; từng mục ghi ngày và chỗ phát sinh)
   phụ tổng hợp: user story 48 của spec #1 và §5 giữ một case mẫu ẩn danh duy nhất, và Q7 đòi kiểm chứng trên
   một case thật. Việc này chốt mục còn mở ở hệ quả (2) của Q51 theo hướng "đổi ưu tiên": đường chung ra
   trước. Sửa câu hệ quả của Q51 và danh sách "Để sau" ở §9 cùng thay đổi.
+- Q57 (2026-11-27, quyết định của operator, từ #142) Gói phân phối sổ nguồn: wheel mang `permits/sources.md`
+  (hatch force-include vào `founder_vn/permits/sources.md`, cùng cơ chế với `skills/`), và bộ cài tìm nó theo hai
+  đường như skill (bản trong gói khi cài từ wheel, nếu không thì `permits/` của repo). `founder-vn install --host
+  <host>` ghi `<dự án>/permits/sources.md` cho mọi host của `install.SKILL_FOLDERS`, KiroCrew gồm cả (sổ nguồn là
+  file của dự án, không phải file đăng ký), theo quy tắc của file skill chứ không theo quy tắc của file đăng ký:
+  `create` khi chưa có, `update` khi file trong dự án khác bản trong gói (nội dung của gói thắng và kế hoạch nói
+  rõ), `unchanged` khi giống hệt; không bao giờ xoá; `--print-only` không ghi gì; đích thoát khỏi dự án qua `..`
+  hay symlink thì bị từ chối bằng `InstallRefused` và mã thoát 2 trước khi ghi bất cứ gì. Lý do: sổ nguồn là nội
+  dung gói đã được review, thay đổi của nó (luật đổi, thêm mục đã kiểm chứng) phải tới dự án khi nâng cấp; một
+  sổ chỉ ghi khi chưa có sẽ giữ im lặng số pháp lý cũ, tức rủi ro 2. Sửa tay trong sổ không phải mục đã kiểm
+  chứng (đầu sổ; luật không đoán số của `founder-permits`), nên bộ cài ghi đè và báo `update`. Ba skill đọc sổ
+  (`founder-permits` bước 2, `founder-cfo` bước 3, `founder-plan` bước tóm tắt) thêm một câu tiếng Anh hướng
+  dẫn người hỗ trợ: sổ vắng thì chạy `founder-vn install --host <host>`, không điền số từ trí nhớ hay từ website;
+  hành vi khi sổ vẫn vắng giữ nguyên. Sửa §5, `src/founder_vn/install.py`, `pyproject.toml`,
+  `tests/golden/install_*.json` (kế hoạch nay liệt kê `permits/sources.md`), ba skill, `docs/agents/standards.md`,
+  `docs/hosts/kiro.md`, `docs/hosts/README.md` và README cùng thay đổi. Bản 0.3.0 trên PyPI chưa có thay đổi này.

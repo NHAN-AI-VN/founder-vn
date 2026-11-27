@@ -24,6 +24,7 @@ packages = ["src/founder_vn"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "skills" = "founder_vn/skills"
+"permits/sources.md" = "founder_vn/permits/sources.md"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

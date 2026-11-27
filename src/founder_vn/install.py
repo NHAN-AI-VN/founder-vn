@@ -1,6 +1,7 @@
 """Installer: copy the packaged skills into a host's project-level skills folder.
 
-Writes only inside the project: the host's skills folder and, for hosts whose MCP
+Writes only inside the project: the host's skills folder, the packaged source ledger
+``permits/sources.md`` (Q57; created or updated like a skill file) and, for hosts whose MCP
 registration is a project file, that file when it is absent (Q54). Never merges into an
 existing file; never deletes.
 """
@@ -16,6 +17,7 @@ SKILL_FOLDERS = {
     "codex": ".agents/skills",
 }
 HOSTS = tuple(SKILL_FOLDERS)
+LEDGER_PATH = "permits/sources.md"
 
 
 class InstallRefused(ValueError):
@@ -84,6 +86,13 @@ def packaged_skills_dir() -> Path:
     return shipped if shipped.is_dir() else here.parent.parent / "skills"
 
 
+def packaged_ledger() -> Path:
+    """Ledger shipped in the wheel (founder_vn/permits/sources.md), else the repository's."""
+    here = Path(__file__).parent
+    shipped = here / "permits" / "sources.md"
+    return shipped if shipped.is_file() else here.parent.parent / "permits" / "sources.md"
+
+
 def _skill_files(skills_dir: Path) -> list[Path]:
     if not skills_dir.is_dir():
         return []
@@ -96,8 +105,10 @@ def _skill_files(skills_dir: Path) -> list[Path]:
 def run(project: Path, host: str, print_only: bool, skills_dir: Path | None = None) -> str:
     """Install (or plan) the skills for ``host``; return the text for the Facilitator."""
     registration = _plan_registration(project, host)
+    _check_inside(project, LEDGER_PATH)
     return (
         _copy_skills(project, host, print_only, skills_dir)
+        + _write_ledger(project, print_only)
         + _write_registration(project, registration, print_only)
         + "\n"
         + SNIPPETS[host]
@@ -132,6 +143,27 @@ def _copy_skills(project: Path, host: str, print_only: bool, skills_dir: Path | 
             target.write_bytes(data)
         lines.append(f"{state:<10} {folder}/{rel.as_posix()}")
     return "\n".join(lines) + "\n"
+
+
+def _check_inside(project: Path, rel: str) -> None:
+    if not (Path(project) / rel).resolve().is_relative_to(Path(project).resolve()):
+        raise InstallRefused(f"refused: {rel} resolves outside the project")
+
+
+def _write_ledger(project: Path, print_only: bool) -> str:
+    """Create or update ``permits/sources.md`` from the package; the packaged content wins."""
+    data = packaged_ledger().read_bytes()
+    target = Path(project) / LEDGER_PATH
+    if not target.exists():
+        state = "create"
+    elif target.read_bytes() == data:
+        state = "unchanged"
+    else:
+        state = "update"
+    if state != "unchanged" and not print_only:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    return f"{state:<10} {LEDGER_PATH}\n"
 
 
 def _plan_registration(project: Path, host: str) -> tuple[str, str] | None:

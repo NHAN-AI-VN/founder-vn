@@ -49,7 +49,7 @@ Accept Vietnamese number forms the Owner types (`35k`, `1,2 triệu`, `35.000`).
 
 `numbers.json` needs `tax_rate_on_revenue` (percent, VAT plus personal income tax for the sector) and `tax_free_threshold` (annual revenue in đồng). They are never typed from memory and never taken from this file.
 
-1. Open `permits/sources.md` and find the entry for each key and the Owner's sector. The entry must carry an official link and a verification date.
+1. Open `permits/sources.md` and find the entry for each key and the Owner's sector. The entry must carry an official link and a verification date. When `permits/sources.md` is absent from the project, the ledger is written by `founder-vn install --host <host>` from the installed package: run it, and do not fill the figure from memory or from a website.
 2. Use the value the entry gives. Tell the Owner in Vietnamese the value, the legal document, the link and the verification date.
 3. If there is no entry for the sector, or the entry has no link or no verification date, do not write a rate. Ask the Owner for the figure and its official source, mark it "chưa kiểm chứng" in your reply, and say that the number is the Owner's input, not a checked legal figure.
 

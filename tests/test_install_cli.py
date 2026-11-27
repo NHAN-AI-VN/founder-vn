@@ -71,3 +71,23 @@ def test_cli_install_writes_the_registration_file_on_a_clean_project(
 ) -> None:
     assert run_cli("install", "--host", "kiro").exit_code == 0
     assert (project_root / ".kiro/settings/mcp.json").is_file()
+
+
+def test_cli_install_writes_the_ledger_on_a_clean_project(
+    project_root: Path, run_cli: RunCli
+) -> None:
+    run = run_cli("install", "--host", "kiro")
+    assert run.exit_code == 0
+    assert "create     permits/sources.md" in run.stdout
+    assert (project_root / "permits/sources.md").read_bytes() == (
+        Path(__file__).parent.parent / "permits" / "sources.md"
+    ).read_bytes()
+
+
+def test_cli_ledger_escape_exits_2(
+    project_root: Path, tmp_path_factory: pytest.TempPathFactory, run_cli: RunCli
+) -> None:
+    outside = tmp_path_factory.mktemp("out")
+    (project_root / "permits").symlink_to(outside, target_is_directory=True)
+    assert run_cli("install", "--host", "kiro").exit_code == 2
+    assert list(outside.iterdir()) == []

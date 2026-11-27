@@ -40,7 +40,7 @@ Produce `founder/permits.md`: a static checklist the Owner can follow, one row p
 
 ## Step 2: look up the ledger
 
-Open `permits/sources.md`. The entries this skill uses are:
+Open `permits/sources.md`. When `permits/sources.md` is absent from the project, the ledger is written by `founder-vn install --host <host>` from the installed package: run it, and do not fill the figure from memory or from a website. The entries this skill uses are:
 
 - `household_registration`: registering a household business (authority, documents, time, how to file, what the certificate is, fee procedure).
 - `tax_registration_declaration`: tax registration and the declaration method for a household business.

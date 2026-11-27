@@ -119,6 +119,9 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
     assert "../evidence/issue-118-wave-b-walkthrough.md" in section
     assert "issue-#118" not in text and "pending" not in section
     assert "2026-11-26" in section and "#118" in section and "#142" in section
+    # #142 (Q57): the installer writes the ledger; the page no longer presents it as an open defect.
+    assert "Known defect #142" not in text
+    assert "step 2 (`founder-vn install --host kiro`) writes `permits/sources.md`" in text
     # #118 criterion 4 ran on 0.3.0 the day after the walkthrough: step 9 is no longer 0.2.0-only.
     assert "run on 0.2.0 only" not in section and "2026-11-27" in section
 
