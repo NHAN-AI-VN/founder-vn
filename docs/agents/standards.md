@@ -36,7 +36,7 @@ What the Standards review axis checks against. The design (`docs/founder-vn-desi
 ## Skills (design §2, §5)
 
 - `skills/<name>/SKILL.md` frontmatter: `name` equals the folder, `description` carries Vietnamese trigger phrases, `license`, `metadata.version` equals the package version, upstream `author`/`source`/`commit`. `scripts/skill_lint.py` checks the machine-checkable half.
-- Instructions in English; the shared protocol section (version check, MCP first then CLI, never compute, never answer for a buyer, never write the verdict) is copied from the convention ticket T02 defines.
+- Instructions in English; the shared protocol section (version check, MCP first then CLI, never compute, never answer for a buyer, never write the verdict) is copied from the convention ticket T02 defines. What the skill says to the Facilitator when the protocol stops it (a major mismatch, neither MCP nor CLI) is Vietnamese; the step-1 stop has the shape the block quotes, `Dừng ở bước 1 của Protocol: …`, and `scripts/skill_lint.py` requires that line in every skill's block (Q60, #148).
 
 ## Git
 

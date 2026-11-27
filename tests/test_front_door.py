@@ -131,6 +131,21 @@ def test_shared_protocol_block_quotes_the_vietnamese_stop_template() -> None:
     assert not DOLLAR.search(block)
 
 
+def test_design_and_standards_record_q60() -> None:
+    design = _read("docs/founder-vn-design.md")
+    assert "(Q1–Q60)" in design and "\n- Q60 (2026-11-27" in design
+    language = design.split("## 4. Ngôn ngữ", 1)[1].split("\n## 5.", 1)[0]
+    assert PROTOCOL_STOP in language, "the §4 language table has the row for the Protocol stop"
+    q60 = design.split("\n- Q60 (", 1)[1]
+    assert PROTOCOL_STOP in q60 and "skill_lint" in q60 and "#148" in q60
+    standards = _read("docs/agents/standards.md")
+    skills_bullet = next(
+        line for line in standards.splitlines() if "shared protocol section" in line
+    )
+    assert "Dừng ở bước 1 của Protocol" in skills_bullet and "Vietnamese" in skills_bullet
+    assert "Q1–Q60" in _read("AGENTS.md")
+
+
 def test_review_checklist_has_the_five_items() -> None:
     text = _read("docs/review-checklist.md")
     for needle in (
