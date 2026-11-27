@@ -117,3 +117,14 @@ def test_no_dollar_and_no_legal_figure_is_typed_into_the_skill() -> None:
     body = text.split("---", 2)[2]
     body = re.sub(r"`[^`]*`", "", body)
     assert not DIGIT_FIGURE.search(body), DIGIT_FIGURE.search(body)
+
+
+LEDGER_SENTENCE = (
+    "When `permits/sources.md` is absent from the project, the ledger is written by "
+    "`founder-vn install --host <host>` from the installed package: run it, and do not fill "
+    "the figure from memory or from a website."
+)
+
+
+def test_says_how_to_get_an_absent_ledger_and_not_to_guess() -> None:
+    assert LEDGER_SENTENCE in _skill()

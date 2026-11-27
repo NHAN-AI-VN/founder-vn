@@ -169,3 +169,14 @@ def test_golden_cfo_md_limits_section_cites_every_ledger_link_and_the_verificati
         assert verification.group(0) in limits
     assert "không phải số anh/chị nhập" in limits
     assert "permits/sources.md" in limits
+
+
+LEDGER_SENTENCE = (
+    "When `permits/sources.md` is absent from the project, the ledger is written by "
+    "`founder-vn install --host <host>` from the installed package: run it, and do not fill "
+    "the figure from memory or from a website."
+)
+
+
+def test_says_how_to_get_an_absent_ledger_and_not_to_guess() -> None:
+    assert LEDGER_SENTENCE in _skill()
