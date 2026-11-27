@@ -1,42 +1,25 @@
-Commit mã đã chấm: e7ec97e9d86e
+Commit mã đã chấm: 6925fe575468
 
-# Review trục Spec: #118, vòng 1
+# Review trục Spec: #118, vòng 1 (lượt sau SPEC-1)
 
-Phạm vi: `git diff --stat main...HEAD` (7 file: `README.md`, `docs/hosts/README.md`, `docs/hosts/kiro.md`, `docs/evidence/issue-118-wave-b-walkthrough.md` thay cho template `issue-#118-...`, `tests/test_front_door.py`, `tests/test_hosts.py`) và 8 commit của `main..HEAD`. Gate của CI ở `e7ec97e9d86e`: success. Tôi không chạy lại test; không quan sát phiên Kiro CLI hay PyPI, chỉ đọc bản ghi.
+Phạm vi: `git diff --stat origin/main...HEAD` (README.md, docs/hosts/README.md, docs/hosts/kiro.md, docs/evidence/issue-118-wave-b-walkthrough.md thay template `issue-#118-...`, tests/test_front_door.py, tests/test_hosts.py, cùng file review) và `git log --oneline origin/main..HEAD` (14 commit, gồm 2424508, ea77918, 6925fe5 sau báo cáo BLOCKED bb4a728). Gate của CI ở `6925fe575468`: success (run 45955604010, từ tin nhắn mở đầu). Tôi chạy lại `uv run pytest tests/test_front_door.py tests/test_hosts.py -q`: 24 passed. Tôi không quan sát phiên Kiro CLI, PyPI hay GitHub Actions; những phần ấy đọc từ bản ghi.
 
 ## Đối chiếu từng criterion
 
-| # | Criterion | Kết quả | Bằng chứng |
-|---|---|---|---|
-| 1 | Comment cấp phát | Đáp ứng (chưa xác minh được ở đây) | Bản ghi nêu comment 2026-11-26T07:17:12Z; tôi không có credential tới tracker. |
-| 2 | Dry run wheel, tag `v0.3.0`, Build xanh, Publish được duyệt, `uvx` ra `founder-vn 0.3.0` | Đáp ứng | Bảng "Release record": run 45776129259, sha256 wheel/sdist của dry run trùng bản trên PyPI, `founder-vn 0.3.0` từ PyPI. Ngoài repo (PyPI, Actions), nên nằm trong mục "chưa xác minh". |
-| 3 | Walkthrough Kiro CLI, ghi vào `docs/evidence/issue-118-wave-b-walkthrough.md` | Đáp ứng, có ghi lệch kịch bản | Bảng bản ghi có lệnh, giờ bắt đầu, thời lượng (dựng lại từ mtime, nói rõ), friction, issue (#142, #143, #144); chỉ ghi tên mô hình; `plan --check` exit 0. Ca là golden idea, ticket cho phép. |
-| 4 | Major mismatch vẫn dừng skill | **Chưa đáp ứng** | Xem SPEC-1. |
-| 5 | README, `docs/hosts/README.md`, `tests/test_front_door.py`, áp bằng `HARNESS_SINGLE_OWNER_FILES=README.md` | Đáp ứng về chữ, xem SPEC-1 về độ trung thực | Diff README (Install 0.3.0, tag 2026-11-26; hàng Kiro CLI đúng câu ticket) và host index; test cập nhật, Gate xanh. |
-| 6 | Mỗi friction/defect thành issue; defect chặn được sửa hoặc nêu trước khi đóng | Đáp ứng | #142, #143, #144; #142 chặn số liệu pháp lý, nêu tên cạnh tuyên bố "verified" trong README. Nội dung issue chưa đọc được. |
-| 7 | PR qua `open-lane-pr.sh` | Chưa đến bước; harness mở sau review | Bản ghi nói PR mở sau khi commit bản ghi. |
+1. Comment cấp phát: bản ghi trích comment 2026-11-26T07:17:12Z (`README.md`, `lane/issue-118`, `main`). Không có credential tới tracker nên tôi không đọc được comment (xem "Chưa xác minh").
+2. Dry run, tag, publish, `uvx --no-cache`: mục "Release record" có lệnh, giờ UTC, sha256 của wheel/sdist trên PyPI trùng bản build dry run, run 45776129259, `founder-vn 0.3.0`. Bằng chứng là bản ghi của operator; không test nào chạm PyPI (đúng bản chất ticket). Đã đáp ứng theo bản ghi.
+3. Walkthrough Kiro CLI: `docs/evidence/issue-118-wave-b-walkthrough.md` có bảng bước với lệnh, giờ bắt đầu, thời lượng, friction, issue (#142, #143, #144), nêu rõ giờ dựng lại từ mtime, chỉ ghi tên model, ý tưởng là golden, không nội dung ca ngoài golden, `plan --check` exit 0. Test `test_issue_118_evidence_records_the_kiro_cli_run` ghim hình dạng bản ghi và chạy trong cổng `unit`. Đã đáp ứng.
+4. Major mismatch (SPEC-1 của vòng trước): đã đóng. Bản ghi mục "Major-mismatch check" quan sát trên 0.3.0 ngày 2026-11-27: `founder-launch` đặt `1.0.0`, `server_info` trả `founder-vn 0.3.0`, skill dừng ở Protocol step 1, không ghi file, trích nguyên văn thông báo dừng, khôi phục sha256 `e8908d4ec871…` bằng `skills/founder-launch/SKILL.md` ở `ca6bc9f`. Lần chạy 1 bị từ chối tool nên bản ghi tự nhận không phải quan sát; lần 2 mới là quan sát. Giới hạn đã ghi (session lồng, `--trust-all-tools`, khoá ghi do lane đặt, không chạy lại skill sau khôi phục) không làm mất điều ticket đòi: một skill Wave B ở `1.0.0`, chạy, trích thông báo, khôi phục. Đã đáp ứng.
+5. README, `docs/hosts/README.md`, `tests/test_front_door.py`: README Install nói 0.3.0 là bản hiện hành, tag `v0.3.0` ngày 2026-11-26; hàng Kiro CLI ghi đúng cụm "full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118)" kèm #142 và mismatch trên 0.3.0; `docs/hosts/README.md` tương tự; bản tiếng Việt cập nhật; test sửa tương ứng và xanh. README sửa bằng `HARNESS_SINGLE_OWNER_FILES=README.md` và một patch tay (ea77918), cả hai đường ticket cho phép; README nằm trong cấp phát. Đã đáp ứng.
+6. Friction thành issue: #142, #143, #144, #148, mỗi cái nêu tên skill hoặc tool. #142 chặn cho số liệu pháp lý đã kiểm chứng; ticket cho phép "sửa (0.3.1) hoặc nêu issue trước khi đóng", và README nêu #142 cạnh khẳng định "verified". Đã đáp ứng.
+7. PR qua `open-lane-pr.sh`: chưa mở theo thiết kế của lane (bản ghi để ô này trống đến sau review); không phải finding.
 
-Artefact cho chủ hộ: diff không chứa `cfo.md`, `pricing.md` hay `examples/` mới. Bản ghi chỉ trích nội dung trong phiên, ngoài git. Tôi không đánh giá nội dung đó.
+## Ngoài phạm vi ticket
+Không thấy hành vi vượt phạm vi: không sửa mã, không file ngoài README và docs/test liên quan. Đổi tên file template `issue-#118-...` thành `issue-118-...` được giải thích (tên có `#` không khớp `docs/evidence/issue-<n>-*.md`) và khớp tên criterion 3 đòi.
 
-## Finding chặn
+## Chưa xác minh (không gắn mã)
+- Comment cấp phát trên #118 và thân các issue #142/#143/#144/#148 tồn tại đúng như bản ghi: không có credential tới tracker.
+- Các số liệu release (run 45776129259, hash PyPI, giờ) và nội dung phiên Kiro CLI: chỉ đọc bản ghi của operator.
+- Thông báo dừng bằng tiếng Anh (#148) lệch với lần #19 bằng tiếng Việt; ticket không yêu cầu ngôn ngữ, nên không chặn. Operator xử lý #148.
 
-### SPEC-1: Criterion 4 (major mismatch dừng skill) chưa được quan sát trên 0.3.0, nhưng ticket vẫn được coi là đủ
-
-- Criterion: "The deliberate major mismatch still stops a skill (one Wave B skill set to `1.0.0`, run, stop message quoted, restored)".
-- Thiếu gì: bản ghi tự ghi `[ ] ... skipped by the operator ("bỏ qua")`, "Criterion 4 is not met", bước 9 "not run". Phần "Major-mismatch check" chỉ đưa sha256 của khối `## Protocol` trùng nhau giữa 10 skill và 0.2.0. Chính bản ghi nói đó không phải quan sát, vì một lần chạy skill là mô hình làm theo văn bản. Không có test nào chạy điều này, đúng như ticket nói ("the steps #19 showed a sandbox lane cannot do").
-- Vì sao chặn: criterion là điều kiện của ticket. Một lời "bỏ qua" trong phiên chat không sửa được ticket. Cổng chứng cứ coi criterion chỉ được đáp ứng bằng bằng chứng thật, không bằng lời tuyên bố hay suy luận. Hệ quả đi tiếp: hàng Kiro CLI trong README và `docs/hosts/README.md` nói "full pipeline incl. Wave B verified on 0.3.0" trong khi một phần của việc xác minh bị bỏ. README có chú thích "major-mismatch stop ... not rerun on 0.3.0", nhưng `docs/hosts/README.md` ghi "verified end to end on 0.3.0" mà không có chú thích đó.
-- Lane không tự sửa được: cần một phiên Kiro CLI thật do operator chạy (đặt `metadata.version: "1.0.0"` ở một skill Wave B, chạy, trích thông báo dừng, khôi phục). Operator cũng có thể sửa criterion 4 trên ticket. Cả hai đều là quyết định hoặc việc của operator, nên đây là BLOCKED chứ không phải CHANGES_REQUESTED.
-
-## Câu hỏi cho operator
-
-- [ ] Criterion 4: operator chạy kiểm tra major mismatch trên 0.3.0 (một skill Wave B đặt `1.0.0`, trích thông báo dừng, khôi phục, ghi vào mục "Major-mismatch check" và tick criterion 4 trong bản ghi), hay sửa ticket #118 để bỏ/hoãn criterion 4 (kèm issue theo dõi)?
-- [ ] Nếu criterion 4 được hoãn: có đồng ý hàng Kiro CLI của `docs/hosts/README.md` nêu rõ "major-mismatch stop chưa chạy lại trên 0.3.0" như README gốc đã làm không? (Đây là sửa văn bản của lane sau khi có quyết định, không phải việc của vòng này.)
-
-## Chưa xác minh
-
-- Comment cấp phát trên #118, nội dung issue #142 #143 #144 và trạng thái nhãn của chúng (không có credential tới tracker).
-- Release run 45776129259, các sha256 trên PyPI, tag `v0.3.0` và môi trường `pypi`: bản ghi không kiểm tra lại được từ sandbox này. Tôi dùng `git` và đọc diff; PyPI mở nhưng tôi không truy vấn, vì vòng này chấm bản ghi chứ không chấm lại bản phát hành.
-- Các số đo walkthrough (giờ, thời lượng) dựng lại từ mtime, như bản ghi tự nhận.
-- Chất lượng artefact của walkthrough (`cfo.md`, `pricing.md`, ...) nằm ngoài git; mục "Review-checklist walk" tự ghi vài lỗi (#142, #144) và tôi không đọc được file gốc.
-
-<promise>BLOCKED</promise>
+<promise>PASS</promise>
