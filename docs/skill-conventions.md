@@ -43,7 +43,8 @@ metadata:
 ## Shared protocol
 
 Every skill includes the block below, copied exactly, as its first section after the title.
-`tests/test_front_door.py` asserts that this block carries all five rules.
+`tests/test_front_door.py` asserts that this block carries all five rules and the Vietnamese step-1
+stop template; `scripts/skill_lint.py` requires that template line in every skill's block (Q60).
 
 ````markdown
 ## Protocol
