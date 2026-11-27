@@ -67,7 +67,7 @@ Golden artefacts are under `examples/barbershop/founder/`.
 
 | Host | State |
 |---|---|
-| Kiro CLI | full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118): clean install from PyPI, ten skills to `business-plan.md`, `plan --check` exit 0; known defect: a clean install has no source ledger, so `founder-permits` writes no verified figure (#142). Wave A first verified on 0.2.0 (walkthrough 2026-11-25, #19), with the major-mismatch stop, not rerun on 0.3.0 |
+| Kiro CLI | full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118): clean install from PyPI, ten skills to `business-plan.md`, `plan --check` exit 0; known defect: a clean install has no source ledger, so `founder-permits` writes no verified figure (#142). Wave A first verified on 0.2.0 (walkthrough 2026-11-25, #19); major-mismatch stop observed on 0.2.0 (#19) and on 0.3.0 (2026-11-27, #118) |
 | Claude Code | not yet verified |
 | Codex | not yet verified |
 | Gemini / Antigravity CLI | not yet verified |

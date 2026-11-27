@@ -165,6 +165,9 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     assert "full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118)" in kiro_row
     assert "#142" in kiro_row
     assert "verified on 0.2.0 (walkthrough 2026-11-25, #19)" in kiro_row
+    # #118 criterion 4: the major-mismatch stop was observed on 0.3.0 as well (2026-11-27).
+    assert "major-mismatch stop observed on 0.2.0 (#19) and on 0.3.0 (2026-11-27, #118)" in kiro_row
+    assert "not rerun on 0.3.0" not in kiro_row
     for host in ("Claude Code", "Codex", "Gemini / Antigravity CLI", "Grok Build", "KiroCrew"):
         row = next(line for line in english.splitlines() if line.startswith(f"| {host}"))
         assert "not yet verified" in row and "verified on" not in row, host
