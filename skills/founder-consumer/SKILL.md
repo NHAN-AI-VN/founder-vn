@@ -6,7 +6,7 @@ description: >-
   hàng có mua không", "thử với khách mô phỏng", "panel người mua", "khách hàng mục tiêu".
 license: MIT
 metadata:
-  version: "0.3.0"
+  version: "0.3.1"
   author: founder-vn author
   source: https://github.com/Jakeschincariol/founder-skill
   commit: fd9385b0cfe1b96bebce3898fbd506d73eff5a9d
