@@ -1,0 +1,10 @@
+# Evidence: issue #148 the Protocol step-1 stop is Vietnamese, in one fixed shape (Q60)
+
+## Seam
+
+Taken from the `## Seam` section of the ticket and refined here (the refinements are marked).
+
+- The shared `## Protocol` block: `docs/skill-conventions.md` is the canonical text, the ten `skills/*/SKILL.md` are its copies. `tests/test_front_door.py` pins the step-1 stop template as a sixth needle of the canonical block and the step-2 Vietnamese stop; the per-skill lockstep tests (`test_skill_carries_the_shared_protocol_block_verbatim` in each `tests/test_*_skill.py`) hold the ten copies to the canonical text. Red first on the canonical block. Refinement: the eleven files change in the same slice, because the lockstep tests make a canonical-only change red on ten skills.
+- `scripts/skill_lint.py` behind the CI Gate and the `static` segment: the new rule (the `## Protocol` block of every skill carries the template verbatim, with its placeholders). `tests/test_skill_lint.py` carries the rule's own tests: a skill whose block lacks the template is one finding naming the file and the line, the ten skills are 0 findings. Red first with a skill fixture lacking the line. Refinement: the lint is also a harness mechanism (`scripts/harness/witness.sh` runs on CI when the lint changes), so the same slice adds the witness fixture `scripts/harness/fixtures/skill-lint/no-protocol-stop` and a `--witness-red` mutation of the rule; the eight existing fixtures gain the block so they keep failing for their one reason.
+- `docs/hosts/kiro.md` step 9 behind `tests/test_hosts.py`: the expected prefix `Dừng ở bước 1 của Protocol`, next to the step-1 condition sentence the test already pins. Red first.
+- `docs/founder-vn-design.md` (§4 row, Q60, the heading range), `docs/agents/standards.md` (skills bullet), `AGENTS.md` and `tests/test_install.py` (the `Q1–Q60` range). Refinement: pinned by a new test in `tests/test_front_door.py`, red first, so the design and standards change is a slice like the others.
