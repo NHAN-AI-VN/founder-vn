@@ -173,3 +173,10 @@ def test_plan_skill_quotes_consumer_md_and_plan_compile_still_reads_results() ->
     assert "`consumer.md`" in text
     assert "panel/results.md" in text
     assert "`plan_compile` keeps reading `panel/results.md`" in text
+
+
+def test_step_3_tells_the_owner_to_set_an_earlier_panel_aside_when_init_refuses() -> None:
+    text = _skill()
+    assert "If `panel_init` refuses because `founder/panel/answers/` holds answers" in text
+    assert "founder/panel-lan-1/" in text
+    assert "never delete an answer" in text

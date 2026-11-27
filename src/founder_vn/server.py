@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver.exceptions import ToolError
 
 from founder_vn import __version__, board, cfo, info, panel, plan, pricing
 
@@ -54,7 +55,10 @@ def panel_init(
     `customer` and `pitch` are read under founder/; the cards are written to founder/panel/.
     The same `seed` gives the same cards.
     """
-    return panel.init(Path.cwd(), customer, pitch, n, seed)
+    try:
+        return panel.init(Path.cwd(), customer, pitch, n, seed)
+    except panel.PanelError as e:
+        raise ToolError(f"lỗi: {e}") from None
 
 
 @mcp.tool()
