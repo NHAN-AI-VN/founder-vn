@@ -30,7 +30,26 @@ Deviation: the MCP server did not turn `PanelError` into a tool error (the libra
 
 ## Cổng ba đoạn
 
-See the `verify` output of the last HEAD (`.harness/gate-segments.txt`).
+Last code commit: `7cb6894`. The run below is at `cbaa732e5f19`, a descendant that changed only `docs/evidence/` and `reviews/` (`git diff --name-only 7cb6894 cbaa732`), so no code changed since `7cb6894`.
+
+```
+$ bash scripts/harness/gate-segment.sh static
+skill-lint: 10 skills checked, 19 example file(s), 0 finding(s) (package version 0.3.0)
+gate-segment: static exit 0 (log .harness/gate-static.log)
+$ bash scripts/harness/gate-segment.sh unit
+492 passed in 32.84s
+gate-segment: unit exit 0 (log .harness/gate-unit.log)
+$ bash scripts/harness/gate-segment.sh build
+Successfully built dist/founder_vn-0.3.0.tar.gz
+Successfully built dist/founder_vn-0.3.0-py3-none-any.whl
+gate-segment: build exit 0 (log .harness/gate-build.log)
+$ bash scripts/harness/gate-segment.sh verify
+gate-segment verify: latest line per segment (.harness/gate-segments.txt)
+  static 0 cbaa732e5f19686a0039b968686658a34542e60d 2026-11-27T08:10:38Z
+  unit 0 cbaa732e5f19686a0039b968686658a34542e60d 2026-11-27T08:11:13Z
+  build 0 cbaa732e5f19686a0039b968686658a34542e60d 2026-11-27T08:11:14Z
+gate-segment verify: GREEN on cbaa732e5f19686a0039b968686658a34542e60d
+```
 
 ## Giới hạn
 
