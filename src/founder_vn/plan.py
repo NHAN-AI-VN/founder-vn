@@ -9,7 +9,7 @@ import math
 from pathlib import Path
 from typing import Any
 
-from founder_vn import cfo, files, panel
+from founder_vn import cfo, files, install, panel
 from founder_vn.vnd import format_vnd
 
 PLAN_FILE = "business-plan.md"
@@ -116,6 +116,11 @@ def _demote(text: str) -> list[str]:
     return [f"##{line}" if line.startswith("#") else line for line in text.strip().splitlines()]
 
 
+def _ships(skill: str) -> bool:
+    """True when this package ships ``founder-<skill>`` (a folder with a SKILL.md, Q59)."""
+    return (install.packaged_skills_dir() / f"founder-{skill}" / "SKILL.md").is_file()
+
+
 def compile_plan(project: Path) -> tuple[str, str]:
     """Return the verdict and the text of ``business-plan.md``."""
     analysis = _analysis(project)
@@ -142,13 +147,27 @@ def compile_plan(project: Path) -> tuple[str, str]:
         lines += ["## Số chính", "", *_key_numbers(analysis), ""]
     todo = []
     for skill, name, heading in SECTIONS:
+        ships = _ships(skill)
         path = files.resolve(project, name)
         if skill == "cfo" and analysis is not None and not path.exists():
             continue
         if not path.exists():
-            todo.append(f"- {heading}: chạy skill `founder-{skill}` (tạo founder/{name}).")
+            if ships:
+                todo.append(f"- {heading}: chạy skill `founder-{skill}` (tạo founder/{name}).")
+            else:
+                todo.append(
+                    f"- {heading}: để sau pilot, chưa có trong bản này "
+                    f"(skill `founder-{skill}` sẽ tạo founder/{name})."
+                )
             continue
-        lines += [f"## {heading}", "", *_demote(files.read_text(project, name)), ""]
+        lines += [f"## {heading}", ""]
+        if not ships:
+            lines += [
+                f"_Mục này lấy từ file founder/{name} anh/chị cung cấp; bản này chưa có skill "
+                f"`founder-{skill}`, nên nội dung chưa qua rà soát của founder-vn._",
+                "",
+            ]
+        lines += [*_demote(files.read_text(project, name)), ""]
     if todo:
         lines += ["## Chưa làm", "", *todo, ""]
     lines += ["## Lưu ý", "", DISCLAIMER]

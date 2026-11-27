@@ -757,8 +757,8 @@ Kế hoạch khai trương này dựa trên ý tưởng của anh/chị và kế
 
 ## Chưa làm
 
-- Đề xuất giá trị: chạy skill `founder-offer` (tạo founder/offer.md).
-- Thương hiệu: chạy skill `founder-brand` (tạo founder/brand.md).
+- Đề xuất giá trị: để sau pilot, chưa có trong bản này (skill `founder-offer` sẽ tạo founder/offer.md).
+- Thương hiệu: để sau pilot, chưa có trong bản này (skill `founder-brand` sẽ tạo founder/brand.md).
 
 ## Lưu ý
 
