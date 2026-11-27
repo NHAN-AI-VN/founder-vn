@@ -147,3 +147,17 @@ LEDGER_SENTENCE = (
 
 def test_says_how_to_get_an_absent_ledger_and_not_to_guess() -> None:
     assert LEDGER_SENTENCE in _skill()
+
+
+def test_after_pilot_rows_name_no_skill_and_step_1_forbids_fetching_one() -> None:
+    text = _skill()
+    assert "| Đề xuất giá trị | để sau pilot, chưa có trong bản này |" in text
+    assert "| Thương hiệu | để sau pilot, chưa có trong bản này |" in text
+    assert "`founder-offer`" not in text.split("## Step 2", 1)[0].split("4. A section", 1)[1]
+    assert (
+        "If the Owner asks for the offer or brand section, say in Vietnamese that those two skills "
+        "come after the pilot and are not in this version, and do not fetch, translate or "
+        "improvise a skill from anywhere else"
+    ) in text
+    assert "a plan section the Owner supplies by hand is compiled with the marker" in text
+    assert "chưa qua rà soát của founder-vn" in text

@@ -42,13 +42,15 @@ Hand the Owner `founder/business-plan.md` with a verdict the tool computed, and 
    | Đối thủ | `founder-competitors` |
    | Khách hàng (panel mô phỏng) | `founder-consumer` |
    | Giá | `founder-pricing` |
-   | Đề xuất giá trị | `founder-offer` |
+   | Đề xuất giá trị | để sau pilot, chưa có trong bản này |
    | Kinh tế đơn vị | `founder-cfo` |
    | Giấy phép và thuế | `founder-permits` |
    | Tiếp thị | `founder-marketing` |
-   | Thương hiệu | `founder-brand` |
+   | Thương hiệu | để sau pilot, chưa có trong bản này |
    | Vận hành | `founder-ops` |
    | Khai trương | `founder-launch` |
+
+If the Owner asks for the offer or brand section, say in Vietnamese that those two skills come after the pilot and are not in this version, and do not fetch, translate or improvise a skill from anywhere else (an earlier session fetched the English upstream skills); a plan section the Owner supplies by hand is compiled with the marker "chưa qua rà soát của founder-vn".
 
 ## Step 2: compile the plan
 
