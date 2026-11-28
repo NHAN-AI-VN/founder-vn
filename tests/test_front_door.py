@@ -34,7 +34,7 @@ def test_readme_names_purpose_audience_hosts_and_both_install_routes() -> None:
         "npx skills add NHAN-AI-VN/founder-vn",
         "founder-vn install --host",
         "uvx --from founder-vn founder-vn-mcp",
-        "released, 0.3.0 on PyPI",
+        "released, 0.3.1 on PyPI",
     ):
         assert needle in text, needle
     assert re.search(r"^## .*Tiếng Việt", text, re.MULTILINE)
@@ -175,14 +175,22 @@ def test_host_pages_carry_no_secret_values_or_dollar_amounts() -> None:
 def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     text = _read("README.md")
     english, vietnamese = re.split(r"^## .*Tiếng Việt", text, maxsplit=1, flags=re.MULTILINE)
-    assert "0.3.0 (Wave B, ten skills) is the current PyPI release" in english
-    assert "v0.3.0" in english and "2026-11-26" in english
+    # #149: 0.3.1 (tagged 2026-11-27) is the current PyPI release and ships the ledger (#142).
+    assert (
+        "0.3.1 (Wave B, ten skills; ships the source ledger, #142) is the current PyPI release"
+        in (english)
+    )
+    assert "v0.3.1" in english and "2026-11-27" in english
+    assert "docs/evidence/issue-149-release-0-3-1.md" in english
+    assert "0.3.0 (`v0.3.0`) was tagged on 2026-11-26" in english
     assert "0.2.0 was the first PyPI release" in english
     assert "v0.2.0" in english and "2026-11-24" in english
-    assert "pending the `v0.3.0` tag" not in english and "not yet released" not in english
-    assert "The repository is at 0.3.1, pending the `v0.3.1` tag (#149)." in english
-    assert text.count("released, 0.3.0 on PyPI") == 2
-    assert "released, 0.2.0 on PyPI" not in text
+    assert "pending the `v0" not in english and "not yet released" not in english
+    assert "The repository is at 0.3.1" not in english
+    assert "A clean install of 0.3.1 writes `permits/sources.md` (#142 fixed in 0.3.1)" in english
+    assert "0.3.0 on PyPI lacks" not in english
+    assert text.count("released, 0.3.1 on PyPI") == 2
+    assert "released, 0.3.0 on PyPI" not in text and "released, 0.2.0 on PyPI" not in text
     assert "has not run yet" not in english and "pending walkthrough" not in text
     assert "0.1.0 is not published" not in text and "chưa lên PyPI" not in text
     for skill, issue, artefact in (
@@ -201,10 +209,20 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
         assert issue in row and f"examples/barbershop/founder/{artefact}" in row, skill
     permits_row = next(line for line in english.splitlines() if "`founder-permits`" in line)
     assert "`founder-vn install` writes the source ledger `permits/sources.md`" in permits_row
-    assert "0.3.0 on PyPI still lacks it" in permits_row and "known defect" not in permits_row
+    assert "#142 fixed in 0.3.1; 0.3.0 on PyPI lacked it" in permits_row
+    assert "still lacks it" not in permits_row and "known defect" not in permits_row
     kiro_row = next(line for line in english.splitlines() if line.startswith("| Kiro CLI"))
     assert "full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118)" in kiro_row
-    assert "the installer writes the ledger from the first release that ships #142" in kiro_row
+    # #149: the two steps #142 broke were re-run on a clean install of 0.3.1; nothing more is claimed.
+    assert (
+        "on a clean install of 0.3.1 the installer writes the source ledger and `founder-permits` "
+        "and `founder-cfo` re-run with sourced figures (2026-11-28, #149; #142 fixed)"
+    ) in kiro_row
+    assert "verified on 0.3.1" not in kiro_row
+    assert (
+        "first release that ships #142" not in kiro_row
+        and "lacks the source ledger" not in kiro_row
+    )
     assert "known defect" not in kiro_row
     assert "verified on 0.2.0 (walkthrough 2026-11-25, #19)" in kiro_row
     # #118 criterion 4: the major-mismatch stop was observed on 0.3.0 as well (2026-11-27).
@@ -220,24 +238,36 @@ def test_readme_truth_table_is_honest_about_release_status_and_hosts() -> None:
     assert (
         "verified end to end on 0.3.0 incl. Wave B (walkthrough 2026-11-26, #118" in kiro_index_row
     )
-    assert "the installer writes the source ledger from the first release that ships #142" in (
-        kiro_index_row
-    )
+    assert (
+        "on 0.3.1 the installer writes the source ledger and `founder-permits`, `founder-cfo` "
+        "re-run on a clean install (2026-11-28, #149; #142 fixed)"
+    ) in kiro_index_row
+    assert "first release that ships" not in hosts_index
     assert "known defect" not in kiro_index_row and "#19" in kiro_index_row
     assert "known defect" not in hosts_index
-    assert "the repository is at 0.3.1, pending the `v0.3.1` tag (#149)" in hosts_index
+    assert "the current release is `v0.3.1`, published 2026-11-27" in hosts_index
+    assert "pending the `v0" not in hosts_index and "the repository is at 0.3.1" not in hosts_index
     assert "../evidence/issue-118-wave-b-walkthrough.md" in hosts_index
+    assert "../evidence/issue-149-release-0-3-1.md" in hosts_index
     assert "pending walkthrough" not in hosts_index
     assert "No host is verified end to end yet" not in hosts_index
     for needle in ("0.2.0", "v0.2.0", "#19", "đã xác nhận", "chưa xác nhận", "chưa bắt đầu"):
         assert needle in vietnamese, needle
+    assert "v0.3.1" in vietnamese and "27/11/2026" in vietnamese
     assert "v0.3.0" in vietnamese and "26/11/2026" in vietnamese
-    assert "Bản hiện hành trên PyPI là 0.3.0" in vietnamese
-    assert "0.3.1 đang chờ tag `v0.3.1` (#149)" in vietnamese
-    assert "đang chờ tag `v0.3.0`" not in vietnamese and "đang chờ walkthrough" not in vietnamese
+    assert "Bản hiện hành trên PyPI là 0.3.1" in vietnamese
+    assert "Bản hiện hành trên PyPI là 0.3.0" not in vietnamese
+    assert "đang chờ tag" not in vietnamese and "đang chờ walkthrough" not in vietnamese
+    assert "Kho mã đang ở 0.3.1" not in vietnamese
     assert "đã xác nhận trên 0.3.0 (walkthrough 26/11/2026, #118)" in vietnamese
+    assert (
+        "cài sạch 0.3.1 có sổ nguồn, `founder-permits` và `founder-cfo` chạy lại với số liệu có nguồn (28/11/2026, #149; #142 đã sửa)"
+        in (vietnamese)
+    )
     assert vietnamese.count("#142") == 2, "the Kiro CLI line and the founder-permits line"
     assert "lỗi đã biết #142" not in vietnamese
-    assert "bản cài đặt ghi sổ nguồn `permits/sources.md` từ bản phát hành đầu tiên có #142" in (
-        vietnamese
+    assert (
+        "bản cài đặt ghi sổ nguồn `permits/sources.md` (#142, đã sửa trong 0.3.1; 0.3.0 trên PyPI chưa có)"
+        in (vietnamese)
     )
+    assert "từ bản phát hành đầu tiên có #142" not in vietnamese

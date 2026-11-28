@@ -22,21 +22,21 @@ is in [docs/hosts/](docs/hosts/README.md).
 
 ## Install
 
-Version 0.3.0 (Wave B, ten skills) is the current PyPI release: `v0.3.0` was tagged on 2026-11-26
+Version 0.3.1 (Wave B, ten skills; ships the source ledger, #142) is the current PyPI release: `v0.3.1` was tagged on 2026-11-27
 and published by `release.yml` through trusted publishing (release record in
+[docs/evidence/issue-149-release-0-3-1.md](docs/evidence/issue-149-release-0-3-1.md)). Version 0.3.0 (`v0.3.0`) was tagged on 2026-11-26
+(release record and the clean-install walkthrough of all ten skills on Kiro CLI in
 [docs/evidence/issue-118-wave-b-walkthrough.md](docs/evidence/issue-118-wave-b-walkthrough.md)).
 Version 0.2.0 was the first PyPI release (0.1.0 was never published), tagged `v0.2.0` on
 2026-11-24; the clean-install walkthrough of the six Wave A skills on Kiro CLI is recorded in
 [docs/evidence/issue-19-wave-a-walkthrough.md](docs/evidence/issue-19-wave-a-walkthrough.md).
-The clean-install walkthrough of all ten skills on Kiro CLI with 0.3.0 is recorded in the same file
-as the 0.3.0 release. 0.3.0 on PyPI lacks `permits/sources.md` on a clean install; the installer writes the ledger from the first release that ships #142.
-The repository is at 0.3.1, pending the `v0.3.1` tag (#149).
+A clean install of 0.3.1 writes `permits/sources.md` (#142 fixed in 0.3.1); 0.3.0 on PyPI lacked it.
 
 | Route | Command | State |
 |---|---|---|
 | Development (skills only) | `npx skills add NHAN-AI-VN/founder-vn` | works from the repository |
-| Facilitator | `uvx --from founder-vn founder-vn install --host kiro\|claude\|codex\|grok\|kirocrew` | released, 0.3.0 on PyPI |
-| MCP server | `uvx --from founder-vn founder-vn-mcp` | released, 0.3.0 on PyPI |
+| Facilitator | `uvx --from founder-vn founder-vn install --host kiro\|claude\|codex\|grok\|kirocrew` | released, 0.3.1 on PyPI |
+| MCP server | `uvx --from founder-vn founder-vn-mcp` | released, 0.3.1 on PyPI |
 
 ## Model
 
@@ -59,7 +59,7 @@ this model; `founder/panel/results.json` records the model that answered. Per-ho
 | `founder-pricing` | #17 | shipped (Wave A) | [`pricing.md`](examples/barbershop/founder/pricing.md) |
 | `founder-cfo` | #12 | shipped (Wave A) | [`cfo.md`](examples/barbershop/founder/cfo.md) |
 | `founder-plan` | #18 | shipped (Wave A): writes `summary.md`, compiles `business-plan.md` | [`business-plan.md`](examples/barbershop/founder/business-plan.md) |
-| `founder-permits` | #112 | shipped (Wave B): common path, household business; F&B path deferred; `founder-vn install` writes the source ledger `permits/sources.md` from the first release that ships #142; 0.3.0 on PyPI still lacks it | [`permits.md`](examples/barbershop/founder/permits.md) |
+| `founder-permits` | #112 | shipped (Wave B): common path, household business; F&B path deferred; `founder-vn install` writes the source ledger `permits/sources.md` (#142 fixed in 0.3.1; 0.3.0 on PyPI lacked it) | [`permits.md`](examples/barbershop/founder/permits.md) |
 | `founder-ops` | #114 | shipped (Wave B): suppliers, rota, routines, ten-item risk register; no supplier quotes yet | [`ops.md`](examples/barbershop/founder/ops.md) |
 | `founder-marketing` | #115 | shipped (Wave B): positioning, channels, 30-day campaign relative to opening day, hooks, budget shares, numbers to watch; ShopeeFood/GrabFood not applicable to the barbershop | [`marketing.md`](examples/barbershop/founder/marketing.md) |
 | `founder-launch` | #116 | shipped (Wave B): real-world test first (waitlist with deposit at the listed price), D-30 to D-0 countdown, launch-day run sheet, first 30 days, real buyers override the panel; no real-buyer data yet | [`launch.md`](examples/barbershop/founder/launch.md) |
@@ -68,7 +68,7 @@ Golden artefacts are under `examples/barbershop/founder/`.
 
 | Host | State |
 |---|---|
-| Kiro CLI | full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118): clean install from PyPI, ten skills to `business-plan.md`, `plan --check` exit 0; 0.3.0 on PyPI lacks the source ledger on a clean install, so `founder-permits` writes no verified figure there; the installer writes the ledger from the first release that ships #142. Wave A first verified on 0.2.0 (walkthrough 2026-11-25, #19); major-mismatch stop observed on 0.2.0 (#19) and on 0.3.0 (2026-11-27, #118) |
+| Kiro CLI | full pipeline incl. Wave B verified on 0.3.0 (walkthrough 2026-11-26, #118): clean install from PyPI, ten skills to `business-plan.md`, `plan --check` exit 0; on a clean install of 0.3.1 the installer writes the source ledger and `founder-permits` and `founder-cfo` re-run with sourced figures (2026-11-28, #149; #142 fixed). Wave A first verified on 0.2.0 (walkthrough 2026-11-25, #19); major-mismatch stop observed on 0.2.0 (#19) and on 0.3.0 (2026-11-27, #118) |
 | Claude Code | not yet verified |
 | Codex | not yet verified |
 | Gemini / Antigravity CLI | not yet verified |
@@ -113,13 +113,13 @@ số, nên không có số nào do mô hình tự nghĩ ra.
 - **Host hỗ trợ**: Kiro CLI, Claude Code, Codex, Gemini / Antigravity CLI (cần xác nhận khi cài),
   Grok Build, KiroCrew (thêm qua dashboard).
 - **Cách cài**: `npx skills add NHAN-AI-VN/founder-vn` (phát triển); `uvx --from founder-vn founder-vn install --host ...`
-  và `uvx --from founder-vn founder-vn-mcp`. Bản hiện hành trên PyPI là 0.3.0 (đợt B, mười skill),
-  phát hành 26/11/2026 qua tag `v0.3.0`; 0.2.0 là bản PyPI đầu tiên, phát hành 24/11/2026 qua tag
-  `v0.2.0`; 0.1.0 chưa bao giờ được phát hành. Kho mã đang ở 0.3.1; 0.3.1 đang chờ tag `v0.3.1` (#149).
+  và `uvx --from founder-vn founder-vn-mcp`. Bản hiện hành trên PyPI là 0.3.1 (đợt B, mười skill, kèm sổ nguồn `permits/sources.md`),
+  phát hành 27/11/2026 qua tag `v0.3.1`; 0.3.0 phát hành 26/11/2026 qua tag `v0.3.0`; 0.2.0 là bản PyPI
+  đầu tiên, phát hành 24/11/2026 qua tag `v0.2.0`; 0.1.0 chưa bao giờ được phát hành.
 - **Trạng thái**: sáu skill đợt A (`founder-board` #14, `founder-competitors` #13, `founder-consumer`
   #16, `founder-pricing` #17, `founder-cfo` #12, `founder-plan` #18) đã có, kèm sản phẩm mẫu trong
-  `examples/barbershop/founder/`; `founder-permits` (đợt B, #112, đường chung của hộ kinh doanh; ngành F&B chưa làm; bản cài đặt ghi sổ nguồn `permits/sources.md` từ bản phát hành đầu tiên có #142; 0.3.0 trên PyPI vẫn chưa có) đã có,
-  kèm `permits.md` mẫu; `founder-ops` (đợt B, #114) đã có, kèm `ops.md` mẫu (chưa có báo giá nhà cung cấp thật); `founder-marketing` (đợt B, #115) đã có, kèm `marketing.md` mẫu (chiến dịch 30 ngày tính từ ngày khai trương, chưa có ngày lịch); `founder-launch` (đợt B, #116) đã có, kèm `launch.md` mẫu (thử nghiệm thật bằng danh sách chờ có cọc, đếm ngược D-30 đến D-0, chưa có ngày lịch và chưa có số liệu khách thật); `founder-offer` và `founder-brand` chưa bắt đầu (để sau pilot, Q12). Kiro CLI: chạy trọn quy trình gồm đợt B đã xác nhận trên 0.3.0 (walkthrough 26/11/2026, #118), bản 0.3.0 trên PyPI chưa có sổ nguồn khi cài sạch, bản cài đặt ghi sổ này từ bản phát hành đầu tiên có #142; đợt A xác nhận lần đầu trên 0.2.0 (walkthrough 25/11/2026, #19);
+  `examples/barbershop/founder/`; `founder-permits` (đợt B, #112, đường chung của hộ kinh doanh; ngành F&B chưa làm; bản cài đặt ghi sổ nguồn `permits/sources.md` (#142, đã sửa trong 0.3.1; 0.3.0 trên PyPI chưa có)) đã có,
+  kèm `permits.md` mẫu; `founder-ops` (đợt B, #114) đã có, kèm `ops.md` mẫu (chưa có báo giá nhà cung cấp thật); `founder-marketing` (đợt B, #115) đã có, kèm `marketing.md` mẫu (chiến dịch 30 ngày tính từ ngày khai trương, chưa có ngày lịch); `founder-launch` (đợt B, #116) đã có, kèm `launch.md` mẫu (thử nghiệm thật bằng danh sách chờ có cọc, đếm ngược D-30 đến D-0, chưa có ngày lịch và chưa có số liệu khách thật); `founder-offer` và `founder-brand` chưa bắt đầu (để sau pilot, Q12). Kiro CLI: chạy trọn quy trình gồm đợt B đã xác nhận trên 0.3.0 (walkthrough 26/11/2026, #118), cài sạch 0.3.1 có sổ nguồn, `founder-permits` và `founder-cfo` chạy lại với số liệu có nguồn (28/11/2026, #149; #142 đã sửa); đợt A xác nhận lần đầu trên 0.2.0 (walkthrough 25/11/2026, #19);
   mọi host khác chưa xác nhận.
 - **Quy tắc cứng**: mọi khẳng định pháp lý cần link chính thức và ngày kiểm tra. Luật đổi thì mở
   issue "Law changed".
