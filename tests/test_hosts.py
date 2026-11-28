@@ -114,11 +114,21 @@ def test_kiro_page_has_the_clean_install_walkthrough_for_19() -> None:
     assert not re.search(
         r"(?i)before the\s+`?v?[\d.]*`?\s*tag|once the `v0\.2\.0`|after the tag", text
     )
-    # #118 ran on 0.3.0: the page links its record, not the template, and names the known defect.
-    assert "`v0.3.0` (published 2026-11-26) is the current release" in text
+    # #118 ran on 0.3.0: the page links its record and names the defect it found.
     assert "../evidence/issue-118-wave-b-walkthrough.md" in section
     assert "issue-#118" not in text and "pending" not in section
     assert "2026-11-26" in section and "#118" in section and "#142" in section
+    # #149: v0.3.1 (2026-11-27) is the current release; a clean install of it writes the ledger and
+    # the two steps #142 broke were re-run on it (2026-11-28), recorded in the #149 evidence.
+    assert "`v0.3.1` (published 2026-11-27) is the current release" in text
+    assert "`v0.3.0` (published 2026-11-26) is the current release" not in text
+    assert "`v0.3.0` (published 2026-11-26)" in text
+    assert "../evidence/issue-149-release-0-3-1.md" in section
+    assert "re-run on a clean install of 0.3.1 on 2026-11-28" in section and "#149" in section
+    assert "lacked `permits/sources.md` (#142)" in section
+    assert (
+        "From the first release that" not in section and "lacks `permits/sources.md`" not in section
+    )
     # #142 (Q57): the installer writes the ledger; the page no longer presents it as an open defect.
     assert "Known defect #142" not in text
     assert "step 2 (`founder-vn install --host kiro`) writes `permits/sources.md`" in text

@@ -26,7 +26,7 @@ chosen by the bake-off, [docs/bakeoff/README.md](../bakeoff/README.md)). Panel r
 comparable across hosts and across Owners only when every run uses this model; `results.json`
 records the model that answered.
 
-`uvx --from founder-vn founder-vn-mcp` resolves the package from PyPI: `v0.3.0` (published 2026-11-26) is the current release and `v0.2.0` (published 2026-11-24) was the first (see `.github/workflows/release.yml`).
+`uvx --from founder-vn founder-vn-mcp` resolves the package from PyPI: `v0.3.1` (published 2026-11-27) is the current release; `v0.3.0` (published 2026-11-26) came before it and `v0.2.0` (published 2026-11-24) was the first (see `.github/workflows/release.yml`).
 
 ## Installing the skills
 
@@ -44,10 +44,11 @@ and on 2026-11-26 against 0.3.0 with all ten skills (#118,
 [docs/evidence/issue-118-wave-b-walkthrough.md](../evidence/issue-118-wave-b-walkthrough.md)). Each record
 lists the commands, times, friction and the issues filed; step 9 ran on 0.2.0 in the #19 session and on
 0.3.0 on 2026-11-27 (#118 record, in a nested non-interactive session; the stop came in English, #148). Steps 1 to 6 are
-Wave A; step 7 adds the four Wave B skills. The 0.3.0 package on PyPI lacks `permits/sources.md` (#142), so on 0.3.0 the permits checklist (step 7.1)
-carries no verified figure and the CFO step (step 6.4) finds no sourced tax figure. From the first release that
-ships #142, step 2 (`founder-vn install --host kiro`) writes `permits/sources.md` into the project from the
-installed package (`create` when absent, `update` when it differs, `unchanged` when identical).
+Wave A; step 7 adds the four Wave B skills. The 0.3.0 package on PyPI lacked `permits/sources.md` (#142), so on 0.3.0 the permits checklist (step 7.1)
+carried no verified figure and the CFO step (step 6.4) found no sourced tax figure. From 0.3.1 (published 2026-11-27, #149),
+step 2 (`founder-vn install --host kiro`) writes `permits/sources.md` into the project from the
+installed package (`create` when absent, `update` when it differs, `unchanged` when identical); the permits checklist (step 7.1) and the
+CFO step (step 6.4) were re-run on a clean install of 0.3.1 on 2026-11-28 with the golden `idea.md` ([record](../evidence/issue-149-release-0-3-1.md)).
 
 1. Start from an empty folder and open a shell in it:
 
